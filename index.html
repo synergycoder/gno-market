@@ -3,87 +3,195 @@
 <head>
 <meta charset="utf-8">
 <title>Gno.land Observer</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 <!-- See adena-compat.js: works around a real bug in Adena's (and likely other
      wallet extensions') content-script injection on pages with no external
      <script src> tag. Confirmed against the installed extension's own source. -->
 <script src="adena-compat.js"></script>
 <style>
-  :root { color-scheme: light dark; }
+  /* Theme: dark is the default (:root base values); prefers-color-scheme:
+     light flips it automatically UNLESS the user has explicitly toggled
+     (tracked via [data-theme] on <html>, which always wins over the OS
+     preference in both directions). Palette is drawn from the gnome
+     mascot itself (terracotta hat, slate-blue coat) rather than generic
+     tech blue/green — ties the branding together and keeps it visually
+     distinct from gno.land's own site. */
+  :root {
+    color-scheme: dark;
+    --accent: #d97a52;
+    --accent-strong: #e8935f;
+    --accent-2: #6f93c2;
+    --bg: #121214;
+    --bg-elevated: #19191c;
+    --border: rgba(255,255,255,0.12);
+    --border-soft: rgba(255,255,255,0.08);
+    --text: #eae7e2;
+    --text-muted: #9c9791;
+    --badge-bg: rgba(217,122,82,0.16);
+    --badge-text: #eba989;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+      color-scheme: light;
+      --accent: #c25a34; --accent-strong: #a8471f; --accent-2: #4a6fa0;
+      --bg: #faf8f5; --bg-elevated: #ffffff;
+      --border: rgba(30,20,10,0.14); --border-soft: rgba(30,20,10,0.08);
+      --text: #211d19; --text-muted: #6b6560;
+      --badge-bg: rgba(194,90,52,0.12); --badge-text: #a8471f;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --accent: #c25a34; --accent-strong: #a8471f; --accent-2: #4a6fa0;
+    --bg: #faf8f5; --bg-elevated: #ffffff;
+    --border: rgba(30,20,10,0.14); --border-soft: rgba(30,20,10,0.08);
+    --text: #211d19; --text-muted: #6b6560;
+    --badge-bg: rgba(194,90,52,0.12); --badge-text: #a8471f;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --accent: #d97a52; --accent-strong: #e8935f; --accent-2: #6f93c2;
+    --bg: #121214; --bg-elevated: #19191c;
+    --border: rgba(255,255,255,0.12); --border-soft: rgba(255,255,255,0.08);
+    --text: #eae7e2; --text-muted: #9c9791;
+    --badge-bg: rgba(217,122,82,0.16); --badge-text: #eba989;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  * { box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     max-width: 900px;
     margin: 2rem auto;
     padding: 0 1rem;
     line-height: 1.5;
+    background: var(--bg);
+    color: var(--text);
   }
-  h1 { margin-bottom: 0.25rem; }
-  h2 { border-bottom: 1px solid #8883; padding-bottom: 0.5rem; }
+
+  .site-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 0.75rem; }
+  .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
+  .brand h1 { margin: 0; font-size: 1.5rem; }
+  .header-controls { display: flex; align-items: center; gap: 0.5rem; }
+
+  select {
+    background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.4rem 0.6rem; font-family: inherit; font-size: 0.9rem;
+  }
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg-elevated); color: var(--text); cursor: pointer;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn .icon-sun { display: none; }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) .icon-btn .icon-sun { display: inline-block; }
+    :root:not([data-theme]) .icon-btn .icon-moon { display: none; }
+  }
+  :root[data-theme="light"] .icon-btn .icon-sun { display: inline-block; }
+  :root[data-theme="light"] .icon-btn .icon-moon { display: none; }
+
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; font-size: 1.2rem; }
+  h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1rem; }
   .disclaimer {
-    font-size: 0.82rem; color: #888; border-left: 2px solid #8885;
-    padding: 0.4rem 0.7rem; margin: 0.6rem 0 1.2rem;
+    font-size: 0.82rem; color: var(--text-muted); border-left: 2px solid var(--accent);
+    padding: 0.4rem 0.7rem; margin: 0.9rem 0 1rem;
   }
-  h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
-  .sub { color: #888; margin-top: 0; }
-  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-  th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #8883; font-size: 0.95rem; }
-  th { color: #888; font-weight: 600; }
-  a { color: inherit; }
-  .status { color: #888; font-size: 0.9rem; }
+  .sub { color: var(--text-muted); margin: 0.2rem 0 0; }
+  .status { color: var(--text-muted); font-size: 0.9rem; }
+  a { color: var(--accent-2); }
+
+  table {
+    width: 100%; border-collapse: collapse; margin-top: 1rem;
+    background: var(--bg-elevated); border: 1px solid var(--border-soft);
+    border-radius: 8px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border-soft); font-size: 0.95rem; }
+  th { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  tbody tr:last-child td { border-bottom: none; }
+
   .badge {
-    display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem;
-    border-radius: 1rem; background: #8882; margin-right: 0.3rem;
+    display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.55rem;
+    border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
+    margin-right: 0.3rem; font-weight: 600;
   }
   tr.clickable { cursor: pointer; }
-  tr.clickable:hover { background: #8881; }
-  .preview-row td { padding: 0; }
+  tr.clickable:hover { background: var(--border-soft); }
+  .preview-row td { padding: 0; border-bottom: none; }
   .preview {
-    padding: 1rem 1.2rem; background: #8881; border-radius: 6px;
-    margin: 0.5rem 0; font-size: 0.92rem;
+    padding: 1rem 1.2rem; background: var(--border-soft); border-radius: 6px;
+    margin: 0.5rem; font-size: 0.92rem;
   }
   .preview h3, .preview h4, .preview h5 { margin: 0.6rem 0 0.3rem; }
   .preview p { margin: 0.4rem 0; }
   .preview ul { margin: 0.4rem 0; padding-left: 1.2rem; }
-  .preview code { background: #8882; padding: 0.1rem 0.3rem; border-radius: 3px; }
+  .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; }
+  code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
 
   .tabs {
-    display: flex; gap: 0.25rem; margin-top: 1.5rem;
-    border-bottom: 1px solid #8883;
+    display: flex; gap: 0.25rem; margin-top: 1.8rem;
+    border-bottom: 1px solid var(--border);
   }
   .tab {
     background: none; border: none; cursor: pointer; font-family: inherit;
-    font-size: 0.95rem; color: #888; padding: 0.6rem 1rem;
+    font-size: 0.95rem; color: var(--text-muted); padding: 0.6rem 1rem;
     border-bottom: 2px solid transparent; margin-bottom: -1px;
+    border-radius: 6px 6px 0 0;
   }
-  .tab:hover { color: inherit; }
-  .tab.active { color: inherit; border-bottom-color: currentColor; }
+  .tab:hover { color: var(--text); background: var(--border-soft); }
+  .tab.active { color: var(--accent-strong); border-bottom-color: var(--accent); font-weight: 600; }
   .tab-panel { padding-top: 1.5rem; }
 
   .wallet-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
   .wallet-form input {
     flex: 1; min-width: 0; padding: 0.55rem 0.7rem; border-radius: 6px;
-    border: 1px solid #8885; background: transparent; color: inherit;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text);
     font-family: ui-monospace, monospace; font-size: 0.9rem;
   }
+  .wallet-form input::placeholder { color: var(--text-muted); }
   .wallet-form button {
-    padding: 0.55rem 1.2rem; border-radius: 6px; border: 1px solid #8885;
-    background: #8882; color: inherit; cursor: pointer; font-family: inherit;
-    font-size: 0.9rem;
+    padding: 0.55rem 1.2rem; border-radius: 6px; border: 1px solid var(--accent);
+    background: var(--accent); color: #1a1108; cursor: pointer; font-family: inherit;
+    font-size: 0.9rem; font-weight: 600;
   }
+  .wallet-form button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
   .wallet-form button:disabled { opacity: 0.5; cursor: default; }
-  .wallet-form button.btn-secondary { background: none; border-style: dashed; }
+  .wallet-form button.btn-secondary {
+    background: none; color: var(--text); border-style: dashed; border-color: var(--border); font-weight: 400;
+  }
+  .wallet-form button.btn-secondary:hover { background: var(--border-soft); border-color: var(--accent-2); color: var(--text); }
 </style>
 </head>
 <body>
 
-<h1>Gno.land Observer</h1>
+<header class="site-header">
+  <div class="brand">
+    <img src="assets/gnome-logo.png" alt="" class="logo">
+    <h1>Gno.land Observer</h1>
+  </div>
+  <div class="header-controls">
+    <select id="networkSelect"></select>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+      <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+    </button>
+  </div>
+</header>
 <p class="disclaimer">
   This is an independent, community-built tool — not affiliated with, endorsed by, or part of the
   gno.land team or project.
 </p>
-<p class="sub">
-  Live view of gno.land chain activity on
-  <select id="networkSelect"></select>
-</p>
+<p class="sub">Live view of gno.land chain activity.</p>
 <p class="status" id="refreshStatus"></p>
 
 <div class="tabs" role="tablist">
@@ -176,6 +284,34 @@
 </div>
 
 <script>
+// ---------- theme toggle ----------
+
+const THEME_STORAGE_KEY = "gnoObserver:theme";
+
+function applyTheme(theme) {
+  if (theme) document.documentElement.setAttribute("data-theme", theme);
+  else document.documentElement.removeAttribute("data-theme");
+}
+
+function currentRenderedTheme() {
+  const explicit = document.documentElement.getAttribute("data-theme");
+  if (explicit) return explicit;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+try {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (savedTheme === "light" || savedTheme === "dark") applyTheme(savedTheme);
+} catch {
+  // storage unavailable — falls back to prefers-color-scheme via CSS alone
+}
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = currentRenderedTheme() === "light" ? "dark" : "light";
+  applyTheme(next);
+  try { localStorage.setItem(THEME_STORAGE_KEY, next); } catch {}
+});
+
 const NETWORKS = {
   testnet: {
     label: "topaz-1 (testnet)",
