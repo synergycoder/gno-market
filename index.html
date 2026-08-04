@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Gno.land Observer</title>
+<!-- See adena-compat.js: works around a real bug in Adena's (and likely other
+     wallet extensions') content-script injection on pages with no external
+     <script src> tag. Confirmed against the installed extension's own source. -->
+<script src="adena-compat.js"></script>
 <style>
   :root { color-scheme: light dark; }
   body {
