@@ -18,6 +18,10 @@
   }
   h1 { margin-bottom: 0.25rem; }
   h2 { border-bottom: 1px solid #8883; padding-bottom: 0.5rem; }
+  .disclaimer {
+    font-size: 0.82rem; color: #888; border-left: 2px solid #8885;
+    padding: 0.4rem 0.7rem; margin: 0.6rem 0 1.2rem;
+  }
   h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
   .sub { color: #888; margin-top: 0; }
   table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
@@ -72,6 +76,10 @@
 <body>
 
 <h1>Gno.land Observer</h1>
+<p class="disclaimer">
+  This is an independent, community-built tool — not affiliated with, endorsed by, or part of the
+  gno.land team or project.
+</p>
 <p class="sub">
   Live view of gno.land chain activity on
   <select id="networkSelect"></select>
@@ -79,12 +87,26 @@
 <p class="status" id="refreshStatus"></p>
 
 <div class="tabs" role="tablist">
-  <button class="tab active" data-tab="tokens" role="tab">Fungible Tokens</button>
+  <button class="tab active" data-tab="new" role="tab">What's New</button>
+  <button class="tab" data-tab="tokens" role="tab">Fungible Tokens</button>
   <button class="tab" data-tab="nfts" role="tab">NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab">Scan Wallet</button>
 </div>
 
-<div class="tab-panel" id="panel-tokens">
+<div class="tab-panel" id="panel-new">
+  <h2>What's New on Gno.land</h2>
+  <p class="status">Every package/realm deployed via a transaction, most recent first. Genesis-deployed
+    content (seeded at chain launch, not via a transaction — many well-known realms like boards/blog) is
+    invisible to this kind of scan, same limitation as the NFT detection below.</p>
+  <p id="newStatus" class="status">Loading…</p>
+  <table id="newTable" style="display:none">
+    <thead><tr><th>Block</th><th>Kind</th><th>Path</th><th>Deployer</th></tr></thead>
+    <tbody id="newBody"></tbody>
+  </table>
+  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-tokens" hidden>
   <h2>Fungible Tokens (GRC20)</h2>
   <p class="status">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
     tokens are already included, since registration happens in each token's <code>init()</code> regardless
@@ -357,14 +379,62 @@ function nonTestGnoFiles(files) {
   return (files || []).filter(f => f.name.endsWith(".gno") && !f.name.endsWith("_test.gno"));
 }
 
-async function fetchTxScannedRealmFiles(net) {
+// Every deployed-package feature (NFT detection, What's New) reads from this
+// one shared, incrementally-cached fetch. Early versions re-fetched EVERY
+// AddPackage transaction's full file contents on every page load — fine at
+// ~150 packages, but that payload only grows, forever, as the ecosystem
+// grows. Caching "we've already processed up to block height X" and asking
+// the indexer for only what's newer turns an ever-growing full-history
+// fetch into a small delta fetch after the first visit.
+const TX_SCAN_CACHE_PREFIX = "gnoObserver:txScan:v2:";
+const txScanCache = new Map(); // netKey -> { lastHeight, packages: { [path]: {path, blockHeight, creator, files} } }
+
+function loadTxScanCacheFromStorage(netKey) {
+  try {
+    const raw = localStorage.getItem(TX_SCAN_CACHE_PREFIX + netKey);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // storage unavailable or corrupt — fall through to a fresh cache
+  }
+  return { lastHeight: 0, packages: {} };
+}
+
+function saveTxScanCacheToStorage(netKey, cache) {
+  try {
+    localStorage.setItem(TX_SCAN_CACHE_PREFIX + netKey, JSON.stringify(cache));
+  } catch {
+    // quota exceeded or storage disabled — next load just re-fetches more
+  }
+}
+
+const txScanInFlight = new Map(); // netKey -> Promise, so concurrent callers share one fetch
+
+function fetchAllDeployedPackages(net, netKey) {
+  // loadRecentlyDeployed and loadNfts both call this and run concurrently
+  // (loadAll fires them without awaiting each other) — without this, both
+  // would race to read the same stale cache.lastHeight and each kick off
+  // their own full fetch instead of one covering both.
+  if (txScanInFlight.has(netKey)) return txScanInFlight.get(netKey);
+  const promise = fetchAllDeployedPackagesUncached(net, netKey).finally(() => {
+    txScanInFlight.delete(netKey);
+  });
+  txScanInFlight.set(netKey, promise);
+  return promise;
+}
+
+async function fetchAllDeployedPackagesUncached(net, netKey) {
+  if (!txScanCache.has(netKey)) txScanCache.set(netKey, loadTxScanCacheFromStorage(netKey));
+  const cache = txScanCache.get(netKey);
+
   const query = `
     query {
       getTransactions(where: {
         success: { eq: true },
+        block_height: { gt: ${cache.lastHeight} },
         messages: { route: { eq: "vm" }, typeUrl: { eq: "add_package" } }
       }) {
-        messages { value { ... on MsgAddPackage { package { path files { name body } } } } }
+        block_height
+        messages { value { ... on MsgAddPackage { creator package { path files { name body } } } } }
       }
     }`;
   const res = await fetch(net.indexerUrl, {
@@ -375,18 +445,32 @@ async function fetchTxScannedRealmFiles(net) {
   const json = await res.json();
   if (json.errors) throw new Error(json.errors[0].message);
 
-  const txFiles = new Map(); // realmPath -> files[]
-  let scannedCount = 0;
+  let newCount = 0;
   for (const tx of json.data.getTransactions || []) {
     for (const msg of tx.messages) {
-      const pkg = msg.value && msg.value.package;
-      // only realms (/r/) can hold NFT state; /p/ packages are stateless libraries.
-      if (!pkg || !pkg.path.startsWith("gno.land/r/")) continue;
-      scannedCount++;
-      txFiles.set(pkg.path, nonTestGnoFiles(pkg.files));
+      const v = msg.value;
+      const pkg = v && v.package;
+      if (!pkg) continue;
+      newCount++;
+      const isRealm = pkg.path.startsWith("gno.land/r/");
+      // Persisting full file bodies per package here (~5MB+ at just 231
+      // packages) blew straight through localStorage's quota, silently —
+      // setItem throws, our catch swallows it, and the cache just never
+      // saved. Store only the derived standard (a few bytes), not the
+      // source (only realms can hold NFT state, so /p/ packages never
+      // need this check at all).
+      cache.packages[pkg.path] = {
+        path: pkg.path,
+        blockHeight: tx.block_height,
+        creator: v.creator,
+        standard: isRealm ? detectStandard(nonTestGnoFiles(pkg.files)) : null,
+      };
+      if (tx.block_height > cache.lastHeight) cache.lastHeight = tx.block_height;
     }
   }
-  return { txFiles, scannedCount };
+  if (newCount > 0) saveTxScanCacheToStorage(netKey, cache);
+
+  return { packages: Object.values(cache.packages), newCount };
 }
 
 async function fetchGenesisRealmFiles(net, netKey, paths) {
@@ -426,19 +510,20 @@ async function loadNfts(net, netKey) {
     ? "Loading… (using cached genesis-realm data from your last visit)"
     : "Loading… (this includes a one-time genesis-realm scan and can take up to a minute — cached in your browser after that)";
   try {
-    const [allRealmsRaw, { txFiles, scannedCount }] = await Promise.all([
+    const [allRealmsRaw, { packages, newCount }] = await Promise.all([
       abciQuery(net, "vm/qpaths", "gno.land/r/"),
-      fetchTxScannedRealmFiles(net),
+      fetchAllDeployedPackages(net, netKey),
     ]);
     const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
+    const scannedCount = newCount; // kept for the status line below; now "new since last visit", not total
 
-    const genesisOnly = allRealms.filter(p => !txFiles.has(p));
+    const txStandards = new Map(packages.filter(p => p.path.startsWith("gno.land/r/")).map(p => [p.path, p.standard]));
+    const genesisOnly = allRealms.filter(p => !txStandards.has(p));
     const genesisCache = await fetchGenesisRealmFiles(net, netKey, genesisOnly);
 
     const seen = new Map(); // realmPath -> standard
     for (const path of allRealms) {
-      const files = txFiles.get(path) || genesisCache.get(path) || [];
-      const std = detectStandard(files);
+      const std = txStandards.has(path) ? txStandards.get(path) : detectStandard(genesisCache.get(path) || []);
       if (std) seen.set(path, std);
     }
 
@@ -456,11 +541,52 @@ async function loadNfts(net, netKey) {
     document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
     statusEl.textContent =
       `${rows.length} realm${rows.length === 1 ? "" : "s"} detected — scanned ${allRealms.length} total ` +
-      `(${scannedCount} from transaction history, ${genesisOnly.length} from genesis).`;
+      `(${txStandards.size} from transaction history${scannedCount > 0 ? `, ${scannedCount} new this visit` : ""}, ` +
+      `${genesisOnly.length} from genesis).`;
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
   } finally {
     nftsInFlight = false;
+  }
+}
+
+// ---------- What's New: every deployed package/realm, most recent first ----------
+
+const NEW_FEED_DISPLAY_LIMIT = 300; // cap DOM rows rendered; the underlying cache keeps everything
+
+let newFeedInFlight = false;
+async function loadRecentlyDeployed(net, netKey) {
+  if (newFeedInFlight) return;
+  newFeedInFlight = true;
+  const statusEl = document.getElementById("newStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const { packages } = await fetchAllDeployedPackages(net, netKey);
+    const rows = packages.slice().sort((a, b) => b.blockHeight - a.blockHeight);
+    const shown = rows.slice(0, NEW_FEED_DISPLAY_LIMIT);
+
+    const tbody = document.getElementById("newBody");
+    tbody.innerHTML = shown.map(p => {
+      const isRealm = p.path.startsWith("gno.land/r/");
+      return `
+        <tr class="${isRealm ? "clickable" : ""}" ${isRealm ? `data-path="${escapeHtml(p.path)}"` : ""}>
+          <td>${p.blockHeight}</td>
+          <td><span class="badge">${isRealm ? "Realm" : "Package"}</span></td>
+          <td>${escapeHtml(p.path)}</td>
+          <td>${escapeHtml(p.creator || "—")}</td>
+        </tr>
+      `;
+    }).join("");
+
+    document.getElementById("newTable").style.display = rows.length ? "table" : "none";
+    statusEl.textContent = rows.length
+      ? `${rows.length} package${rows.length === 1 ? "" : "s"} deployed via transaction` +
+        (rows.length > NEW_FEED_DISPLAY_LIMIT ? ` — showing the most recent ${NEW_FEED_DISPLAY_LIMIT}` : "") + "."
+      : "No package deployments found in transaction history yet.";
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  } finally {
+    newFeedInFlight = false;
   }
 }
 
@@ -734,6 +860,10 @@ document.getElementById("nftBody").addEventListener("click", (e) => {
   const row = e.target.closest("tr.clickable");
   if (row) togglePreview(row);
 });
+document.getElementById("newBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
 
 // ---------- safe, minimal markdown -> HTML for untrusted on-chain content ----------
 // Realm Render() output is authored by whoever deployed that realm — it is
@@ -831,6 +961,7 @@ async function showSnapshotHeight(net) {
 
 function loadAll(key) {
   const net = NETWORKS[key];
+  loadRecentlyDeployed(net, key);
   loadTokens(net);
   loadNfts(net, key);
   showSnapshotHeight(net);
