@@ -1,0 +1,38 @@
+name: Update chain data cache
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run cache build
+        run: node scripts/build-cache.mjs
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "anonymous"
+          git config user.email "anonymous@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No data changes, nothing to commit."
+          else
+            git commit -m "Update chain data cache [skip ci]"
+            git push
+          fi

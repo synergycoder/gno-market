@@ -446,15 +446,63 @@ async function mapLimit(items, limit, fn) {
   return results;
 }
 
+// ---------- shared cache: pre-computed by scripts/build-cache.mjs on a
+// schedule (see .github/workflows/update-data.yml) instead of every visitor
+// re-running the expensive genesis/tx scans themselves. Fetched once per
+// network per page load; every loader below tries this first and only
+// falls back to the original live-scan path if it's unavailable (e.g. the
+// scheduled job hasn't run yet, is down, or this is being served somewhere
+// without the data/ directory published alongside it) — the site should
+// degrade gracefully, not depend entirely on the Action staying healthy.
+
+const cachedDataPromises = new Map(); // netKey -> Promise<data|null>
+
+function getCachedData(netKey) {
+  if (!cachedDataPromises.has(netKey)) {
+    cachedDataPromises.set(netKey, fetch(`data/${netKey}.json`, { cache: "no-cache" })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null));
+  }
+  return cachedDataPromises.get(netKey);
+}
+
+function cacheAgeNote(generatedAt) {
+  const mins = Math.round((Date.now() - new Date(generatedAt).getTime()) / 60000);
+  const when = mins < 1 ? "just now" : mins === 1 ? "1 minute ago" : `${mins} minutes ago`;
+  return `Precomputed ${when} (updates every 30 min).`;
+}
+
 // ---------- Fungible tokens: read grc20reg's Render() via RPC vm/qrender ----------
 
+function renderTokenRows(rows) {
+  currentTokens = rows;
+  const tbody = document.getElementById("tokenBody");
+  tbody.innerHTML = rows.map(r => `
+    <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td>${escapeHtml(r.name)}</td>
+      <td>${escapeHtml(r.symbol)}</td>
+      <td>${escapeHtml(r.path)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("tokenTable").style.display = rows.length ? "table" : "none";
+}
+
 let tokensInFlight = false;
-async function loadTokens(net) {
+async function loadTokens(net, netKey) {
   if (tokensInFlight) return;
   tokensInFlight = true;
   const statusEl = document.getElementById("tokenStatus");
   statusEl.textContent = "Loading…";
   try {
+    const cached = await getCachedData(netKey);
+    if (cached && cached.tokens) {
+      renderTokenRows(cached.tokens);
+      statusEl.textContent =
+        `${cached.tokens.length} token${cached.tokens.length === 1 ? "" : "s"} registered. ` +
+        cacheAgeNote(cached.generatedAt);
+      return;
+    }
+
     const markdown = (await abciQuery(net, "vm/qrender", "gno.land/r/demo/defi/grc20reg:")) || "";
 
     // grc20reg renders one line per token. The trailing ".SYMBOL" on the
@@ -467,18 +515,7 @@ async function loadTokens(net) {
     while ((m = lineRe.exec(markdown)) !== null) {
       rows.push({ name: m[1], path: m[2], symbol: m[3] || "—" });
     }
-    currentTokens = rows;
-
-    const tbody = document.getElementById("tokenBody");
-    tbody.innerHTML = rows.map(r => `
-      <tr class="clickable" data-path="${escapeHtml(r.path)}">
-        <td>${escapeHtml(r.name)}</td>
-        <td>${escapeHtml(r.symbol)}</td>
-        <td>${escapeHtml(r.path)}</td>
-      </tr>
-    `).join("");
-
-    document.getElementById("tokenTable").style.display = rows.length ? "table" : "none";
+    renderTokenRows(rows);
     statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.`;
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
@@ -637,15 +674,38 @@ async function fetchGenesisRealmFiles(net, netKey, paths) {
 }
 
 let nftsInFlight = false;
+function renderNftRows(rows) {
+  // rows: [{path, standard}]
+  currentNfts = rows.map(r => ({ path: r.path, std: r.standard }));
+  const tbody = document.getElementById("nftBody");
+  tbody.innerHTML = rows.map(r => `
+    <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td>${escapeHtml(r.path)}</td>
+      <td><span class="badge">${r.standard}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
+}
+
 async function loadNfts(net, netKey) {
   if (nftsInFlight) return;
   nftsInFlight = true;
   const statusEl = document.getElementById("nftStatus");
-  const cachedCount = (genesisFileCache.get(netKey) || loadGenesisCacheFromStorage(netKey)).size;
-  statusEl.textContent = cachedCount > 0
-    ? "Loading… (using cached genesis-realm data from your last visit)"
-    : "Loading… (this includes a one-time genesis-realm scan and can take up to a minute — cached in your browser after that)";
   try {
+    const cached = await getCachedData(netKey);
+    if (cached && cached.nftRealms) {
+      renderNftRows(cached.nftRealms);
+      statusEl.textContent =
+        `${cached.nftRealms.length} realm${cached.nftRealms.length === 1 ? "" : "s"} detected — ` +
+        `scanned ${cached.stats.totalRealmsScanned} total. ` + cacheAgeNote(cached.generatedAt);
+      return;
+    }
+
+    const cachedCount = (genesisFileCache.get(netKey) || loadGenesisCacheFromStorage(netKey)).size;
+    statusEl.textContent = cachedCount > 0
+      ? "Loading… (using cached genesis-realm data from your last visit)"
+      : "Loading… (this includes a one-time genesis-realm scan and can take up to a minute — cached in your browser after that)";
+
     const [allRealmsRaw, { packages, newCount }] = await Promise.all([
       abciQuery(net, "vm/qpaths", "gno.land/r/"),
       fetchAllDeployedPackages(net, netKey),
@@ -663,18 +723,8 @@ async function loadNfts(net, netKey) {
       if (std) seen.set(path, std);
     }
 
-    const rows = [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-    currentNfts = rows.map(([path, std]) => ({ path, std }));
-
-    const tbody = document.getElementById("nftBody");
-    tbody.innerHTML = rows.map(([path, label]) => `
-      <tr class="clickable" data-path="${escapeHtml(path)}">
-        <td>${escapeHtml(path)}</td>
-        <td><span class="badge">${label}</span></td>
-      </tr>
-    `).join("");
-
-    document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
+    const rows = [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([path, standard]) => ({ path, standard }));
+    renderNftRows(rows);
     statusEl.textContent =
       `${rows.length} realm${rows.length === 1 ? "" : "s"} detected — scanned ${allRealms.length} total ` +
       `(${txStandards.size} from transaction history${scannedCount > 0 ? `, ${scannedCount} new this visit` : ""}, ` +
@@ -690,6 +740,25 @@ async function loadNfts(net, netKey) {
 
 const NEW_FEED_DISPLAY_LIMIT = 300; // cap DOM rows rendered; the underlying cache keeps everything
 
+function renderNewFeedRows(rows) {
+  // rows: [{path, blockHeight, creator, kind}], newest first
+  const shown = rows.slice(0, NEW_FEED_DISPLAY_LIMIT);
+  const tbody = document.getElementById("newBody");
+  tbody.innerHTML = shown.map(p => {
+    const isRealm = p.kind === "Realm";
+    return `
+      <tr class="${isRealm ? "clickable" : ""}" ${isRealm ? `data-path="${escapeHtml(p.path)}"` : ""}>
+        <td>${p.blockHeight}</td>
+        <td><span class="badge">${p.kind}</span></td>
+        <td>${escapeHtml(p.path)}</td>
+        <td>${escapeHtml(p.creator || "—")}</td>
+      </tr>
+    `;
+  }).join("");
+  document.getElementById("newTable").style.display = rows.length ? "table" : "none";
+  return shown.length;
+}
+
 let newFeedInFlight = false;
 async function loadRecentlyDeployed(net, netKey) {
   if (newFeedInFlight) return;
@@ -697,24 +766,23 @@ async function loadRecentlyDeployed(net, netKey) {
   const statusEl = document.getElementById("newStatus");
   statusEl.textContent = "Loading…";
   try {
+    const cached = await getCachedData(netKey);
+    if (cached && cached.recentDeployed) {
+      const rows = cached.recentDeployed;
+      renderNewFeedRows(rows);
+      statusEl.textContent = rows.length
+        ? `${rows.length} package${rows.length === 1 ? "" : "s"} deployed via transaction` +
+          (rows.length > NEW_FEED_DISPLAY_LIMIT ? ` — showing the most recent ${NEW_FEED_DISPLAY_LIMIT}` : "") +
+          ". " + cacheAgeNote(cached.generatedAt)
+        : "No package deployments found in transaction history yet.";
+      return;
+    }
+
     const { packages } = await fetchAllDeployedPackages(net, netKey);
-    const rows = packages.slice().sort((a, b) => b.blockHeight - a.blockHeight);
-    const shown = rows.slice(0, NEW_FEED_DISPLAY_LIMIT);
-
-    const tbody = document.getElementById("newBody");
-    tbody.innerHTML = shown.map(p => {
-      const isRealm = p.path.startsWith("gno.land/r/");
-      return `
-        <tr class="${isRealm ? "clickable" : ""}" ${isRealm ? `data-path="${escapeHtml(p.path)}"` : ""}>
-          <td>${p.blockHeight}</td>
-          <td><span class="badge">${isRealm ? "Realm" : "Package"}</span></td>
-          <td>${escapeHtml(p.path)}</td>
-          <td>${escapeHtml(p.creator || "—")}</td>
-        </tr>
-      `;
-    }).join("");
-
-    document.getElementById("newTable").style.display = rows.length ? "table" : "none";
+    const rows = packages.slice()
+      .sort((a, b) => b.blockHeight - a.blockHeight)
+      .map(p => ({ ...p, kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package" }));
+    renderNewFeedRows(rows);
     statusEl.textContent = rows.length
       ? `${rows.length} package${rows.length === 1 ? "" : "s"} deployed via transaction` +
         (rows.length > NEW_FEED_DISPLAY_LIMIT ? ` — showing the most recent ${NEW_FEED_DISPLAY_LIMIT}` : "") + "."
@@ -1098,7 +1166,7 @@ async function showSnapshotHeight(net) {
 function loadAll(key) {
   const net = NETWORKS[key];
   loadRecentlyDeployed(net, key);
-  loadTokens(net);
+  loadTokens(net, key);
   loadNfts(net, key);
   showSnapshotHeight(net);
 }
