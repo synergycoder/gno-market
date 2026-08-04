@@ -26,6 +26,12 @@ jobs:
         run: node scripts/build-cache.mjs
 
       - name: Commit and push if changed
+        # Runs even if the build step above failed (e.g. one network's
+        # indexer query hung) — that network's data just doesn't update
+        # this cycle, but the other network's already-computed, already-
+        # written file still gets committed rather than being discarded.
+        # The job as a whole still reports failed, for visibility.
+        if: always()
         run: |
           git config user.name "anonymous"
           git config user.email "anonymous@users.noreply.github.com"

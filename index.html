@@ -118,6 +118,10 @@
   }
   th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border-soft); font-size: 0.95rem; }
   th { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+  th.sortable:hover { color: var(--text); }
+  th.sortable .sort-arrow { opacity: 0.5; font-size: 0.75em; margin-left: 0.2em; }
+  th.sortable.sort-active .sort-arrow { opacity: 1; color: var(--accent); }
   tbody tr:last-child td { border-bottom: none; }
 
   .badge {
@@ -208,7 +212,13 @@
     invisible to this kind of scan, same limitation as the NFT detection below.</p>
   <p id="newStatus" class="status">Loading…</p>
   <table id="newTable" style="display:none">
-    <thead><tr><th>Block</th><th>Kind</th><th>Path</th><th>Deployer</th></tr></thead>
+    <thead><tr>
+      <th class="sortable" data-sort="blockHeight">Block</th>
+      <th class="sortable" data-sort="blockTime">Date</th>
+      <th class="sortable" data-sort="kind">Kind</th>
+      <th>Path</th>
+      <th class="sortable" data-sort="creator">Deployer</th>
+    </tr></thead>
     <tbody id="newBody"></tbody>
   </table>
   <p class="status">Click any realm row to preview its on-chain Render() output.</p>
@@ -372,10 +382,32 @@ function saveGenesisCacheToStorage(netKey, cache) {
   }
 }
 
+function clearAllTabData() {
+  // Switching networks without this left the *previous* network's rows
+  // visible (sometimes permanently, if the new network's fetch then
+  // failed) — data from one chain silently displayed as if it were the
+  // other's. Every table/status gets reset to a clean "Loading…" state
+  // before any new fetch starts, consistently across every tab.
+  currentTokens = [];
+  currentNfts = [];
+  collapsePreview();
+
+  for (const id of ["tokenTable", "nftTable", "newTable"]) {
+    document.getElementById(id).style.display = "none";
+  }
+  for (const id of ["tokenStatus", "nftStatus", "newStatus"]) {
+    document.getElementById(id).textContent = "Loading…";
+  }
+  for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
+    document.getElementById(id).style.display = "none";
+  }
+  document.getElementById("walletStatus").textContent = "";
+}
+
 select.addEventListener("change", () => {
   currentKey = select.value;
   try { localStorage.setItem(NETWORK_STORAGE_KEY, currentKey); } catch {}
-  collapsePreview();
+  clearAllTabData();
   loadAll(currentKey);
 });
 
@@ -740,8 +772,31 @@ async function loadNfts(net, netKey) {
 
 const NEW_FEED_DISPLAY_LIMIT = 300; // cap DOM rows rendered; the underlying cache keeps everything
 
-function renderNewFeedRows(rows) {
-  // rows: [{path, blockHeight, creator, kind}], newest first
+let newFeedRows = []; // the full dataset from the last successful load, unsorted-by-user (source order)
+let newFeedSort = { key: "blockHeight", dir: -1 }; // -1 = descending, 1 = ascending
+
+function formatDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d)) return "—";
+  const display = d.toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+  return `<span title="${escapeHtml(d.toISOString())}">${escapeHtml(display)}</span>`;
+}
+
+function sortedNewFeedRows() {
+  const { key, dir } = newFeedSort;
+  return newFeedRows.slice().sort((a, b) => {
+    let av = a[key], bv = b[key];
+    if (key === "blockTime") { av = av ? Date.parse(av) : 0; bv = bv ? Date.parse(bv) : 0; }
+    if (typeof av === "string") return dir * av.localeCompare(bv);
+    return dir * ((av ?? 0) - (bv ?? 0));
+  });
+}
+
+function renderNewFeedRows() {
+  const rows = sortedNewFeedRows();
   const shown = rows.slice(0, NEW_FEED_DISPLAY_LIMIT);
   const tbody = document.getElementById("newBody");
   tbody.innerHTML = shown.map(p => {
@@ -749,15 +804,42 @@ function renderNewFeedRows(rows) {
     return `
       <tr class="${isRealm ? "clickable" : ""}" ${isRealm ? `data-path="${escapeHtml(p.path)}"` : ""}>
         <td>${p.blockHeight}</td>
+        <td>${formatDate(p.blockTime)}</td>
         <td><span class="badge">${p.kind}</span></td>
-        <td>${escapeHtml(p.path)}</td>
-        <td>${escapeHtml(p.creator || "—")}</td>
+        <td>${truncateMiddle(p.path)}</td>
+        <td>${p.creator ? truncateMiddle(p.creator) : "—"}</td>
       </tr>
     `;
   }).join("");
   document.getElementById("newTable").style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll("#newTable th.sortable").forEach(th => {
+    const active = th.dataset.sort === newFeedSort.key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (newFeedSort.dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+
   return shown.length;
 }
+
+document.querySelectorAll("#newTable th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if (newFeedSort.key === key) {
+      newFeedSort.dir *= -1;
+    } else {
+      // numeric/date columns feel right defaulting to "biggest/most-recent
+      // first"; text columns feel right defaulting to A→Z.
+      newFeedSort = { key, dir: (key === "blockHeight" || key === "blockTime") ? -1 : 1 };
+    }
+    renderNewFeedRows();
+  });
+});
 
 let newFeedInFlight = false;
 async function loadRecentlyDeployed(net, netKey) {
@@ -768,24 +850,22 @@ async function loadRecentlyDeployed(net, netKey) {
   try {
     const cached = await getCachedData(netKey);
     if (cached && cached.recentDeployed) {
-      const rows = cached.recentDeployed;
-      renderNewFeedRows(rows);
-      statusEl.textContent = rows.length
-        ? `${rows.length} package${rows.length === 1 ? "" : "s"} deployed via transaction` +
-          (rows.length > NEW_FEED_DISPLAY_LIMIT ? ` — showing the most recent ${NEW_FEED_DISPLAY_LIMIT}` : "") +
+      newFeedRows = cached.recentDeployed;
+      const shownCount = renderNewFeedRows();
+      statusEl.textContent = newFeedRows.length
+        ? `${newFeedRows.length} package${newFeedRows.length === 1 ? "" : "s"} deployed via transaction` +
+          (newFeedRows.length > shownCount ? ` — showing the most recent ${shownCount}` : "") +
           ". " + cacheAgeNote(cached.generatedAt)
         : "No package deployments found in transaction history yet.";
       return;
     }
 
     const { packages } = await fetchAllDeployedPackages(net, netKey);
-    const rows = packages.slice()
-      .sort((a, b) => b.blockHeight - a.blockHeight)
-      .map(p => ({ ...p, kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package" }));
-    renderNewFeedRows(rows);
-    statusEl.textContent = rows.length
-      ? `${rows.length} package${rows.length === 1 ? "" : "s"} deployed via transaction` +
-        (rows.length > NEW_FEED_DISPLAY_LIMIT ? ` — showing the most recent ${NEW_FEED_DISPLAY_LIMIT}` : "") + "."
+    newFeedRows = packages.map(p => ({ ...p, kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package" }));
+    const shownCount = renderNewFeedRows();
+    statusEl.textContent = newFeedRows.length
+      ? `${newFeedRows.length} package${newFeedRows.length === 1 ? "" : "s"} deployed via transaction` +
+        (newFeedRows.length > shownCount ? ` — showing the most recent ${shownCount}` : "") + "."
       : "No package deployments found in transaction history yet.";
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
@@ -1078,6 +1158,16 @@ document.getElementById("newBody").addEventListener("click", (e) => {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// Long realm paths / bech32 addresses were forcing the What's New table
+// wider than the page, pushing the whole centered layout visibly off to
+// one side. Truncate to "start…end" and put the full value in a native
+// title attribute — shows on hover, no custom tooltip JS needed.
+function truncateMiddle(str, keep = 14) {
+  const s = String(str || "");
+  if (s.length <= keep * 2 + 1) return escapeHtml(s);
+  return `<span title="${escapeHtml(s)}">${escapeHtml(s.slice(0, keep))}…${escapeHtml(s.slice(-keep))}</span>`;
 }
 
 function safeUrl(url) {

@@ -57,6 +57,32 @@ async function abciQuery(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
   return raw ? Buffer.from(raw, "base64").toString("utf-8") : "";
 }
 
+// Same timeout protection as abciQuery, for GraphQL calls. Necessary, not
+// paranoid: this exact indexer has been directly observed hanging (never
+// responding, no error) during this project's development — a script that
+// runs unattended in CI cannot afford an unbounded await on that.
+async function graphqlQuery(indexerUrl, query, timeoutMs = 30000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(indexerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error(`GraphQL query timed out after ${timeoutMs / 1000}s`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+  const json = await res.json();
+  if (json.errors) throw new Error(json.errors[0].message);
+  return json.data;
+}
+
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
   let i = 0;
@@ -102,6 +128,32 @@ function nonTestGnoFiles(files) {
   return (files || []).filter(f => f.name.endsWith(".gno") && !f.name.endsWith("_test.gno"));
 }
 
+// ---------- block times ----------
+// Originally one batched query per chunk via the `_or` combinator (no
+// "height in [...]" filter exists on this schema). That worked fine
+// against testnet's indexer even with 150 conditions, but hung
+// indefinitely against betanet's — confirmed by hand with curl: a single
+// `{height:{eq:N}}` query resolves in well under a second, the identical
+// query wrapped in `_or:[...]` never returns at all. A real difference
+// between the two indexer deployments' query-planning, not a fluke.
+// Individual queries are slower in aggregate but the only approach proven
+// to actually work on both — concurrency-limited to keep it reasonable.
+
+async function fetchBlockTimes(net, heights) {
+  const result = new Map();
+  await mapLimit(heights, 8, async (h) => {
+    try {
+      const data = await graphqlQuery(net.indexerUrl, `query { getBlocks(where: { height: { eq: ${h} } }) { height time } }`);
+      const b = (data.getBlocks || [])[0];
+      if (b) result.set(b.height, b.time);
+    } catch {
+      // leave this height unresolved rather than failing the whole run —
+      // the client just won't show a date for that one row.
+    }
+  });
+  return result;
+}
+
 // ---------- deployed packages via transaction history (incremental) ----------
 
 async function fetchDeployedPackages(net, prevState) {
@@ -117,18 +169,12 @@ async function fetchDeployedPackages(net, prevState) {
         messages { value { ... on MsgAddPackage { creator package { path files { name body } } } } }
       }
     }`;
-  const res = await fetch(net.indexerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
+  const data = await graphqlQuery(net.indexerUrl, query, 60000); // can return a lot of file content on first run
 
   const packages = { ...(prevState?.txPackages || {}) };
   let newHeight = lastHeight;
   let newCount = 0;
-  for (const tx of json.data.getTransactions || []) {
+  for (const tx of data.getTransactions || []) {
     for (const msg of tx.messages) {
       const v = msg.value;
       const pkg = v && v.package;
@@ -144,6 +190,27 @@ async function fetchDeployedPackages(net, prevState) {
       if (tx.block_height > newHeight) newHeight = tx.block_height;
     }
   }
+
+  // Transaction has no timestamp field on this indexer — only Block does —
+  // so resolving "when was this deployed" needs a second query joined by
+  // height. Resolves for any package still missing it, not just ones from
+  // this run's delta: the first run after this field was added needs to
+  // backfill every pre-existing entry once; every run after that, only
+  // genuinely new packages lack it. Stored on the package entry itself, so
+  // it persists through the same incremental-cache mechanism as everything
+  // else and is never re-fetched once resolved.
+  const heightsNeedingTime = [...new Set(
+    Object.values(packages).filter(p => !p.blockTime).map(p => p.blockHeight)
+  )];
+  if (heightsNeedingTime.length > 0) {
+    const blockTimes = await fetchBlockTimes(net, heightsNeedingTime);
+    for (const pkg of Object.values(packages)) {
+      if (!pkg.blockTime && blockTimes.has(pkg.blockHeight)) {
+        pkg.blockTime = blockTimes.get(pkg.blockHeight);
+      }
+    }
+  }
+
   return { packages, lastHeight: newHeight, newCount };
 }
 
@@ -211,6 +278,7 @@ async function buildNetwork(netKey, net) {
     .map(p => ({
       path: p.path,
       blockHeight: p.blockHeight,
+      blockTime: p.blockTime || null,
       creator: p.creator,
       kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package",
     }))
@@ -240,12 +308,23 @@ async function buildNetwork(netKey, net) {
 }
 
 async function main() {
+  // One network's failure (this indexer has genuinely hung mid-query
+  // before, not hypothetically) must not discard the other network's
+  // successful, already-computed update — each is isolated, and whatever
+  // succeeds still gets written and committed. The run is only reported
+  // as failed (non-zero exit, visible in the Actions UI) after everything
+  // that *could* succeed has been given the chance to.
+  let anyFailed = false;
   for (const [netKey, net] of Object.entries(NETWORKS)) {
-    await buildNetwork(netKey, net);
+    try {
+      await buildNetwork(netKey, net);
+    } catch (err) {
+      anyFailed = true;
+      console.error(`\n=== ${netKey} FAILED ===`);
+      console.error(err);
+    }
   }
+  if (anyFailed) process.exit(1);
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+main();
