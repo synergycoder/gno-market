@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gno.land Observer</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    line-height: 1.5;
+  }
+  h1 { margin-bottom: 0.25rem; }
+  h2 { border-bottom: 1px solid #8883; padding-bottom: 0.5rem; }
+  h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  .sub { color: #888; margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #8883; font-size: 0.95rem; }
+  th { color: #888; font-weight: 600; }
+  a { color: inherit; }
+  .status { color: #888; font-size: 0.9rem; }
+  .badge {
+    display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem;
+    border-radius: 1rem; background: #8882; margin-right: 0.3rem;
+  }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: #8881; }
+  .preview-row td { padding: 0; }
+  .preview {
+    padding: 1rem 1.2rem; background: #8881; border-radius: 6px;
+    margin: 0.5rem 0; font-size: 0.92rem;
+  }
+  .preview h3, .preview h4, .preview h5 { margin: 0.6rem 0 0.3rem; }
+  .preview p { margin: 0.4rem 0; }
+  .preview ul { margin: 0.4rem 0; padding-left: 1.2rem; }
+  .preview code { background: #8882; padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+  .tabs {
+    display: flex; gap: 0.25rem; margin-top: 1.5rem;
+    border-bottom: 1px solid #8883;
+  }
+  .tab {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    font-size: 0.95rem; color: #888; padding: 0.6rem 1rem;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab:hover { color: inherit; }
+  .tab.active { color: inherit; border-bottom-color: currentColor; }
+  .tab-panel { padding-top: 1.5rem; }
+
+  .wallet-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
+  .wallet-form input {
+    flex: 1; min-width: 0; padding: 0.55rem 0.7rem; border-radius: 6px;
+    border: 1px solid #8885; background: transparent; color: inherit;
+    font-family: ui-monospace, monospace; font-size: 0.9rem;
+  }
+  .wallet-form button {
+    padding: 0.55rem 1.2rem; border-radius: 6px; border: 1px solid #8885;
+    background: #8882; color: inherit; cursor: pointer; font-family: inherit;
+    font-size: 0.9rem;
+  }
+  .wallet-form button:disabled { opacity: 0.5; cursor: default; }
+  .wallet-form button.btn-secondary { background: none; border-style: dashed; }
+</style>
+</head>
+<body>
+
+<h1>Gno.land Observer</h1>
+<p class="sub">
+  Live view of gno.land chain activity on
+  <select id="networkSelect"></select>
+</p>
+<p class="status" id="refreshStatus"></p>
+
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="tokens" role="tab">Fungible Tokens</button>
+  <button class="tab" data-tab="nfts" role="tab">NFT Collections</button>
+  <button class="tab" data-tab="wallet" role="tab">Scan Wallet</button>
+</div>
+
+<div class="tab-panel" id="panel-tokens">
+  <h2>Fungible Tokens (GRC20)</h2>
+  <p class="status">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
+    tokens are already included, since registration happens in each token's <code>init()</code> regardless
+    of how it was deployed.</p>
+  <p id="tokenStatus" class="status">Loading…</p>
+  <table id="tokenTable" style="display:none">
+    <thead><tr><th>Name</th><th>Symbol</th><th>Realm</th></tr></thead>
+    <tbody id="tokenBody"></tbody>
+  </table>
+  <p class="status">Click any row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-nfts" hidden>
+  <h2>NFT Collections (detected)</h2>
+  <p class="status">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
+    library AND defines a matching function (Mint/OwnerOf/TokenURI/...). No central registry exists for
+    NFTs, so this is best-effort detection, not a guarantee — a realm that merely references someone
+    else's collection (a marketplace, a staking contract) can still slip through if it redeclares a
+    matching function name. Genesis-deployed realms are scanned too, cached in your browser after the
+    first visit.</p>
+  <p id="nftStatus" class="status">Loading…</p>
+  <table id="nftTable" style="display:none">
+    <thead><tr><th>Package</th><th>Standard</th></tr></thead>
+    <tbody id="nftBody"></tbody>
+  </table>
+  <p class="status">Click any row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-wallet" hidden>
+  <h2>Scan Wallet</h2>
+  <p class="status">Checks every fungible token and detected NFT collection from the other two tabs for a
+    balance held by the address below (read-only — no keys, no signing). Coverage is limited to whatever
+    those tabs found, so their caveats apply here too. Balances shown are raw on-chain units — token
+    decimals aren't fetched, so don't read these as human-scale amounts without checking each token's
+    own decimals.</p>
+  <div class="wallet-form">
+    <input type="text" id="walletInput" placeholder="g1... wallet address" autocomplete="off" spellcheck="false">
+    <button id="walletScanBtn">Scan</button>
+    <button id="adenaConnectBtn" class="btn-secondary">Connect Adena</button>
+  </div>
+  <p id="adenaStatus" class="status"></p>
+  <p id="walletStatus" class="status"></p>
+
+  <div id="walletTokenSection" style="display:none">
+    <h3>Fungible token holdings</h3>
+    <table id="walletTokenTable">
+      <thead><tr><th>Name</th><th>Symbol</th><th>Balance</th><th>Realm</th></tr></thead>
+      <tbody id="walletTokenBody"></tbody>
+    </table>
+  </div>
+
+  <div id="walletNftSection" style="display:none">
+    <h3>NFT holdings</h3>
+    <table id="walletNftTable">
+      <thead><tr><th>Collection</th><th>Standard</th><th>Count</th></tr></thead>
+      <tbody id="walletNftBody"></tbody>
+    </table>
+  </div>
+  <p class="status">Click any result row to preview that realm's Render() output.</p>
+</div>
+
+<script>
+const NETWORKS = {
+  testnet: {
+    label: "topaz-1 (testnet)",
+    rpcUrl: "https://rpc.topaz.testnets.gno.land",
+    indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
+  },
+  betanet: {
+    label: "gnoland1 (betanet)",
+    rpcUrl: "https://rpc.gno.land",
+    indexerUrl: "https://indexer.gno.land/graphql/query",
+  },
+};
+
+const select = document.getElementById("networkSelect");
+for (const [key, net] of Object.entries(NETWORKS)) {
+  const opt = document.createElement("option");
+  opt.value = key;
+  opt.textContent = net.label;
+  select.appendChild(opt);
+}
+
+const NETWORK_STORAGE_KEY = "gnoObserver:selectedNetwork";
+try {
+  const savedNetwork = localStorage.getItem(NETWORK_STORAGE_KEY);
+  if (savedNetwork && NETWORKS[savedNetwork]) select.value = savedNetwork;
+} catch {
+  // storage unavailable — just falls back to the default (first) option
+}
+
+let currentKey = select.value;
+let currentTokens = []; // [{name, symbol, path}] from the last successful loadTokens
+let currentNfts = [];   // [{path, std}] from the last successful loadNfts
+const genesisFileCache = new Map(); // netKey -> Map(realmPath -> files[])
+
+// Genesis-realm source is immutable once deployed, so it's safe to persist
+// across page loads indefinitely — this is what actually makes the "one-time
+// scan, cached after that" promise true across reloads, not just within a
+// single page session. localStorage can be unavailable (private browsing,
+// file:// restrictions in some browsers) or full, so every access is
+// best-effort: a failure just means we re-fetch, never a hard error.
+const GENESIS_CACHE_PREFIX = "gnoObserver:genesisFiles:v1:";
+
+function loadGenesisCacheFromStorage(netKey) {
+  try {
+    const raw = localStorage.getItem(GENESIS_CACHE_PREFIX + netKey);
+    if (!raw) return new Map();
+    return new Map(JSON.parse(raw));
+  } catch {
+    return new Map();
+  }
+}
+
+function saveGenesisCacheToStorage(netKey, cache) {
+  try {
+    localStorage.setItem(GENESIS_CACHE_PREFIX + netKey, JSON.stringify([...cache.entries()]));
+  } catch {
+    // quota exceeded or storage disabled — fine, just means next load re-fetches
+  }
+}
+
+select.addEventListener("change", () => {
+  currentKey = select.value;
+  try { localStorage.setItem(NETWORK_STORAGE_KEY, currentKey); } catch {}
+  collapsePreview();
+  loadAll(currentKey);
+});
+
+// ---------- tabs ----------
+
+const TAB_STORAGE_KEY = "gnoObserver:activeTab";
+
+function activateTab(tabName) {
+  const btn = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if (!btn) return;
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => { p.hidden = true; });
+  btn.classList.add("active");
+  document.getElementById("panel-" + tabName).hidden = false;
+}
+
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activateTab(btn.dataset.tab);
+    try { localStorage.setItem(TAB_STORAGE_KEY, btn.dataset.tab); } catch {}
+  });
+});
+
+try {
+  const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
+  if (savedTab) activateTab(savedTab);
+} catch {
+  // storage unavailable — falls back to whichever tab has "active" in the HTML
+}
+
+// ---------- low-level chain access ----------
+
+async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
+  const data = btoa(unescape(encodeURIComponent(dataStr)));
+  const url = `${net.rpcUrl}/abci_query?path=${encodeURIComponent('"' + path + '"')}&data=${encodeURIComponent('"' + data + '"')}`;
+  const controller = new AbortController();
+  // some RPC nodes occasionally accept a connection and never respond; without
+  // this, one bad request stalls an entire batch of Promise.all-based scanning.
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error(`RPC timed out after ${timeoutMs / 1000}s (${path})`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  const raw = json.result.response.ResponseBase.Data;
+  if (json.result.response.ResponseBase.Error) {
+    return null; // e.g. "invalid package path" for a path with no render/file
+  }
+  return raw ? decodeURIComponent(escape(atob(raw))) : "";
+}
+
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let i = 0;
+  async function worker() {
+    while (i < items.length) {
+      const idx = i++;
+      results[idx] = await fn(items[idx], idx);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+// ---------- Fungible tokens: read grc20reg's Render() via RPC vm/qrender ----------
+
+let tokensInFlight = false;
+async function loadTokens(net) {
+  if (tokensInFlight) return;
+  tokensInFlight = true;
+  const statusEl = document.getElementById("tokenStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const markdown = (await abciQuery(net, "vm/qrender", "gno.land/r/demo/defi/grc20reg:")) || "";
+
+    // grc20reg renders one line per token. The trailing ".SYMBOL" on the
+    // link is only present on some deployments (e.g. testnet); betanet's
+    // renders without it, so the symbol group is optional here.
+    // - **Name** - [path](url)[.SYMBOL] - [info](...)
+    const lineRe = /^- \*\*(.+?)\*\* - \[(.+?)\]\([^)]*\)(?:\.(\S+))? - /gm;
+    const rows = [];
+    let m;
+    while ((m = lineRe.exec(markdown)) !== null) {
+      rows.push({ name: m[1], path: m[2], symbol: m[3] || "—" });
+    }
+    currentTokens = rows;
+
+    const tbody = document.getElementById("tokenBody");
+    tbody.innerHTML = rows.map(r => `
+      <tr class="clickable" data-path="${escapeHtml(r.path)}">
+        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.symbol)}</td>
+        <td>${escapeHtml(r.path)}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("tokenTable").style.display = rows.length ? "table" : "none";
+    statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.`;
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  } finally {
+    tokensInFlight = false;
+  }
+}
+
+// ---------- NFT collections: tx history + genesis realms, signature-checked ----------
+
+// Two independent signals, both required: the standard's name shows up
+// somewhere (an import path for realms using a shared library, or just
+// mentioned in comments/types for realms that vendor their own
+// implementation — both patterns are common in the wild), AND the realm
+// actually defines a characteristic function itself — as a free function
+// (common in Gno, e.g. "func Mint(cur realm, ...)") or as a method
+// ("func (n *BasicNFT) Mint(...)"). Requiring both cuts out realms that
+// merely reference someone else's collection (a marketplace, a staker)
+// without redeclaring any of these names.
+const STANDARD_MARKERS = [
+  { std: "GRC721", mentionRe: /grc721/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(Mint|OwnerOf|TokenURI|SafeTransferFrom)\s*\(/ },
+  { std: "GRC1155", mentionRe: /grc1155/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(Mint|BalanceOf|URI|SafeTransferFrom|SafeBatchTransferFrom)\s*\(/ },
+];
+
+function detectStandard(files) {
+  const combined = files.map(f => f.body).join("\n");
+  for (const marker of STANDARD_MARKERS) {
+    if (marker.mentionRe.test(combined) && marker.funcRe.test(combined)) return marker.std;
+  }
+  return null;
+}
+
+function nonTestGnoFiles(files) {
+  return (files || []).filter(f => f.name.endsWith(".gno") && !f.name.endsWith("_test.gno"));
+}
+
+async function fetchTxScannedRealmFiles(net) {
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        messages: { route: { eq: "vm" }, typeUrl: { eq: "add_package" } }
+      }) {
+        messages { value { ... on MsgAddPackage { package { path files { name body } } } } }
+      }
+    }`;
+  const res = await fetch(net.indexerUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  const json = await res.json();
+  if (json.errors) throw new Error(json.errors[0].message);
+
+  const txFiles = new Map(); // realmPath -> files[]
+  let scannedCount = 0;
+  for (const tx of json.data.getTransactions || []) {
+    for (const msg of tx.messages) {
+      const pkg = msg.value && msg.value.package;
+      // only realms (/r/) can hold NFT state; /p/ packages are stateless libraries.
+      if (!pkg || !pkg.path.startsWith("gno.land/r/")) continue;
+      scannedCount++;
+      txFiles.set(pkg.path, nonTestGnoFiles(pkg.files));
+    }
+  }
+  return { txFiles, scannedCount };
+}
+
+async function fetchGenesisRealmFiles(net, netKey, paths) {
+  if (!genesisFileCache.has(netKey)) genesisFileCache.set(netKey, loadGenesisCacheFromStorage(netKey));
+  const cache = genesisFileCache.get(netKey);
+  const toFetch = paths.filter(p => !cache.has(p));
+
+  if (toFetch.length > 0) {
+    await mapLimit(toFetch, 8, async (path) => {
+      try {
+        const listing = await abciQuery(net, "vm/qfile", path);
+        const filenames = (listing || "").split("\n")
+          .map(s => s.trim())
+          .filter(name => name.endsWith(".gno") && !name.endsWith("_test.gno"));
+        const files = await mapLimit(filenames, 4, async (name) => ({
+          name,
+          body: (await abciQuery(net, "vm/qfile", `${path}/${name}`)) || "",
+        }));
+        cache.set(path, files);
+      } catch {
+        cache.set(path, []); // unreadable package, treat as no matches rather than retrying forever
+      }
+    });
+    saveGenesisCacheToStorage(netKey, cache);
+  }
+
+  return cache;
+}
+
+let nftsInFlight = false;
+async function loadNfts(net, netKey) {
+  if (nftsInFlight) return;
+  nftsInFlight = true;
+  const statusEl = document.getElementById("nftStatus");
+  const cachedCount = (genesisFileCache.get(netKey) || loadGenesisCacheFromStorage(netKey)).size;
+  statusEl.textContent = cachedCount > 0
+    ? "Loading… (using cached genesis-realm data from your last visit)"
+    : "Loading… (this includes a one-time genesis-realm scan and can take up to a minute — cached in your browser after that)";
+  try {
+    const [allRealmsRaw, { txFiles, scannedCount }] = await Promise.all([
+      abciQuery(net, "vm/qpaths", "gno.land/r/"),
+      fetchTxScannedRealmFiles(net),
+    ]);
+    const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
+
+    const genesisOnly = allRealms.filter(p => !txFiles.has(p));
+    const genesisCache = await fetchGenesisRealmFiles(net, netKey, genesisOnly);
+
+    const seen = new Map(); // realmPath -> standard
+    for (const path of allRealms) {
+      const files = txFiles.get(path) || genesisCache.get(path) || [];
+      const std = detectStandard(files);
+      if (std) seen.set(path, std);
+    }
+
+    const rows = [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    currentNfts = rows.map(([path, std]) => ({ path, std }));
+
+    const tbody = document.getElementById("nftBody");
+    tbody.innerHTML = rows.map(([path, label]) => `
+      <tr class="clickable" data-path="${escapeHtml(path)}">
+        <td>${escapeHtml(path)}</td>
+        <td><span class="badge">${label}</span></td>
+      </tr>
+    `).join("");
+
+    document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
+    statusEl.textContent =
+      `${rows.length} realm${rows.length === 1 ? "" : "s"} detected — scanned ${allRealms.length} total ` +
+      `(${scannedCount} from transaction history, ${genesisOnly.length} from genesis).`;
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  } finally {
+    nftsInFlight = false;
+  }
+}
+
+// ---------- Scan Wallet: BalanceOf(address) against every known token/collection ----------
+
+function parseGnoEvalNumber(raw) {
+  // vm/qeval returns a Gno-formatted value string, e.g. "(295887460856091 int64)"
+  // or, for (int64, error) returns, two lines like "(37 int64)\n(undefined)".
+  // The first integer literal is always the value we want.
+  if (!raw) return null;
+  const m = /-?\d+/.exec(raw);
+  return m ? Number(m[0]) : null;
+}
+
+function isPlausibleGnoAddress(addr) {
+  return /^g1[a-z0-9]{20,60}$/.test(addr.trim());
+}
+
+let walletScanInFlight = false;
+async function scanWallet() {
+  if (walletScanInFlight) return;
+  const input = document.getElementById("walletInput");
+  const address = input.value.trim();
+  const statusEl = document.getElementById("walletStatus");
+  const btn = document.getElementById("walletScanBtn");
+  const tokenSection = document.getElementById("walletTokenSection");
+  const nftSection = document.getElementById("walletNftSection");
+
+  if (!isPlausibleGnoAddress(address)) {
+    statusEl.textContent = 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).';
+    return;
+  }
+  if (currentTokens.length === 0 && currentNfts.length === 0) {
+    statusEl.textContent = "The token/NFT lists haven't finished loading yet — check the other two tabs first, then try again.";
+    return;
+  }
+
+  walletScanInFlight = true;
+  btn.disabled = true;
+  tokenSection.style.display = "none";
+  nftSection.style.display = "none";
+  statusEl.textContent = `Checking ${currentTokens.length} tokens and ${currentNfts.length} NFT collections…`;
+
+  const net = NETWORKS[currentKey];
+  const literal = JSON.stringify(address); // bech32 addresses have no chars needing extra escaping
+
+  try {
+    const [tokenResults, nftResults] = await Promise.all([
+      mapLimit(currentTokens, 8, async (t) => {
+        try {
+          const raw = await abciQuery(net, "vm/qeval", `${t.path}.BalanceOf(${literal})`);
+          return { ...t, balance: parseGnoEvalNumber(raw) };
+        } catch {
+          return { ...t, balance: null, error: true };
+        }
+      }),
+      mapLimit(currentNfts, 8, async (n) => {
+        try {
+          const raw = await abciQuery(net, "vm/qeval", `${n.path}.BalanceOf(${literal})`);
+          return { ...n, count: parseGnoEvalNumber(raw) };
+        } catch {
+          return { ...n, count: null, error: true };
+        }
+      }),
+    ]);
+
+    const heldTokens = tokenResults.filter(t => t.balance != null && t.balance > 0)
+      .sort((a, b) => b.balance - a.balance);
+    const heldNfts = nftResults.filter(n => n.count != null && n.count > 0)
+      .sort((a, b) => b.count - a.count);
+    const errorCount = tokenResults.filter(t => t.error).length + nftResults.filter(n => n.error).length;
+
+    document.getElementById("walletTokenBody").innerHTML = heldTokens.map(t => `
+      <tr class="clickable" data-path="${escapeHtml(t.path)}">
+        <td>${escapeHtml(t.name)}</td>
+        <td>${escapeHtml(t.symbol)}</td>
+        <td>${t.balance}</td>
+        <td>${escapeHtml(t.path)}</td>
+      </tr>
+    `).join("");
+    tokenSection.style.display = heldTokens.length ? "block" : "none";
+
+    document.getElementById("walletNftBody").innerHTML = heldNfts.map(n => `
+      <tr class="clickable" data-path="${escapeHtml(n.path)}">
+        <td>${escapeHtml(n.path)}</td>
+        <td><span class="badge">${n.std}</span></td>
+        <td>${n.count}</td>
+      </tr>
+    `).join("");
+    nftSection.style.display = heldNfts.length ? "block" : "none";
+
+    let summary = `Holdings found in ${heldTokens.length} token${heldTokens.length === 1 ? "" : "s"} and ` +
+      `${heldNfts.length} NFT collection${heldNfts.length === 1 ? "" : "s"}, out of ` +
+      `${currentTokens.length + currentNfts.length} checked.`;
+    if (errorCount > 0) summary += ` (${errorCount} couldn't be checked due to a network error.)`;
+    if (heldTokens.length === 0 && heldNfts.length === 0 && errorCount === 0) {
+      summary += " This address doesn't hold any of the tokens/collections currently known to this page.";
+    }
+    statusEl.textContent = summary;
+  } catch (err) {
+    statusEl.textContent = "Scan failed: " + err.message;
+  } finally {
+    walletScanInFlight = false;
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("walletScanBtn").addEventListener("click", scanWallet);
+document.getElementById("walletInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") scanWallet();
+});
+document.getElementById("walletTokenBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
+document.getElementById("walletNftBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
+
+// ---------- Adena wallet connect ----------
+// API per Adena's own docs (docs.adena.app/integrations): AddEstablish to
+// request a connection, GetAccount to read the active account, and the
+// "changedAccount" event to react if the user switches accounts in the
+// extension while connected. Adena injects `window.adena` — on a file://
+// page that only happens if the user has granted the extension file-URL
+// access, which is a browser-level setting we can't detect or change from
+// here, so failures need a clear, actionable message rather than a
+// generic error.
+
+const ADENA_APP_NAME = "Gno.land Observer";
+let adenaListenerRegistered = false;
+
+if (location.protocol === "file:") {
+  document.getElementById("adenaStatus").innerHTML =
+    'Note: browser extensions like Adena often restrict themselves to http(s) pages and won\'t inject ' +
+    'into a <code>file://</code> page like this one, even with "Allow access to file URLs" enabled — ' +
+    "that setting only helps for extensions whose manifest already targets file:// pages, which wallet " +
+    "connectors often don't. Serve this over http://localhost instead if Connect Adena can't detect it.";
+}
+
+async function connectAdena() {
+  const statusEl = document.getElementById("adenaStatus");
+  const btn = document.getElementById("adenaConnectBtn");
+
+  if (typeof window.adena === "undefined") {
+    const fileNote = location.protocol === "file:"
+      ? ' If it\'s already installed, note that extensions often can\'t inject into file:// pages at ' +
+        'all (see the note above) — try serving this over http://localhost instead.'
+      : " If it's already installed, try reloading this page, and make sure you're viewing it in the " +
+        "same browser/profile Adena is installed in.";
+    statusEl.innerHTML = 'Adena not detected on this page — install it from ' +
+      '<a href="https://adena.app/" target="_blank" rel="noopener">adena.app</a>.' + fileNote;
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = "Connecting to Adena…";
+  try {
+    const establishRes = await window.adena.AddEstablish(ADENA_APP_NAME);
+    if (establishRes.status !== "success") {
+      throw new Error(establishRes.message || "Connection request was not approved.");
+    }
+
+    const accountRes = await window.adena.GetAccount();
+    if (accountRes.status !== "success" || !accountRes.data || !accountRes.data.address) {
+      throw new Error(accountRes.message || "Could not read the connected account.");
+    }
+
+    const address = accountRes.data.address;
+    document.getElementById("walletInput").value = address;
+    statusEl.textContent = `Connected: ${address}`;
+
+    if (!adenaListenerRegistered) {
+      window.adena.On("changedAccount", (newAddress) => {
+        if (!newAddress) return;
+        document.getElementById("walletInput").value = newAddress;
+        statusEl.textContent = `Connected: ${newAddress}`;
+        scanWallet();
+      });
+      adenaListenerRegistered = true;
+    }
+
+    scanWallet();
+  } catch (err) {
+    statusEl.textContent = "Adena connection failed: " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("adenaConnectBtn").addEventListener("click", connectAdena);
+
+// ---------- click-to-expand Render() preview ----------
+
+function collapsePreview() {
+  document.querySelectorAll(".preview-row").forEach(el => el.remove());
+  document.querySelectorAll("tr.clickable.open").forEach(el => el.classList.remove("open"));
+}
+
+async function togglePreview(row) {
+  const path = row.dataset.path;
+  const existing = row.nextElementSibling;
+  if (existing && existing.classList.contains("preview-row") && existing.dataset.for === path) {
+    existing.remove();
+    row.classList.remove("open");
+    return;
+  }
+  collapsePreview();
+  row.classList.add("open");
+
+  const previewRow = document.createElement("tr");
+  previewRow.className = "preview-row";
+  previewRow.dataset.for = path;
+  const td = document.createElement("td");
+  td.colSpan = row.children.length; // tables in this page vary from 3 to 4 columns
+  td.innerHTML = `<div class="preview">Loading render of <code>${escapeHtml(path)}</code>…</div>`;
+  previewRow.appendChild(td);
+  row.after(previewRow);
+
+  try {
+    const net = NETWORKS[currentKey];
+    const markdown = await abciQuery(net, "vm/qrender", path + ":");
+    td.querySelector(".preview").innerHTML = mdToHtmlSafe(markdown || "*(empty render)*");
+  } catch (err) {
+    td.querySelector(".preview").textContent = "Failed to load render: " + err.message;
+  }
+}
+
+document.getElementById("tokenBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
+document.getElementById("nftBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
+
+// ---------- safe, minimal markdown -> HTML for untrusted on-chain content ----------
+// Realm Render() output is authored by whoever deployed that realm — it is
+// untrusted data, not markup we control. Every text fragment is escaped
+// BEFORE any HTML tag is introduced, and only a fixed whitelist of tags we
+// construct ourselves ever appears in the output. Link URLs are validated
+// against a scheme allowlist so a realm can't embed a javascript: link.
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+function safeUrl(url) {
+  const u = url.trim();
+  if (/^https?:\/\//i.test(u)) return u;
+  if (/^\//.test(u)) return "https://gno.land" + u;
+  if (/^gno\.land\//.test(u)) return "https://" + u;
+  return null;
+}
+
+function inlineMd(raw) {
+  let out = "";
+  let lastIndex = 0;
+  const linkRe = /\[([^\]]*)\]\(([^)]*)\)/g;
+  let m;
+  while ((m = linkRe.exec(raw)) !== null) {
+    out += formatInline(raw.slice(lastIndex, m.index));
+    const url = safeUrl(m[2]);
+    out += url
+      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${formatInline(m[1])}</a>`
+      : formatInline(m[0]);
+    lastIndex = linkRe.lastIndex;
+  }
+  out += formatInline(raw.slice(lastIndex));
+  return out;
+}
+
+function formatInline(raw) {
+  let s = escapeHtml(raw);
+  s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/`([^`]+?)`/g, "<code>$1</code>");
+  s = s.replace(/(^|[^*])\*([^*]+?)\*/g, "$1<em>$2</em>");
+  return s;
+}
+
+function mdToHtmlSafe(markdown) {
+  const lines = String(markdown).split("\n");
+  let html = "";
+  let inList = false;
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+
+  for (const line of lines) {
+    const h = /^(#{1,3})\s+(.*)$/.exec(line);
+    const li = /^[-*]\s+(.*)$/.exec(line);
+    if (h) {
+      closeList();
+      const level = Math.min(h[1].length + 2, 6);
+      html += `<h${level}>${inlineMd(h[2])}</h${level}>`;
+    } else if (li) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += `<li>${inlineMd(li[1])}</li>`;
+    } else if (line.trim() === "") {
+      closeList();
+    } else {
+      closeList();
+      html += `<p>${inlineMd(line)}</p>`;
+    }
+  }
+  closeList();
+  return html || "<p><em>(empty render)</em></p>";
+}
+
+// ---------- snapshot indicator ----------
+// No auto-polling: the genesis-realm scan already does dozens of sequential
+// RPC round-trips, and firing that again every N seconds in the background
+// competed with itself for the same connections, which is what was making
+// loads take far longer than they should. One load per page-visit; reload
+// the page when you want a fresh snapshot.
+
+async function showSnapshotHeight(net) {
+  const el = document.getElementById("refreshStatus");
+  try {
+    const res = await fetch(net.indexerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: "query { latestBlockHeight }" }),
+    });
+    const json = await res.json();
+    const height = json.data && json.data.latestBlockHeight;
+    el.textContent = `Snapshot as of block ${height ?? "?"} · reload the page for a fresh one.`;
+  } catch {
+    el.textContent = "";
+  }
+}
+
+function loadAll(key) {
+  const net = NETWORKS[key];
+  loadTokens(net);
+  loadNfts(net, key);
+  showSnapshotHeight(net);
+}
+
+loadAll(currentKey);
+</script>
+
+</body>
+</html>
