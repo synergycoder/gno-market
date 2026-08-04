@@ -652,7 +652,12 @@ async function connectAdena() {
   statusEl.textContent = "Connecting to Adena…";
   try {
     const establishRes = await window.adena.AddEstablish(ADENA_APP_NAME);
-    if (establishRes.status !== "success") {
+    // Adena reports status:"failure" with this message when the site was
+    // already authorized in a prior visit — not a real rejection, just a
+    // redundant no-op. Treat it as fine and proceed to read the account;
+    // only a genuine rejection/error should stop the flow here.
+    const alreadyConnected = /already connected/i.test(establishRes.message || "");
+    if (establishRes.status !== "success" && !alreadyConnected) {
       throw new Error(establishRes.message || "Connection request was not approved.");
     }
 
