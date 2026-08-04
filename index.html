@@ -115,11 +115,11 @@
 
 <div class="tab-panel" id="panel-wallet" hidden>
   <h2>Scan Wallet</h2>
-  <p class="status">Checks every fungible token and detected NFT collection from the other two tabs for a
-    balance held by the address below (read-only — no keys, no signing). Coverage is limited to whatever
-    those tabs found, so their caveats apply here too. Balances shown are raw on-chain units — token
-    decimals aren't fetched, so don't read these as human-scale amounts without checking each token's
-    own decimals.</p>
+  <p class="status">Checks the address below (read-only — no keys, no signing) for: native GNOT balance,
+    plus every fungible token and detected NFT collection from the other two tabs. Token/NFT coverage is
+    limited to whatever those tabs found, so their caveats apply here too. GNOT is shown as a real
+    human-scale amount (its decimals are fixed and known); GRC20 token balances are shown in raw
+    on-chain units instead, since their decimals aren't fetched per-token.</p>
   <div class="wallet-form">
     <input type="text" id="walletInput" placeholder="g1... wallet address" autocomplete="off" spellcheck="false">
     <button id="walletScanBtn">Scan</button>
@@ -127,6 +127,13 @@
   </div>
   <p id="adenaStatus" class="status"></p>
   <p id="walletStatus" class="status"></p>
+
+  <div id="walletNativeSection" style="display:none">
+    <h3>Native balance</h3>
+    <p class="status">GNOT is the chain's native token (like ETH or ATOM) — held directly on the
+      account, not through a GRC20 realm, so it's checked separately from everything below.</p>
+    <p id="walletNativeAmount"></p>
+  </div>
 
   <div id="walletTokenSection" style="display:none">
     <h3>Fungible token holdings</h3>
@@ -472,6 +479,27 @@ function isPlausibleGnoAddress(addr) {
   return /^g1[a-z0-9]{20,60}$/.test(addr.trim());
 }
 
+async function fetchNativeBalance(net, address) {
+  // Native GNOT lives directly on the account (auth/accounts), not behind
+  // any realm's BalanceOf — a completely different query path from every
+  // GRC20/GRC721 check above. Response is plain JSON (not a Gno-eval
+  // string): {"BaseAccount":{"coins":"19278953ugnot",...}}, or the literal
+  // text "null" for an address with no on-chain record (never funded).
+  const raw = await abciQuery(net, "auth/accounts/" + address, "");
+  if (!raw || raw.trim() === "null") return 0;
+  const parsed = JSON.parse(raw);
+  const coins = parsed?.BaseAccount?.coins || "";
+  const m = /^(\d+)ugnot$/.exec(coins.trim());
+  return m ? Number(m[1]) : 0;
+}
+
+function formatGnot(ugnot) {
+  // Fixed at 6 decimals for the native token specifically (unlike arbitrary
+  // GRC20 tokens elsewhere on this page, whose decimals aren't fetched) —
+  // safe to show as a real human-scale amount here.
+  return (ugnot / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 });
+}
+
 let walletScanInFlight = false;
 async function scanWallet() {
   if (walletScanInFlight) return;
@@ -493,15 +521,17 @@ async function scanWallet() {
 
   walletScanInFlight = true;
   btn.disabled = true;
+  document.getElementById("walletNativeSection").style.display = "none";
   tokenSection.style.display = "none";
   nftSection.style.display = "none";
-  statusEl.textContent = `Checking ${currentTokens.length} tokens and ${currentNfts.length} NFT collections…`;
+  statusEl.textContent = `Checking native balance, ${currentTokens.length} tokens, and ${currentNfts.length} NFT collections…`;
 
   const net = NETWORKS[currentKey];
   const literal = JSON.stringify(address); // bech32 addresses have no chars needing extra escaping
 
   try {
-    const [tokenResults, nftResults] = await Promise.all([
+    const [nativeResult, tokenResults, nftResults] = await Promise.all([
+      fetchNativeBalance(net, address).catch(() => null),
       mapLimit(currentTokens, 8, async (t) => {
         try {
           const raw = await abciQuery(net, "vm/qeval", `${t.path}.BalanceOf(${literal})`);
@@ -519,6 +549,13 @@ async function scanWallet() {
         }
       }),
     ]);
+
+    const nativeSection = document.getElementById("walletNativeSection");
+    if (nativeResult != null) {
+      document.getElementById("walletNativeAmount").textContent =
+        `${formatGnot(nativeResult)} GNOT (${nativeResult.toLocaleString()} ugnot)`;
+      nativeSection.style.display = "block";
+    }
 
     const heldTokens = tokenResults.filter(t => t.balance != null && t.balance > 0)
       .sort((a, b) => b.balance - a.balance);
@@ -547,9 +584,10 @@ async function scanWallet() {
 
     let summary = `Holdings found in ${heldTokens.length} token${heldTokens.length === 1 ? "" : "s"} and ` +
       `${heldNfts.length} NFT collection${heldNfts.length === 1 ? "" : "s"}, out of ` +
-      `${currentTokens.length + currentNfts.length} checked.`;
+      `${currentTokens.length + currentNfts.length} checked` +
+      (nativeResult == null ? " (native balance check failed)" : "") + ".";
     if (errorCount > 0) summary += ` (${errorCount} couldn't be checked due to a network error.)`;
-    if (heldTokens.length === 0 && heldNfts.length === 0 && errorCount === 0) {
+    if (heldTokens.length === 0 && heldNfts.length === 0 && errorCount === 0 && !nativeResult) {
       summary += " This address doesn't hold any of the tokens/collections currently known to this page.";
     }
     statusEl.textContent = summary;
