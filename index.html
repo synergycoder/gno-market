@@ -97,6 +97,9 @@
     background: var(--bg-elevated); color: var(--text); cursor: pointer;
   }
   .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn:disabled { opacity: 0.5; cursor: default; }
+  #forceRefreshBtn { font-size: 1.1rem; line-height: 1; }
+  #forceRefreshBtn.spinning { animation: spin 0.8s linear infinite; }
   .icon-btn .icon-sun { display: none; }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme]) .icon-btn .icon-sun { display: inline-block; }
@@ -199,6 +202,8 @@
   </div>
   <div class="header-controls">
     <select id="networkSelect"></select>
+    <button id="forceRefreshBtn" class="icon-btn" type="button" aria-label="Force refresh"
+      title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">⟳</button>
     <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
       <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
@@ -479,6 +484,47 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
   return raw ? decodeURIComponent(escape(atob(raw))) : "";
 }
 
+async function graphqlQuery(net, query, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(net.indexerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error(`Indexer query timed out after ${timeoutMs / 1000}s`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+  const json = await res.json();
+  if (json.errors) throw new Error(json.errors[0].message);
+  return json.data;
+}
+
+// Individually-queried (not `_or`-batched) on purpose: the betanet indexer
+// has been observed to hang indefinitely on an `_or`-combinator query
+// across multiple heights, even though a single {height:{eq:N}} query
+// resolves in well under a second. mapLimit concurrency keeps this fast
+// anyway without tripping that hang.
+async function fetchBlockTimes(net, heights) {
+  const result = new Map();
+  await mapLimit(heights, 8, async (h) => {
+    try {
+      const data = await graphqlQuery(net, `query { getBlocks(where: { height: { eq: ${h} } }) { height time } }`);
+      const b = (data.getBlocks || [])[0];
+      if (b) result.set(b.height, b.time);
+    } catch {
+      // leave unresolved rather than failing the whole batch
+    }
+  });
+  return result;
+}
+
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
   let i = 0;
@@ -534,13 +580,13 @@ function renderTokenRows(rows) {
 }
 
 let tokensInFlight = false;
-async function loadTokens(net, netKey) {
+async function loadTokens(net, netKey, forceLive = false) {
   if (tokensInFlight) return;
   tokensInFlight = true;
   const statusEl = document.getElementById("tokenStatus");
   statusEl.textContent = "Loading…";
   try {
-    const cached = await getCachedData(netKey);
+    const cached = forceLive ? null : await getCachedData(netKey);
     if (cached && cached.tokens) {
       renderTokenRows(cached.tokens);
       statusEl.textContent =
@@ -562,7 +608,8 @@ async function loadTokens(net, netKey) {
       rows.push({ name: m[1], path: m[2], symbol: m[3] || "—" });
     }
     renderTokenRows(rows);
-    statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.`;
+    statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.` +
+      (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
   } finally {
@@ -656,16 +703,10 @@ async function fetchAllDeployedPackagesUncached(net, netKey) {
         messages { value { ... on MsgAddPackage { creator package { path files { name body } } } } }
       }
     }`;
-  const res = await fetch(net.indexerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
+  const data = await graphqlQuery(net, query);
 
   let newCount = 0;
-  for (const tx of json.data.getTransactions || []) {
+  for (const tx of data.getTransactions || []) {
     for (const msg of tx.messages) {
       const v = msg.value;
       const pkg = v && v.package;
@@ -681,13 +722,29 @@ async function fetchAllDeployedPackagesUncached(net, netKey) {
       cache.packages[pkg.path] = {
         path: pkg.path,
         blockHeight: tx.block_height,
+        blockTime: (cache.packages[pkg.path] && cache.packages[pkg.path].blockTime) || null,
         creator: v.creator,
         standard: isRealm ? detectStandard(nonTestGnoFiles(pkg.files)) : null,
       };
       if (tx.block_height > cache.lastHeight) cache.lastHeight = tx.block_height;
     }
   }
-  if (newCount > 0) saveTxScanCacheToStorage(netKey, cache);
+
+  const heightsNeedingTime = [...new Set(
+    Object.values(cache.packages).filter(p => !p.blockTime).map(p => p.blockHeight)
+  )];
+  let gotAnyBlockTime = false;
+  if (heightsNeedingTime.length > 0) {
+    const blockTimes = await fetchBlockTimes(net, heightsNeedingTime);
+    for (const pkg of Object.values(cache.packages)) {
+      if (!pkg.blockTime && blockTimes.has(pkg.blockHeight)) {
+        pkg.blockTime = blockTimes.get(pkg.blockHeight);
+        gotAnyBlockTime = true;
+      }
+    }
+  }
+
+  if (newCount > 0 || gotAnyBlockTime) saveTxScanCacheToStorage(netKey, cache);
 
   return { packages: Object.values(cache.packages), newCount };
 }
@@ -733,12 +790,12 @@ function renderNftRows(rows) {
   document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
 }
 
-async function loadNfts(net, netKey) {
+async function loadNfts(net, netKey, forceLive = false) {
   if (nftsInFlight) return;
   nftsInFlight = true;
   const statusEl = document.getElementById("nftStatus");
   try {
-    const cached = await getCachedData(netKey);
+    const cached = forceLive ? null : await getCachedData(netKey);
     if (cached && cached.nftRealms) {
       renderNftRows(cached.nftRealms);
       statusEl.textContent =
@@ -774,7 +831,7 @@ async function loadNfts(net, netKey) {
     statusEl.textContent =
       `${rows.length} realm${rows.length === 1 ? "" : "s"} detected — scanned ${allRealms.length} total ` +
       `(${txStandards.size} from transaction history${scannedCount > 0 ? `, ${scannedCount} new this visit` : ""}, ` +
-      `${genesisOnly.length} from genesis).`;
+      `${genesisOnly.length} from genesis).` + (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
   } finally {
@@ -856,13 +913,13 @@ document.querySelectorAll("#newTable th.sortable").forEach(th => {
 });
 
 let newFeedInFlight = false;
-async function loadRecentlyDeployed(net, netKey) {
+async function loadRecentlyDeployed(net, netKey, forceLive = false) {
   if (newFeedInFlight) return;
   newFeedInFlight = true;
   const statusEl = document.getElementById("newStatus");
   statusEl.textContent = "Loading…";
   try {
-    const cached = await getCachedData(netKey);
+    const cached = forceLive ? null : await getCachedData(netKey);
     if (cached && cached.recentDeployed) {
       newFeedRows = cached.recentDeployed;
       const shownCount = renderNewFeedRows();
@@ -877,10 +934,10 @@ async function loadRecentlyDeployed(net, netKey) {
     const { packages } = await fetchAllDeployedPackages(net, netKey);
     newFeedRows = packages.map(p => ({ ...p, kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package" }));
     const shownCount = renderNewFeedRows();
-    statusEl.textContent = newFeedRows.length
+    statusEl.textContent = (newFeedRows.length
       ? `${newFeedRows.length} package${newFeedRows.length === 1 ? "" : "s"} deployed via transaction` +
         (newFeedRows.length > shownCount ? ` — showing the most recent ${shownCount}` : "") + "."
-      : "No package deployments found in transaction history yet.";
+      : "No package deployments found in transaction history yet.") + (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
     statusEl.textContent = "Failed to load: " + err.message;
   } finally {
@@ -1283,6 +1340,33 @@ function loadAll(key) {
   loadNfts(net, key);
   showSnapshotHeight(net);
 }
+
+// ---------- force refresh: bypasses the shared cache for a live re-scan.
+// Personal only — it doesn't write back to data/*.json, so it has no
+// effect on what the shared cache (or any other visitor) shows.
+let forceRefreshInFlight = false;
+async function forceRefreshAll() {
+  if (forceRefreshInFlight) return;
+  forceRefreshInFlight = true;
+  const btn = document.getElementById("forceRefreshBtn");
+  btn.disabled = true;
+  btn.classList.add("spinning");
+  try {
+    const net = NETWORKS[currentKey];
+    await Promise.allSettled([
+      loadTokens(net, currentKey, true),
+      loadNfts(net, currentKey, true),
+      loadRecentlyDeployed(net, currentKey, true),
+    ]);
+    showSnapshotHeight(net);
+  } finally {
+    forceRefreshInFlight = false;
+    btn.disabled = false;
+    btn.classList.remove("spinning");
+  }
+}
+
+document.getElementById("forceRefreshBtn").addEventListener("click", forceRefreshAll);
 
 loadAll(currentKey);
 </script>
