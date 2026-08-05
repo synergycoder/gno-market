@@ -190,7 +190,9 @@
   .wallet-form button.btn-secondary.connected {
     background: none; color: var(--success); border-style: solid; border-color: var(--success); font-weight: 600;
   }
-  .wallet-form button.btn-secondary.connected:hover { background: var(--border-soft); }
+  .wallet-form button.btn-secondary.connected:hover {
+    background: var(--border-soft); color: var(--accent); border-color: var(--accent);
+  }
   .suggest-form textarea {
     width: 100%; box-sizing: border-box; padding: 0.6rem 0.7rem; border-radius: 6px;
     border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text);
@@ -1236,10 +1238,17 @@ function applyAdenaConnectedUI(address) {
   statusEl.textContent = `Connected: ${address}`;
   btn.textContent = "✓ Connected";
   btn.classList.add("connected");
+  btn.title = "Click to disconnect";
 
   if (!adenaListenerRegistered) {
+    // Adena has no "off"/unsubscribe API, so this listener outlives any
+    // later disconnectAdena() call on the same page — guard on the
+    // button's live state so a still-registered listener doesn't silently
+    // reconnect the UI if the user switches accounts in the extension
+    // after clicking Disconnect, without reloading the page.
     window.adena.On("changedAccount", (newAddress) => {
       if (!newAddress) return;
+      if (!document.getElementById("adenaConnectBtn").classList.contains("connected")) return;
       document.getElementById("walletInput").value = newAddress;
       statusEl.textContent = `Connected: ${newAddress}`;
       scanWallet();
@@ -1249,6 +1258,26 @@ function applyAdenaConnectedUI(address) {
 
   try { localStorage.setItem(ADENA_CONNECTED_KEY, "1"); } catch {}
   scanWallet();
+}
+
+// Adena has no JS API for a page to revoke its own access — that's by
+// design, the extension owns its whitelist, not the page (see the
+// AddEstablish/whitelist note above). "Disconnect" here means forgetting
+// OUR side of it: stop treating this browser as connected, so the next
+// load goes back to idle instead of auto-reconnecting, and clear the
+// wallet-specific UI. A user who wants to fully revoke Adena's own
+// per-domain approval still has to do that from the extension itself.
+function disconnectAdena() {
+  const btn = document.getElementById("adenaConnectBtn");
+  btn.textContent = "Connect Adena";
+  btn.title = "";
+  btn.classList.remove("connected");
+  document.getElementById("adenaStatus").textContent = "Disconnected.";
+  document.getElementById("walletInput").value = "";
+  document.getElementById("walletNativeSection").style.display = "none";
+  document.getElementById("walletTokenSection").style.display = "none";
+  document.getElementById("walletNftSection").style.display = "none";
+  try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
 }
 
 async function connectAdena() {
@@ -1337,7 +1366,23 @@ async function autoReconnectAdena() {
   }
 }
 
-document.getElementById("adenaConnectBtn").addEventListener("click", connectAdena);
+document.getElementById("adenaConnectBtn").addEventListener("click", () => {
+  const btn = document.getElementById("adenaConnectBtn");
+  if (btn.classList.contains("connected")) {
+    disconnectAdena();
+  } else {
+    connectAdena();
+  }
+});
+// Swap the connected button's label to "Disconnect" on hover so the
+// click's dual meaning (connect when idle, disconnect when connected) is
+// discoverable rather than surprising.
+document.getElementById("adenaConnectBtn").addEventListener("mouseenter", (e) => {
+  if (e.target.classList.contains("connected")) e.target.textContent = "Disconnect";
+});
+document.getElementById("adenaConnectBtn").addEventListener("mouseleave", (e) => {
+  if (e.target.classList.contains("connected")) e.target.textContent = "✓ Connected";
+});
 autoReconnectAdena();
 
 // ---------- Suggestions: on-chain feature requests + voting, testnet only ----------
