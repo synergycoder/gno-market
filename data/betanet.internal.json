@@ -1,0 +1,468 @@
+{
+  "genesisStandards": {
+    "gno.land/r/demo/defi/grc20reg": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/demo/defi/grc20factory": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnops/valopers/proposal": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao": {
+      "standard": null,
+      "governance": true,
+      "social": false
+    },
+    "gno.land/r/gnoland/blog": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/coins": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/init": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/wugnot": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/impl": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnops/valopers": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/loader": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/treasury/test": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/params": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/names": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/memberstore": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/rewards": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/cla": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/treasury": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/txfees": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/users/init": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/boards2/v1": {
+      "standard": null,
+      "governance": false,
+      "social": true
+    },
+    "gno.land/r/sys/users": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/validators/v2": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/tests/vm/subtests": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/tests/vm": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    }
+  },
+  "realmImports": {
+    "gno.land/r/g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay/utils/grc20helper": [
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9/counter": [],
+    "gno.land/r/demo/defi/grc20factory": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/nt/avl/v0/rotree",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/demo/defi/grc20reg": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/avl/v0/rotree",
+      "gno.land/p/nt/fqname/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5/hello": [],
+    "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze": [
+      "gno.land/p/moul/txlink"
+    ],
+    "gno.land/r/g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z/helloworld": [],
+    "gno.land/r/g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4/home": [],
+    "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/helloworld": [],
+    "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/boards2/permissions/v1": [
+      "gno.land/p/gnoland/boards/exts/permissions",
+      "gno.land/r/gnoland/boards2/v1",
+      "gno.land/p/gnoland/boards",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/sys/users"
+    ],
+    "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/hello": [],
+    "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/gnoland/blog": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/demo/blog"
+    ],
+    "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter": [],
+    "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades": [
+      "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/grc721",
+      "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/gnoland/coins": [
+      "gno.land/p/leon/coinsort",
+      "gno.land/p/leon/ctg",
+      "gno.land/p/moul/md",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/sys/users"
+    ],
+    "gno.land/r/gnoland/wugnot": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnops/valopers/proposal": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/sys/validators",
+      "gno.land/r/gnops/valopers",
+      "gno.land/r/gov/dao",
+      "gno.land/r/sys/validators/v2"
+    ],
+    "gno.land/r/gov/dao": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/gov/dao/v3/init": [
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/impl",
+      "gno.land/r/gov/dao/v3/memberstore"
+    ],
+    "gno.land/r/gov/dao/v3/loader": [
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/impl",
+      "gno.land/r/gov/dao/v3/memberstore"
+    ],
+    "gno.land/r/gov/dao/v3/treasury": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/treasury/v0",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/r/gov/dao"
+    ],
+    "gno.land/r/gnops/valopers": [
+      "gno.land/p/moul/authz",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/nt/combinederr/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ownable/v0/exts/authorizable",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/gov/dao/v3/treasury/test": [],
+    "gno.land/r/sys/cla": [
+      "gno.land/p/moul/addrset",
+      "gno.land/p/moul/helplink",
+      "gno.land/r/gov/dao"
+    ],
+    "gno.land/r/sys/names": [
+      "gno.land/p/nt/ownable/v0"
+    ],
+    "gno.land/r/gov/dao/v3/impl": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/memberstore",
+      "gno.land/p/aeddi/panictoerr",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/treasury/v0",
+      "gno.land/r/gov/dao/v3/treasury",
+      "gno.land/p/moul/helplink",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/r/sys/users",
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/gov/dao/v3/memberstore": [
+      "gno.land/p/demo/svg",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/samcrew/piechart",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/samcrew/tablesort",
+      "gno.land/p/samcrew/urlfilter"
+    ],
+    "gno.land/r/gnoland/boards2/v1": [
+      "gno.land/p/gnoland/boards",
+      "gno.land/p/gnoland/boards/exts/permissions",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/moul/md",
+      "gno.land/r/sys/users",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/jeronimoalbi/mdform",
+      "gno.land/p/jeronimoalbi/pager",
+      "gno.land/p/leon/svgbtn",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/mdalert/v0"
+    ],
+    "gno.land/r/sys/params": [
+      "gno.land/r/gov/dao"
+    ],
+    "gno.land/r/sys/rewards": [],
+    "gno.land/r/sys/txfees": [],
+    "gno.land/r/sys/users/init": [
+      "gno.land/r/sys/users"
+    ],
+    "gno.land/r/tests/vm/subtests": [],
+    "gno.land/r/sys/users": [
+      "gno.land/p/moul/addrset",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/avl/v0/rotree"
+    ],
+    "gno.land/r/sys/validators/v2": [
+      "gno.land/p/sys/validators",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/poa/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/tests/vm": [
+      "gno.land/p/demo/nestedpkg",
+      "gno.land/r/tests/vm/subtests"
+    ]
+  },
+  "txPackages": {
+    "gno.land/r/g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9/counter": {
+      "path": "gno.land/r/g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9/counter",
+      "blockHeight": 10241,
+      "hash": "ymm6hfPUMqWbrMcTqypln5AoV9+ydfR/J06AF/o1U78=",
+      "creator": "g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-16T18:19:15.542890341Z"
+    },
+    "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze": {
+      "path": "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze",
+      "blockHeight": 31850,
+      "hash": "rqcJHjXoHD4YccLzim2YHNg92GpC3LfpnKuErfxhAv4=",
+      "creator": "g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-17T13:56:26.77523674Z"
+    },
+    "gno.land/r/g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z/helloworld": {
+      "path": "gno.land/r/g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z/helloworld",
+      "blockHeight": 59172,
+      "hash": "N1YWx1Rt1fz2PQxMLou9S1DxU79qgNM5HyBdPJxvA4Q=",
+      "creator": "g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-18T16:28:57.460557966Z"
+    },
+    "gno.land/r/g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4/home": {
+      "path": "gno.land/r/g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4/home",
+      "blockHeight": 60836,
+      "hash": "khNfCgsiA9bCnL38GC10UOnmD7qp+fqzfncDik1To74=",
+      "creator": "g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-18T18:04:30.774254588Z"
+    },
+    "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/boards2/permissions/v1": {
+      "path": "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/boards2/permissions/v1",
+      "blockHeight": 227223,
+      "hash": "TZhdYTADwlIyruYYbwAdzDbsQ6jBseT8gRn+dC7wbjk=",
+      "creator": "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-25T12:24:36.534126196Z"
+    },
+    "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/helloworld": {
+      "path": "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/helloworld",
+      "blockHeight": 352388,
+      "hash": "BW6QJDzV4i7T7Ba8+uy//CLeI18hkpN+FasMOgGtzD0=",
+      "creator": "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-03-30T13:43:41.006405695Z"
+    },
+    "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/hello": {
+      "path": "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/hello",
+      "blockHeight": 353892,
+      "hash": "ppOc5dPC3uMnSa1GAFYs6F1Dpe/XrbqcxzlAQ2Rs1iY=",
+      "creator": "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-04-02T22:19:49.551964438Z"
+    },
+    "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter": {
+      "path": "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter",
+      "blockHeight": 364047,
+      "hash": "JyA7DRkirN4tBXUqxgQwNx51LCZPvImlKuFrCtQ1/2M=",
+      "creator": "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-04-03T12:03:54.733287281Z"
+    },
+    "gno.land/r/g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5/hello": {
+      "path": "gno.land/r/g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5/hello",
+      "blockHeight": 1773831,
+      "hash": "Kt7X1Cwvxxjv4RnRBnBjm8zLDXgzOITGshStAYTBbi8=",
+      "creator": "g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-06-02T12:01:41.850492317Z"
+    },
+    "gno.land/r/g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay/utils/grc20helper": {
+      "path": "gno.land/r/g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay/utils/grc20helper",
+      "blockHeight": 3005970,
+      "hash": "X7t+GBCtWhmcq2Ift1TXSwamPfzkywOSWZercNVhDHY=",
+      "creator": "g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-07-28T10:07:45.224095319Z"
+    },
+    "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft": {
+      "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft",
+      "blockHeight": 3125628,
+      "hash": "C0+DDpG9WKwEXBL0fsYbm7WkgmOzaq1BBd+P1A+hUP8=",
+      "creator": "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-04T16:12:48.348229917Z"
+    },
+    "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl": {
+      "path": "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl",
+      "blockHeight": 3141897,
+      "hash": "dBWcdOsyNPnwA3E4Zr5kfSzn+1CRSg/W2Zi/O8jyeFc=",
+      "creator": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T15:35:45.20136091Z"
+    },
+    "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/grc721": {
+      "path": "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/grc721",
+      "blockHeight": 3142475,
+      "hash": "HIzqLK/PFc3Uh3y4Wdfvc7sY4TLFjBoypobn+NV3CvY=",
+      "creator": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T16:25:39.95601422Z"
+    },
+    "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades": {
+      "path": "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades",
+      "blockHeight": 3142566,
+      "hash": "zS1Vm73jX4RgZsCEyPie+xxqmTAFflJHTFnJDp1v5Sc=",
+      "creator": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T16:33:29.22350469Z"
+    }
+  },
+  "swapActivity": {
+    "swaps": {},
+    "lastHeight": 0
+  },
+  "faucetDripsActivity": {
+    "drips": [],
+    "lastHeight": 0
+  }
+}

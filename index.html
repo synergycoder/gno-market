@@ -720,12 +720,8 @@
     Toggle any combination of criteria below — matching wallets are added to the list, automatically
     deduplicated; toggle a criterion back off to remove exactly the wallets it contributed (a wallet
     stays listed if another still-active criterion also matches it). Counts on each button are that
-    criterion's own unique wallet count, on its own. Every criterion here is scoped to wallets this site
-    has actually observed being active in some way — except "Received gno.land's community airdrop",
-    which is checked against the real, complete airdrop distribution list
-    (<a href="https://github.com/gnolang/independence-day" target="_blank" rel="noopener">gnolang/independence-day</a>
-    on GitHub — 3.26M addresses) rather than something derived from on-chain activity, so it can only
-    show a match for a wallet that's also in this site's own known-address pool.</p>
+    criterion's own unique wallet count, on its own. Every criterion is scoped to wallets this site has
+    actually observed taking some action on the currently selected network — not external data.</p>
   <div id="snapshotCriteria" class="snapshot-criteria"></div>
   <div class="snapshot-summary">
     <span><strong id="snapshotCount">0</strong> unique wallet<span id="snapshotCountPlural">s</span> selected</span>
@@ -2928,9 +2924,8 @@ function buildSnapshotCriteria(cached) {
   }
 
   const defs = [
-    { key: "airdrop", label: "🪂 Received gno.land's community airdrop", addresses: (cached.whaleWatch || []).filter(w => w.airdrop).map(w => w.address) },
     { key: "faucet", label: "🚰 Received a faucet drip", addresses: (cached.faucetDrips || []).map(d => d.to) },
-    { key: "deployer", label: "📦 Deployed a realm/package", addresses: Object.values(cached.txPackages || {}).map(p => p.creator).filter(Boolean) },
+    { key: "deployer", label: "📦 Deployed a realm/package", addresses: (cached.recentDeployed || []).map(p => p.creator).filter(Boolean) },
     { key: "swap", label: "🔄 Executed a Gnoswap swap", addresses: (cached.gnoswapSwaps || []).map(s => s.caller).filter(Boolean) },
     { key: "banksend", label: "💸 Sent/received a native GNOT transfer", addresses: cached.bankSendActivity?.addresses || [] },
     { key: "tokenholder", label: "🪙 Currently holds a GRC20 token", addresses: tokenHolderAddresses },
@@ -3332,7 +3327,7 @@ async function loadDashboard(netKey) {
 
     const stats = [
       { label: "Block height", value: (height ?? "—").toLocaleString?.() ?? String(height ?? "—") },
-      { label: "Realms/packages deployed", value: Object.keys(cached.txPackages || {}).length.toLocaleString(), link: { tab: "new" } },
+      { label: "Realms/packages deployed", value: (cached.recentDeployed || []).length.toLocaleString(), link: { tab: "new" } },
       { label: "Known active wallets", value: (cached.whaleWatch || []).length.toLocaleString(), link: { tab: "whales" } },
       { label: "GRC20 tokens tracked", value: (cached.tokens || []).length.toLocaleString(), link: { tab: "tokens" } },
       { label: "NFT collections detected", value: (cached.stats?.nftRealmCount ?? 0).toLocaleString(), link: { tab: "nfts" } },
