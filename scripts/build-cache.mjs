@@ -365,6 +365,73 @@ async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
   return { genesisStandards: known, genesisOnlyCount: genesisOnly.length, newlyFetched: toFetch.length };
 }
 
+// ---------- Gnoswap swaps (incremental) ----------
+// Every ExactIn/ExactOutSwap event emitted by gno.land/r/gnoswap/router/v1,
+// found by pulling every call to the outer gno.land/r/gnoswap/router proxy
+// and filtering its emitted events, rather than trying to enumerate and
+// re-interpret all 4 of the router's entry functions' own argument shapes
+// (ExactIn/OutSingle/MultiSwapRoute) — the event is the canonical summary
+// of the executed swap regardless of which entry point or how many hops,
+// confirmed directly against real transactions: `resultOutputAmount` is
+// the actual amount received (negative-signed), not the caller-supplied
+// `amountOutMin` slippage floor from the call args, which is 0 in most
+// real calls and would be useless for display.
+async function fetchGnoswapSwaps(net, prevState) {
+  const lastHeight = prevState?.lastHeight || 0;
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        block_height: { gt: ${lastHeight} },
+        messages: { value: { MsgCall: { pkg_path: { eq: "gno.land/r/gnoswap/router" } } } }
+      }) {
+        hash
+        block_height
+        messages { value { ... on MsgCall { caller } } }
+        response { events { __typename ... on GnoEvent { type pkg_path attrs { key value } } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 60000);
+
+  // Keyed by hash#index (not just hash) since one call can in principle
+  // emit more than one swap event.
+  const swaps = { ...(prevState?.swaps || {}) };
+  let newHeight = lastHeight;
+  let newCount = 0;
+  for (const tx of data.getTransactions || []) {
+    const caller = tx.messages?.[0]?.value?.caller;
+    if (tx.block_height > newHeight) newHeight = tx.block_height;
+    let idx = 0;
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent") continue;
+      if (ev.type !== "ExactInSwap" && ev.type !== "ExactOutSwap") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      swaps[`${tx.hash}#${idx++}`] = {
+        hash: tx.hash,
+        blockHeight: tx.block_height,
+        caller,
+        tokenIn: attrs.input,
+        tokenOut: attrs.output,
+        amountIn: attrs.resultInputAmount,
+        amountOut: (attrs.resultOutputAmount || "").replace(/^-/, ""), // sign indicates direction (out), magnitude is what a user wants displayed
+      };
+      newCount++;
+    }
+  }
+
+  const heightsNeedingTime = [...new Set(
+    Object.values(swaps).filter(s => !s.blockTime).map(s => s.blockHeight)
+  )];
+  if (heightsNeedingTime.length > 0) {
+    const blockTimes = await fetchBlockTimes(net, heightsNeedingTime);
+    for (const s of Object.values(swaps)) {
+      if (!s.blockTime && blockTimes.has(s.blockHeight)) s.blockTime = blockTimes.get(s.blockHeight);
+    }
+  }
+
+  return { swaps, lastHeight: newHeight, newCount };
+}
+
 // ---------- per-network orchestration ----------
 
 async function buildNetwork(netKey, net) {
@@ -377,15 +444,17 @@ async function buildNetwork(netKey, net) {
     // no previous run, or corrupt — start fresh
   }
 
-  const [tokens, allRealmsRaw, txResult, callActivityResult] = await Promise.all([
+  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult] = await Promise.all([
     fetchTokens(net),
     abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
     fetchCallActivity(net, prev?.callActivity),
+    fetchGnoswapSwaps(net, prev?.swapActivity),
   ]);
   console.log(`tokens: ${tokens.length}`);
   console.log(`tx-deployed packages: ${Object.keys(txResult.packages).length} (${txResult.newCount} new this run)`);
   console.log(`call activity: ${Object.keys(callActivityResult.byPath).length} realms with calls (${callActivityResult.newCount} new calls this run)`);
+  console.log(`gnoswap swaps: ${Object.keys(swapsResult.swaps).length} (${swapsResult.newCount} new this run)`);
 
   const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
   const txPaths = new Set(Object.keys(txResult.packages).filter(p => p.startsWith("gno.land/r/")));
@@ -433,6 +502,13 @@ async function buildNetwork(netKey, net) {
     .sort((a, b) => b.calls - a.calls);
   const defiRealms = trendingRealms.filter(r => r.path.startsWith("gno.land/r/gnoswap/"));
 
+  const gnoswapSwaps = Object.values(swapsResult.swaps)
+    .map(s => ({
+      hash: s.hash, blockHeight: s.blockHeight, blockTime: s.blockTime || null, caller: s.caller,
+      tokenIn: s.tokenIn, tokenOut: s.tokenOut, amountIn: s.amountIn, amountOut: s.amountOut,
+    }))
+    .sort((a, b) => b.blockHeight - a.blockHeight);
+
   const recentDeployed = Object.values(txResult.packages)
     .map(p => ({
       path: p.path,
@@ -454,9 +530,11 @@ async function buildNetwork(netKey, net) {
     governanceRealms,
     socialRealms,
     defiRealms,
+    gnoswapSwaps,
     genesisStandards,
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
+    swapActivity: { swaps: swapsResult.swaps, lastHeight: swapsResult.lastHeight },
     stats: {
       tokenCount: tokens.length,
       nftRealmCount: nftRealms.length,
@@ -467,6 +545,7 @@ async function buildNetwork(netKey, net) {
       governanceRealmCount: governanceRealms.length,
       socialRealmCount: socialRealms.length,
       defiRealmCount: defiRealms.length,
+      gnoswapSwapCount: gnoswapSwaps.length,
     },
   };
 

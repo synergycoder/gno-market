@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-05T08:09:00.769Z",
+  "generatedAt": "2026-08-05T15:34:36.567Z",
   "lastHeight": 3125628,
   "tokens": [
     {
@@ -105,11 +105,11 @@
     },
     {
       "path": "gno.land/r/sys/cla",
-      "calls": 14,
-      "uniqueCallers": 9,
-      "lastBlockHeight": 3125620,
+      "calls": 15,
+      "uniqueCallers": 10,
+      "lastBlockHeight": 3141881,
       "lastBlockTime": "2026-08-04T16:12:08.633760771Z",
-      "topFunc": null
+      "topFunc": "Sign"
     },
     {
       "path": "gno.land/r/gnoland/boards2/v1",
@@ -189,6 +189,7 @@
     }
   ],
   "defiRealms": [],
+  "gnoswapSwaps": [],
   "genesisStandards": {
     "gno.land/r/demo/defi/grc20reg": {
       "standard": null,
@@ -442,7 +443,7 @@
         "lastBlockTime": "2026-07-28T04:42:01.98263286Z"
       },
       "gno.land/r/sys/cla": {
-        "calls": 14,
+        "calls": 15,
         "callers": [
           "g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z",
           "g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4",
@@ -452,11 +453,12 @@
           "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
           "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
           "g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay",
-          "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg"
+          "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
+          "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc"
         ],
-        "topFunc": null,
+        "topFunc": "Sign",
         "firstBlockHeight": 59169,
-        "lastBlockHeight": 3125620,
+        "lastBlockHeight": 3141881,
         "lastBlockTime": "2026-08-04T16:12:08.633760771Z"
       },
       "gno.land/r/gnoland/boards2/v1": {
@@ -528,7 +530,11 @@
         "lastBlockTime": "2026-08-04T16:45:33.17326554Z"
       }
     },
-    "lastHeight": 3126007
+    "lastHeight": 3141881
+  },
+  "swapActivity": {
+    "swaps": {},
+    "lastHeight": 0
   },
   "stats": {
     "tokenCount": 1,
@@ -539,6 +545,7 @@
     "trendingRealmCount": 9,
     "governanceRealmCount": 1,
     "socialRealmCount": 1,
-    "defiRealmCount": 0
+    "defiRealmCount": 0,
+    "gnoswapSwapCount": 0
   }
 }

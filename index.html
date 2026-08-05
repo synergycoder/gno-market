@@ -169,6 +169,16 @@
   .tab.active { color: var(--accent-strong); border-bottom-color: var(--accent); font-weight: 600; }
   .tab-panel { padding-top: 1.5rem; }
 
+  .subtabs { display: flex; gap: 0.25rem; margin-top: 0.5rem; border-bottom: 1px solid var(--border-soft); }
+  .subtab {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    font-size: 0.85rem; color: var(--text-muted); padding: 0.4rem 0.8rem;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .subtab:hover { color: var(--text); }
+  .subtab.active { color: var(--accent-2); border-bottom-color: var(--accent-2); font-weight: 600; }
+  .subtab-panel { padding-top: 1rem; }
+
   .wallet-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
   .wallet-form input {
     flex: 1; min-width: 0; padding: 0.55rem 0.7rem; border-radius: 6px;
@@ -420,21 +430,54 @@
 
 <div class="tab-panel" id="panel-defi" hidden>
   <h2>DeFi Activity (Gnoswap)</h2>
-  <p class="status">Every realm deployed under <code>gno.land/r/gnoswap/</code> — the ecosystem's DEX —
-    ranked by call activity. Path-prefix based, not a heuristic, so this one's exact rather than
-    best-effort.</p>
-  <p id="defiStatus" class="status">Loading…</p>
-  <table id="defiTable" style="display:none">
-    <thead><tr>
-      <th>Realm</th>
-      <th>Top function</th>
-      <th class="sortable" data-sort="calls">Calls</th>
-      <th class="sortable" data-sort="uniqueCallers">Callers</th>
-      <th class="sortable" data-sort="lastBlockTime">Last active</th>
-    </tr></thead>
-    <tbody id="defiBody"></tbody>
-  </table>
-  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+
+  <div class="subtabs" role="tablist">
+    <button class="subtab active" data-subtab="defi-overview" role="tab">Overview</button>
+    <button class="subtab" data-subtab="defi-swaps" role="tab">Swaps</button>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-defi-overview">
+    <p class="status">Every realm deployed under <code>gno.land/r/gnoswap/</code> — the ecosystem's DEX —
+      ranked by call activity. Path-prefix based, not a heuristic, so this one's exact rather than
+      best-effort.</p>
+    <p id="defiStatus" class="status">Loading…</p>
+    <table id="defiTable" style="display:none">
+      <thead><tr>
+        <th>Realm</th>
+        <th>Top function</th>
+        <th class="sortable" data-sort="calls">Calls</th>
+        <th class="sortable" data-sort="uniqueCallers">Callers</th>
+        <th class="sortable" data-sort="lastBlockTime">Last active</th>
+      </tr></thead>
+      <tbody id="defiBody"></tbody>
+    </table>
+    <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-defi-swaps" hidden>
+    <p class="status">Every swap executed through <code>gno.land/r/gnoswap/router</code>, read from the
+      <code>ExactInSwap</code>/<code>ExactOutSwap</code> event each one emits — covers single- and
+      multi-hop routes alike. Amounts are raw on-chain units (token decimals aren't reliably
+      discoverable on-chain, same caveat as the Scan Wallet tab). Follows the network selected above,
+      same as every other tab — Gnoswap is currently only deployed on testnet, so betanet will show none.</p>
+    <div class="wallet-form">
+      <label for="swapTokenFilter" class="status" style="white-space:nowrap">Filter by token:</label>
+      <select id="swapTokenFilter"><option value="">All tokens</option></select>
+    </div>
+    <p id="swapsStatus" class="status">Loading…</p>
+    <table id="swapsTable" style="display:none">
+      <thead><tr>
+        <th class="sortable" data-sort="blockTime">Time</th>
+        <th>Token in</th>
+        <th>Amount in</th>
+        <th>Token out</th>
+        <th>Amount out</th>
+        <th>Wallet</th>
+        <th>Tx</th>
+      </tr></thead>
+      <tbody id="swapsBody"></tbody>
+    </table>
+  </div>
 </div>
 
 <div class="tab-panel" id="panel-suggestions" hidden>
@@ -570,16 +613,17 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable"]) {
     document.getElementById(id).style.display = "none";
   }
-  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus"]) {
+  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus"]) {
     document.getElementById(id).textContent = "Loading…";
   }
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
     document.getElementById(id).style.display = "none";
   }
   document.getElementById("walletStatus").textContent = "";
+  swapRows = [];
 }
 
 select.addEventListener("change", () => {
@@ -1910,12 +1954,138 @@ function loadAllActivityTabs(netKey) {
   for (const t of ACTIVITY_TABS) loadActivityTab(netKey, t.key, t.cacheField, t.label);
 }
 
+// ---------- DeFi sub-tabs: Overview (above) / Swaps ----------
+
+document.querySelectorAll("#panel-defi .subtab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#panel-defi .subtab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#panel-defi .subtab-panel").forEach(p => { p.hidden = true; });
+    btn.classList.add("active");
+    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
+    // Reloaded on every open rather than cached client-side — getCachedData
+    // is already memoized per network, so this costs nothing extra unless
+    // the network changed since the last time Swaps was opened, in which
+    // case it needs to anyway.
+    if (btn.dataset.subtab === "defi-swaps") loadSwaps(currentKey);
+  });
+});
+
+function tokenSymbol(path) {
+  if (!path) return "—";
+  return path.slice(path.lastIndexOf(".") + 1);
+}
+
+function gnoscanTxUrl(hash) {
+  return `https://gnoscan.io/transactions/details?txhash=${encodeURIComponent(hash)}`;
+}
+
+const SWAPS_DISPLAY_LIMIT = 300;
+let swapRows = [];
+let swapSort = { key: "blockTime", dir: -1 };
+let swapTokenFilterValue = "";
+
+function sortedFilteredSwaps() {
+  let rows = swapRows;
+  if (swapTokenFilterValue) {
+    rows = rows.filter(s => s.tokenIn === swapTokenFilterValue || s.tokenOut === swapTokenFilterValue);
+  }
+  const { key, dir } = swapSort;
+  return rows.slice().sort((a, b) => {
+    let av = a[key], bv = b[key];
+    if (key === "blockTime") { av = av ? Date.parse(av) : 0; bv = bv ? Date.parse(bv) : 0; }
+    return dir * ((av ?? 0) - (bv ?? 0));
+  });
+}
+
+function renderSwaps() {
+  const rows = sortedFilteredSwaps();
+  const shown = rows.slice(0, SWAPS_DISPLAY_LIMIT);
+  document.getElementById("swapsBody").innerHTML = shown.map(s => `
+    <tr>
+      <td>${formatDate(s.blockTime)}</td>
+      <td title="${escapeHtml(s.tokenIn)}">${escapeHtml(tokenSymbol(s.tokenIn))}</td>
+      <td>${escapeHtml(s.amountIn)}</td>
+      <td title="${escapeHtml(s.tokenOut)}">${escapeHtml(tokenSymbol(s.tokenOut))}</td>
+      <td>${escapeHtml(s.amountOut)}</td>
+      <td>${truncateMiddle(s.caller)}</td>
+      <td><a href="${gnoscanTxUrl(s.hash)}" target="_blank" rel="noopener">view ↗</a></td>
+    </tr>
+  `).join("");
+  document.getElementById("swapsTable").style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll("#swapsTable th.sortable").forEach(th => {
+    const active = th.dataset.sort === swapSort.key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (swapSort.dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+
+  const statusEl = document.getElementById("swapsStatus");
+  statusEl.textContent = rows.length
+    ? `${rows.length} swap${rows.length === 1 ? "" : "s"}${rows.length > shown.length ? ` — showing the most recent ${shown.length}` : ""}.`
+    : "No swaps match this filter.";
+}
+
+document.querySelectorAll("#swapsTable th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    swapSort = swapSort.key === key ? { key, dir: swapSort.dir * -1 } : { key, dir: -1 };
+    renderSwaps();
+  });
+});
+
+document.getElementById("swapTokenFilter").addEventListener("change", (e) => {
+  swapTokenFilterValue = e.target.value;
+  renderSwaps();
+});
+
+async function loadSwaps(netKey) {
+  const statusEl = document.getElementById("swapsStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const cached = await getCachedData(netKey);
+    if (!cached || !cached.gnoswapSwaps) {
+      swapRows = [];
+      document.getElementById("swapsTable").style.display = "none";
+      statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+    swapRows = cached.gnoswapSwaps;
+
+    // Populate the token filter from the real token set in this network's
+    // data (not a hardcoded list, which would go stale as Gnoswap adds
+    // pairs) — preserves the current selection if it's still valid.
+    const select = document.getElementById("swapTokenFilter");
+    const prevValue = select.value;
+    const tokens = [...new Set(swapRows.flatMap(s => [s.tokenIn, s.tokenOut]))].sort();
+    select.innerHTML = '<option value="">All tokens</option>' +
+      tokens.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(tokenSymbol(t))}</option>`).join("");
+    select.value = tokens.includes(prevValue) ? prevValue : "";
+    swapTokenFilterValue = select.value;
+
+    renderSwaps();
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
 function loadAll(key) {
   const net = NETWORKS[key];
   loadRecentlyDeployed(net, key);
   loadTokens(net, key);
   loadNfts(net, key);
   loadAllActivityTabs(key);
+  // Swaps is lazy-loaded on first open (see the subtab click handler) —
+  // but if it's already open when the network changes, nothing would
+  // otherwise re-trigger it, leaving it stuck on the "Loading…" state
+  // clearAllTabData() just set. Same class of bug as the network-switch
+  // fix for the main tabs, just for a sub-tab.
+  const swapsPanel = document.getElementById("subpanel-defi-swaps");
+  if (swapsPanel && !swapsPanel.hidden) loadSwaps(key);
   showSnapshotHeight(net);
 }
 
