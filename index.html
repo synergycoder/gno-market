@@ -1187,6 +1187,14 @@ document.getElementById("walletNftBody").addEventListener("click", (e) => {
 // generic error.
 
 const ADENA_APP_NAME = "Gno.Observer";
+// Adena tracks per-domain approval itself ("the domain will be added to a
+// locally-stored whitelist" per its own docs) — once approved, a later
+// AddEstablish() from this same origin resolves silently, no popup. This
+// flag is just OUR memory of "the user connected before, so it's worth
+// attempting that silent reconnect automatically on page load" — without
+// it, a first-time visitor would trigger a pointless AddEstablish() call
+// (and Adena's connect prompt UI) before ever clicking anything.
+const ADENA_CONNECTED_KEY = "gnoObserver:adenaConnected";
 let adenaListenerRegistered = false;
 
 if (location.protocol === "file:") {
@@ -1194,7 +1202,53 @@ if (location.protocol === "file:") {
     'Note: browser extensions like Adena often restrict themselves to http(s) pages and won\'t inject ' +
     'into a <code>file://</code> page like this one, even with "Allow access to file URLs" enabled — ' +
     "that setting only helps for extensions whose manifest already targets file:// pages, which wallet " +
-    "connectors often don't. Serve this over http://localhost instead if Connect Adena can't detect it.";
+    "connectors don't. Serve this over http://localhost instead if Connect Adena can't detect it.";
+}
+
+// Does the actual AddEstablish + GetAccount round-trip; throws on failure,
+// resolves to the connected address on success. No UI/status-text/storage
+// side effects here — connectAdena() and autoReconnectAdena() each wrap
+// this with their own feedback, since a failed *automatic* attempt on page
+// load shouldn't show the same alarming "connection failed" message a
+// failed *manual* click should.
+async function establishAdenaConnection() {
+  const establishRes = await window.adena.AddEstablish(ADENA_APP_NAME);
+  // Adena reports status:"failure" with this message when the site was
+  // already authorized in a prior visit — not a real rejection, just a
+  // redundant no-op. Treat it as fine and proceed to read the account;
+  // only a genuine rejection/error should stop the flow here.
+  const alreadyConnected = /already connected/i.test(establishRes.message || "");
+  if (establishRes.status !== "success" && !alreadyConnected) {
+    throw new Error(establishRes.message || "Connection request was not approved.");
+  }
+
+  const accountRes = await window.adena.GetAccount();
+  if (accountRes.status !== "success" || !accountRes.data || !accountRes.data.address) {
+    throw new Error(accountRes.message || "Could not read the connected account.");
+  }
+  return accountRes.data.address;
+}
+
+function applyAdenaConnectedUI(address) {
+  const statusEl = document.getElementById("adenaStatus");
+  const btn = document.getElementById("adenaConnectBtn");
+  document.getElementById("walletInput").value = address;
+  statusEl.textContent = `Connected: ${address}`;
+  btn.textContent = "✓ Connected";
+  btn.classList.add("connected");
+
+  if (!adenaListenerRegistered) {
+    window.adena.On("changedAccount", (newAddress) => {
+      if (!newAddress) return;
+      document.getElementById("walletInput").value = newAddress;
+      statusEl.textContent = `Connected: ${newAddress}`;
+      scanWallet();
+    });
+    adenaListenerRegistered = true;
+  }
+
+  try { localStorage.setItem(ADENA_CONNECTED_KEY, "1"); } catch {}
+  scanWallet();
 }
 
 async function connectAdena() {
@@ -1217,48 +1271,50 @@ async function connectAdena() {
   btn.innerHTML = '<span class="spinner"></span>Connecting…';
   statusEl.textContent = "Connecting to Adena…";
   try {
-    const establishRes = await window.adena.AddEstablish(ADENA_APP_NAME);
-    // Adena reports status:"failure" with this message when the site was
-    // already authorized in a prior visit — not a real rejection, just a
-    // redundant no-op. Treat it as fine and proceed to read the account;
-    // only a genuine rejection/error should stop the flow here.
-    const alreadyConnected = /already connected/i.test(establishRes.message || "");
-    if (establishRes.status !== "success" && !alreadyConnected) {
-      throw new Error(establishRes.message || "Connection request was not approved.");
-    }
-
-    const accountRes = await window.adena.GetAccount();
-    if (accountRes.status !== "success" || !accountRes.data || !accountRes.data.address) {
-      throw new Error(accountRes.message || "Could not read the connected account.");
-    }
-
-    const address = accountRes.data.address;
-    document.getElementById("walletInput").value = address;
-    statusEl.textContent = `Connected: ${address}`;
-    btn.textContent = "✓ Connected";
-    btn.classList.add("connected");
-
-    if (!adenaListenerRegistered) {
-      window.adena.On("changedAccount", (newAddress) => {
-        if (!newAddress) return;
-        document.getElementById("walletInput").value = newAddress;
-        statusEl.textContent = `Connected: ${newAddress}`;
-        scanWallet();
-      });
-      adenaListenerRegistered = true;
-    }
-
-    scanWallet();
+    applyAdenaConnectedUI(await establishAdenaConnection());
   } catch (err) {
     statusEl.textContent = "Adena connection failed: " + err.message;
     btn.textContent = "Connect Adena";
     btn.classList.remove("connected");
+    try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Runs once on page load. If the user connected successfully before (per
+// our own localStorage flag) and Adena is present, silently redo the same
+// AddEstablish + GetAccount round-trip — since the domain is already
+// whitelisted on Adena's side, this resolves without a popup, so the
+// connection genuinely survives a refresh instead of dropping back to a
+// disconnected "Connect Adena" button every time.
+async function autoReconnectAdena() {
+  if (typeof window.adena === "undefined") return;
+  let wasConnected = false;
+  try { wasConnected = localStorage.getItem(ADENA_CONNECTED_KEY) === "1"; } catch {}
+  if (!wasConnected) return;
+
+  const btn = document.getElementById("adenaConnectBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Connecting…';
+  document.getElementById("adenaStatus").textContent = "Restoring your Adena connection…";
+  try {
+    applyAdenaConnectedUI(await establishAdenaConnection());
+  } catch {
+    // Silent on purpose — this attempt was automatic, not something the
+    // user clicked, so a scary "connection failed" message would be
+    // confusing. Just fall back to the normal idle button; a real click
+    // still works exactly as before.
+    document.getElementById("adenaStatus").textContent = "";
+    btn.textContent = "Connect Adena";
+    try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
   } finally {
     btn.disabled = false;
   }
 }
 
 document.getElementById("adenaConnectBtn").addEventListener("click", connectAdena);
+autoReconnectAdena();
 
 // ---------- Suggestions: on-chain feature requests + voting, testnet only ----------
 // (constants + in-flight flags live earlier in the script, right after
