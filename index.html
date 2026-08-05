@@ -142,6 +142,17 @@
     border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
     margin-right: 0.3rem; font-weight: 600;
   }
+  .genesis-tag {
+    display: inline-block; font-size: 0.72rem; padding: 0.1rem 0.5rem;
+    border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
+    font-weight: 600; letter-spacing: 0.02em;
+  }
+  .whale-tier {
+    display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem;
+    white-space: nowrap; color: var(--text-muted);
+  }
+  .whale-tier .tier-emoji { font-size: 1.15rem; line-height: 1; }
+  #whalesTable td:nth-child(2) { white-space: nowrap; }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover { background: var(--border-soft); }
   .preview-row td { padding: 0; border-bottom: none; }
@@ -511,9 +522,13 @@
   <div class="subtab-panel" id="subpanel-defi-swaps" hidden>
     <p class="status">Every swap executed through <code>gno.land/r/gnoswap/router</code>, read from the
       <code>ExactInSwap</code>/<code>ExactOutSwap</code> event each one emits — covers single- and
-      multi-hop routes alike. Amounts are raw on-chain units (token decimals aren't reliably
-      discoverable on-chain, same caveat as the Scan Wallet tab). Follows the network selected above,
-      same as every other tab — Gnoswap is currently only deployed on testnet, so betanet will show none.</p>
+      multi-hop routes alike. Amounts are converted to each token's normal human-readable unit using
+      its on-chain decimals (e.g. 5 GNS, not 5000000); a token whose decimals aren't exposed on-chain
+      falls back to showing its raw units, labeled as such. Native GNOT itself never appears here —
+      Gnoswap's pools require GRC20-compliant tokens, so native GNOT is traded via its 1:1 wrapped
+      form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot" target="_blank" rel="noopener">wugnot</a>,
+      instead. Follows the network selected above, same as every other tab — Gnoswap is currently only
+      deployed on testnet, so betanet will show none.</p>
     <div class="wallet-form">
       <label for="swapTokenFilter" class="status" style="white-space:nowrap">Filter by token:</label>
       <select id="swapTokenFilter"><option value="">All tokens</option></select>
@@ -535,17 +550,22 @@
 </div>
 
 <div class="tab-panel" id="panel-whales" hidden>
-  <h2>Whale Watch</h2>
+  <h2>🐋 Whale Watch</h2>
   <p class="status">Native GNOT balance for every address this site has seen deploy a package, call a
-    realm, execute a Gnoswap swap, or hold a genesis balance allocation — ranked richest first. The
-    indexer has no accounts/balances query at all, and the chain's own auth module exposes no
-    "list all accounts" query either (checked directly against the tm2/gno.land source), so each balance
-    is a real, exact RPC read, not an estimate — but this can only rank addresses this site has actually
-    observed, not literally every address that has ever existed on the chain.</p>
+    realm, execute a Gnoswap swap, send or receive a plain native-GNOT transfer, or hold a genesis
+    balance allocation — ranked richest first. The indexer has no accounts/balances query at all, and
+    the chain's own auth module exposes no "list all accounts" query either (checked directly against
+    the tm2/gno.land source), so each balance is a real, exact RPC read, not an estimate — but this can
+    only rank addresses this site has actually observed being active in some way, not literally every
+    address that has ever existed on the chain. Addresses marked <span class="genesis-tag">Genesis</span>
+    were funded directly in the chain's genesis file rather than observed via a transaction. The size
+    tier is recalculated live from the current list every time it loads, so it adjusts automatically as
+    more wallets are discovered.</p>
   <p id="whalesStatus" class="status">Loading…</p>
   <table id="whalesTable" style="display:none">
     <thead><tr>
       <th>#</th>
+      <th>Tier</th>
       <th>Address</th>
       <th class="sortable" data-sort="balance">Balance (GNOT)</th>
     </tr></thead>
@@ -2389,15 +2409,49 @@ function sortedWhaleRows() {
   return whaleRows.slice().sort((a, b) => dir * ((a[key] ?? 0) - (b[key] ?? 0)));
 }
 
+// A fun, meme-standard "size of sea creature" scale (the same idea as the
+// whale/shark/fish tiers crypto communities use for token holders), but
+// recomputed live from RANK within the current known-wallet list rather
+// than fixed GNOT thresholds — so it stays meaningful automatically as
+// more wallets get discovered (a "whale" among 20 known wallets and a
+// "whale" among 2,000 mean the same thing: top of THIS list), and a new,
+// even-bigger wallet showing up correctly demotes everyone below it.
+const WHALE_TIERS = [
+  { emoji: "🐋", label: "Humpback Whale", pct: 0.02 },
+  { emoji: "🐳", label: "Whale", pct: 0.05 },
+  { emoji: "🦈", label: "Shark", pct: 0.15 },
+  { emoji: "🐬", label: "Dolphin", pct: 0.30 },
+  { emoji: "🐙", label: "Octopus", pct: 0.45 },
+  { emoji: "🐠", label: "Tropical Fish", pct: 0.65 },
+  { emoji: "🐟", label: "Fish", pct: 0.85 },
+  { emoji: "🦀", label: "Crab", pct: 0.95 },
+  { emoji: "🦐", label: "Shrimp", pct: 1.01 },
+];
+function computeWhaleTiers(rows) {
+  const byBalanceDesc = rows.slice().sort((a, b) => b.balance - a.balance);
+  const total = byBalanceDesc.length || 1;
+  const tierByAddress = new Map();
+  byBalanceDesc.forEach((r, i) => {
+    const pct = (i + 1) / total;
+    const tier = WHALE_TIERS.find(t => pct <= t.pct) || WHALE_TIERS[WHALE_TIERS.length - 1];
+    tierByAddress.set(r.address, { ...tier, rank: i + 1 });
+  });
+  return tierByAddress;
+}
+
 function renderWhaleWatch() {
   const rows = sortedWhaleRows();
-  document.getElementById("whalesBody").innerHTML = rows.map((r, i) => `
+  const tierMap = computeWhaleTiers(whaleRows);
+  document.getElementById("whalesBody").innerHTML = rows.map((r, i) => {
+    const tier = tierMap.get(r.address) || WHALE_TIERS[WHALE_TIERS.length - 1];
+    return `
     <tr>
       <td>${i + 1}</td>
-      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a></td>
+      <td><span class="whale-tier" title="Ranked #${tier.rank} of ${whaleRows.length} known wallets by balance"><span class="tier-emoji">${tier.emoji}</span>${tier.label}</span></td>
+      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a>${r.genesis ? ' <span class="genesis-tag">Genesis</span>' : ""}</td>
       <td>${formatGnot(r.balance)}</td>
-    </tr>
-  `).join("");
+    </tr>`;
+  }).join("");
   document.getElementById("whalesTable").style.display = rows.length ? "table" : "none";
 
   document.querySelectorAll("#whalesTable th.sortable").forEach(th => {

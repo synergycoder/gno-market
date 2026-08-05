@@ -109,6 +109,23 @@ async function fetchTokens(net) {
   return rows;
 }
 
+// Unlike Decimals()/GetDecimals(), TotalSupply() is exposed consistently
+// (confirmed live against every registered token plus wugnot — every one
+// answered) and, unlike decimals, is NOT static: mint/burn changes it, so
+// this is re-fetched in full every run rather than cached incrementally.
+async function fetchTokenTotalSupplies(net, tokenPaths) {
+  const results = await mapLimit(tokenPaths, 8, async (path) => {
+    try {
+      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.TotalSupply()`);
+      const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
+      return [path, m ? Number(m[1]) : null];
+    } catch {
+      return [path, null];
+    }
+  });
+  return Object.fromEntries(results);
+}
+
 // Swap/Transfer events encode a token as "<realm path>.<SYMBOL>" (e.g.
 // "gno.land/r/gnoswap/gns.GNS"), not a bare realm path — calling
 // Decimals() (or anything else) against the compound form is a malformed
@@ -377,6 +394,45 @@ async function fetchCallActivity(net, prevState) {
   return { byPath: serializedByPath, lastHeight: newHeight, newCount };
 }
 
+// ---------- bank sends: catches wallets that never called a contract at all ----------
+// fetchCallActivity only ever sees addresses that issued a MsgCall/MsgAddPackage
+// — a wallet that has only ever sent or received plain native GNOT (a raw
+// `/bank.MsgSend`, e.g. an exchange withdrawal or a friend-to-friend
+// transfer) never shows up there. The indexer exposes this message type
+// directly (route "bank", typeUrl "send", union member `BankMsgSend` with
+// `from_address`/`to_address` — confirmed live), so pulling it separately
+// and adding both sides of every transfer is the whole fix — same
+// incremental block_height-watermark pattern as fetchCallActivity.
+async function fetchBankSendAddresses(net, prevState) {
+  const lastHeight = prevState?.lastHeight || 0;
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        block_height: { gt: ${lastHeight} },
+        messages: { route: { eq: "bank" }, typeUrl: { eq: "send" } }
+      }) {
+        block_height
+        messages { value { ... on BankMsgSend { from_address to_address } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 60000);
+
+  const addresses = new Set(prevState?.addresses || []);
+  const sizeBefore = addresses.size;
+  let newHeight = lastHeight;
+  for (const tx of data.getTransactions || []) {
+    for (const msg of tx.messages) {
+      const v = msg.value;
+      if (!v || !v.from_address) continue;
+      addresses.add(v.from_address);
+      if (v.to_address) addresses.add(v.to_address);
+      if (tx.block_height > newHeight) newHeight = tx.block_height;
+    }
+  }
+  return { addresses: [...addresses], lastHeight: newHeight, newCount: addresses.size - sizeBefore };
+}
+
 // ---------- genesis-only realms: same qpaths-diff + qfile scan as the client ----------
 
 async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
@@ -544,15 +600,16 @@ async function fetchGenesisBalanceAddresses(net) {
 // shown is exact, not estimated. Re-fetched in full every run rather than
 // cached incrementally — unlike a monotonic counter, a balance can go
 // down, so a "only fetch what's missing" cache would go stale.
-async function fetchWhaleWatch(net, knownAddresses) {
+async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
   const results = await mapLimit([...knownAddresses], 8, async (addr) => {
+    const genesis = genesisAddresses.has(addr);
     try {
       const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
-      if (!raw || raw.trim() === "null") return { address: addr, balance: 0 };
+      if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis };
       const parsed = JSON.parse(raw);
       const coins = parsed?.BaseAccount?.coins || "";
       const m = /^(\d+)ugnot$/.exec(coins.trim());
-      return { address: addr, balance: m ? Number(m[1]) : 0 };
+      return { address: addr, balance: m ? Number(m[1]) : 0, genesis };
     } catch {
       return null; // leave this address out rather than reporting a false 0
     }
@@ -572,17 +629,19 @@ async function buildNetwork(netKey, net) {
     // no previous run, or corrupt — start fresh
   }
 
-  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult] = await Promise.all([
+  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult] = await Promise.all([
     fetchTokens(net),
     abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
     fetchCallActivity(net, prev?.callActivity),
     fetchGnoswapSwaps(net, prev?.swapActivity),
+    fetchBankSendAddresses(net, prev?.bankSendActivity),
   ]);
   console.log(`tokens: ${tokens.length}`);
   console.log(`tx-deployed packages: ${Object.keys(txResult.packages).length} (${txResult.newCount} new this run)`);
   console.log(`call activity: ${Object.keys(callActivityResult.byPath).length} realms with calls (${callActivityResult.newCount} new calls this run)`);
   console.log(`gnoswap swaps: ${Object.keys(swapsResult.swaps).length} (${swapsResult.newCount} new this run)`);
+  console.log(`bank sends: ${bankSendResult.addresses.length} addresses seen (${bankSendResult.newCount} new this run)`);
 
   const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
   const txPaths = new Set(Object.keys(txResult.packages).filter(p => p.startsWith("gno.land/r/")));
@@ -656,14 +715,20 @@ async function buildNetwork(netKey, net) {
   const tokenDecimals = await fetchTokenDecimals(net, [...tokenPathsNeedingDecimals], prev?.tokenDecimals);
   console.log(`token decimals: ${Object.values(tokenDecimals).filter(d => d != null).length}/${Object.keys(tokenDecimals).length} resolved`);
 
+  const totalSupplies = await fetchTokenTotalSupplies(net, tokens.map(t => t.path));
+  for (const t of tokens) t.totalSupply = totalSupplies[t.path] ?? null;
+  console.log(`token total supplies: ${Object.values(totalSupplies).filter(s => s != null).length}/${tokens.length} resolved`);
+
   const knownAddresses = new Set();
   for (const p of Object.values(txResult.packages)) if (p.creator) knownAddresses.add(p.creator);
   for (const a of Object.values(callActivityResult.byPath)) for (const c of a.callers) knownAddresses.add(c);
   for (const s of Object.values(swapsResult.swaps)) if (s.caller) knownAddresses.add(s.caller);
+  for (const addr of bankSendResult.addresses) knownAddresses.add(addr);
   const genesisAddrs = await fetchGenesisBalanceAddresses(net);
+  const genesisAddrSet = new Set(genesisAddrs);
   for (const addr of genesisAddrs) knownAddresses.add(addr);
-  const whaleWatch = await fetchWhaleWatch(net, knownAddresses);
-  console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked (${genesisAddrs.length} from genesis balances)`);
+  const whaleWatch = await fetchWhaleWatch(net, knownAddresses, genesisAddrSet);
+  console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked (${genesisAddrs.length} from genesis balances, ${bankSendResult.addresses.length} from bank sends)`);
 
   const output = {
     network: netKey,
@@ -683,6 +748,7 @@ async function buildNetwork(netKey, net) {
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
     swapActivity: { swaps: swapsResult.swaps, lastHeight: swapsResult.lastHeight },
+    bankSendActivity: { addresses: bankSendResult.addresses, lastHeight: bankSendResult.lastHeight },
     stats: {
       tokenCount: tokens.length,
       nftRealmCount: nftRealms.length,
