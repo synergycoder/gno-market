@@ -195,17 +195,40 @@
   }
   .stat-tile.clickable:hover .stat-value { color: var(--accent-strong); }
 
-  .bar-chart {
-    display: flex; align-items: flex-end; gap: 2px; height: 110px; margin: 0.5rem 0 1.75rem;
-    border-bottom: 1px solid var(--border-soft); padding-bottom: 1px;
+  .chart-block { margin: 1.25rem 0 2rem; }
+  .chart-header {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+    margin-bottom: 0.5rem;
   }
-  .bar-chart .bar {
-    flex: 1; min-width: 2px; min-height: 2px; background: var(--accent);
-    border-radius: 2px 2px 0 0; cursor: default;
+  .chart-header h3 { margin: 0; }
+  .range-switcher {
+    display: flex; gap: 0.15rem; background: var(--bg-elevated); border: 1px solid var(--border-soft);
+    border-radius: 6px; padding: 0.2rem;
   }
-  .bar-chart .bar:hover { background: var(--accent-strong); }
-  .bar-chart .bar.swap-bar { background: var(--accent-2); }
-  .bar-chart .bar.swap-bar:hover { opacity: 0.8; }
+  .range-switcher button {
+    background: none; border: none; color: var(--text-muted); font-family: inherit; font-size: 0.78rem;
+    padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: 600;
+  }
+  .range-switcher button:hover { color: var(--text); }
+  .range-switcher button.active { background: var(--accent); color: #1a1108; }
+
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-bar { cursor: pointer; transition: opacity 0.1s ease; }
+  .chart-bar:hover, .chart-bar.hovered { opacity: 0.7; }
+  .chart-gridline { stroke: var(--border-soft); stroke-width: 1; }
+  .chart-axis-label { fill: var(--text-muted); font-size: 10px; font-family: inherit; }
+  .chart-hover-line { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; pointer-events: none; opacity: 0; }
+
+  .chart-tooltip {
+    position: absolute; pointer-events: none; background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--text); white-space: nowrap;
+    box-shadow: var(--shadow); opacity: 0; transform: translate(-50%, -100%); transition: opacity 0.08s ease;
+    z-index: 5;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .chart-tooltip .tt-value { font-weight: 700; }
+  .chart-tooltip .tt-label { color: var(--text-muted); font-size: 0.72rem; }
 
   .wallet-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
   .wallet-form input {
@@ -541,10 +564,32 @@
   <div id="dashboardStats" class="stat-grid" style="display:none"></div>
 
   <div id="dashboardCharts" style="display:none">
-    <h3>Realm/package deploys per day (last 30 days)</h3>
-    <div id="deployChart" class="bar-chart"></div>
-    <h3>Gnoswap swaps per day (last 30 days)</h3>
-    <div id="swapChart" class="bar-chart"></div>
+    <div class="chart-block">
+      <div class="chart-header">
+        <h3>Realm/package deploys</h3>
+        <div class="range-switcher" data-chart="deploy">
+          <button data-range="24h">24H</button>
+          <button data-range="7d">7D</button>
+          <button data-range="30d" class="active">30D</button>
+          <button data-range="1y">1Y</button>
+          <button data-range="all">All</button>
+        </div>
+      </div>
+      <div class="chart-wrap" id="deployChartWrap"></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-header">
+        <h3>Gnoswap swaps</h3>
+        <div class="range-switcher" data-chart="swap">
+          <button data-range="24h">24H</button>
+          <button data-range="7d">7D</button>
+          <button data-range="30d" class="active">30D</button>
+          <button data-range="1y">1Y</button>
+          <button data-range="all">All</button>
+        </div>
+      </div>
+      <div class="chart-wrap" id="swapChartWrap"></div>
+    </div>
   </div>
 </div>
 
@@ -2399,31 +2444,144 @@ async function loadWhaleWatch(netKey) {
 // fetched for the other tabs (no extra queries) plus one fresh height
 // check for a live-feeling number at the top. ----------
 
-function bucketByDay(items, days = 30) {
-  const dayMs = 86400000;
+// Hour buckets for 24h, day buckets for 7d/30d, week buckets for 1y/all
+// (a year of daily bars would be 365 mostly-illegible slivers). "all"
+// starts from the earliest real timestamp in the data rather than a
+// fixed window, so it naturally grows as the chain does instead of
+// showing a wall of empty buckets on a three-week-old chain.
+const CHART_RANGES = {
+  "24h": { windowMs: 24 * 3600000, bucketMs: 3600000 },
+  "7d": { windowMs: 7 * 86400000, bucketMs: 86400000 },
+  "30d": { windowMs: 30 * 86400000, bucketMs: 86400000 },
+  "1y": { windowMs: 365 * 86400000, bucketMs: 7 * 86400000 },
+  "all": { windowMs: null, bucketMs: 7 * 86400000 },
+};
+
+function bucketByRange(items, rangeKey) {
+  const range = CHART_RANGES[rangeKey];
   const now = Date.now();
-  const buckets = new Map();
-  for (let i = days - 1; i >= 0; i--) {
-    buckets.set(new Date(now - i * dayMs).toISOString().slice(0, 10), 0);
+  let start;
+  if (range.windowMs) {
+    start = now - range.windowMs;
+  } else {
+    const times = items.map(i => i.blockTime && Date.parse(i.blockTime)).filter(t => t && !isNaN(t));
+    start = times.length ? Math.min(...times) : now - range.bucketMs;
   }
-  const cutoff = now - days * dayMs;
+  const count = Math.max(1, Math.min(400, Math.ceil((now - start) / range.bucketMs)));
+  const buckets = Array.from({ length: count }, (_, i) => ({ start: start + i * range.bucketMs, count: 0 }));
   for (const item of items) {
     if (!item.blockTime) continue;
     const t = Date.parse(item.blockTime);
-    if (isNaN(t) || t < cutoff) continue;
-    const key = new Date(t).toISOString().slice(0, 10);
-    if (buckets.has(key)) buckets.set(key, buckets.get(key) + 1);
+    if (isNaN(t) || t < start) continue;
+    const idx = Math.min(count - 1, Math.floor((t - start) / range.bucketMs));
+    buckets[idx].count++;
   }
-  return [...buckets.entries()];
+  return buckets;
 }
 
-function renderBarChart(containerId, buckets, extraClass) {
-  const max = Math.max(1, ...buckets.map(([, c]) => c));
-  document.getElementById(containerId).innerHTML = buckets.map(([date, count]) => {
-    const pct = count > 0 ? Math.max(2, Math.round((count / max) * 100)) : 1;
-    return `<div class="bar${extraClass ? " " + extraClass : ""}" style="height:${pct}%" title="${escapeHtml(date)}: ${count}"></div>`;
-  }).join("");
+function formatBucketLabel(startMs, rangeKey) {
+  const d = new Date(startMs);
+  if (rangeKey === "24h") return d.toLocaleTimeString(undefined, { hour: "numeric" });
+  if (rangeKey === "7d" || rangeKey === "30d") return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return "week of " + d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
+
+// A from-scratch SVG bar chart rather than a charting library, consistent
+// with the rest of this project's zero-dependency approach. Custom hover
+// layer (a transparent full-height rect per bar, positioned tooltip div)
+// instead of the browser's native `title` — that has a real OS-level
+// delay before it appears, which is exactly the sluggishness this
+// replaces.
+const chartState = {}; // chartKey -> current rangeKey
+const chartItems = {}; // chartKey -> the raw items last loaded, so switching ranges doesn't re-fetch
+
+function renderTimeSeriesChart(chartKey, items, color) {
+  const rangeKey = chartState[chartKey] || "30d";
+  chartState[chartKey] = rangeKey;
+  const buckets = bucketByRange(items, rangeKey);
+  const max = Math.max(1, ...buckets.map(b => b.count));
+
+  const W = 800, H = 220, marginLeft = 40, marginRight = 12, marginTop = 12, marginBottom = 28;
+  const plotW = W - marginLeft - marginRight;
+  const plotH = H - marginTop - marginBottom;
+  const slotW = plotW / buckets.length;
+  const barW = Math.max(1, slotW * 0.7);
+
+  const gridCount = 4;
+  let gridlines = "";
+  for (let i = 0; i <= gridCount; i++) {
+    const y = marginTop + plotH - (i / gridCount) * plotH;
+    const value = Math.round((i / gridCount) * max);
+    gridlines += `
+      <line class="chart-gridline" x1="${marginLeft}" y1="${y}" x2="${W - marginRight}" y2="${y}"></line>
+      <text class="chart-axis-label" x="${marginLeft - 6}" y="${y + 3}" text-anchor="end">${value.toLocaleString()}</text>`;
+  }
+
+  // Show at most ~7 x-axis labels regardless of bucket count, evenly spaced.
+  const labelStride = Math.max(1, Math.ceil(buckets.length / 7));
+  let xLabels = "";
+  buckets.forEach((b, i) => {
+    if (i % labelStride !== 0 && i !== buckets.length - 1) return;
+    const x = marginLeft + i * slotW + slotW / 2;
+    xLabels += `<text class="chart-axis-label" x="${x}" y="${H - 8}" text-anchor="middle">${escapeHtml(formatBucketLabel(b.start, rangeKey))}</text>`;
+  });
+
+  let bars = "", hoverZones = "";
+  buckets.forEach((b, i) => {
+    const barH = (b.count / max) * plotH;
+    const x = marginLeft + i * slotW + (slotW - barW) / 2;
+    const y = marginTop + plotH - barH;
+    bars += `<rect class="chart-bar" data-idx="${i}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${Math.max(1, barH).toFixed(2)}" rx="2" fill="${color}"></rect>`;
+    hoverZones += `<rect class="chart-hover-zone" data-idx="${i}" x="${(marginLeft + i * slotW).toFixed(2)}" y="${marginTop}" width="${slotW.toFixed(2)}" height="${plotH}" fill="transparent"></rect>`;
+  });
+
+  const wrap = document.getElementById(`${chartKey}ChartWrap`);
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      ${gridlines}
+      ${bars}
+      <line class="chart-hover-line" id="${chartKey}HoverLine" x1="0" y1="${marginTop}" x2="0" y2="${marginTop + plotH}"></line>
+      ${xLabels}
+      ${hoverZones}
+    </svg>
+    <div class="chart-tooltip" id="${chartKey}Tooltip"></div>
+  `;
+
+  const tooltip = document.getElementById(`${chartKey}Tooltip`);
+  const hoverLine = document.getElementById(`${chartKey}HoverLine`);
+  wrap.querySelectorAll(".chart-hover-zone").forEach((zone, i) => {
+    const b = buckets[i];
+    const barEl = wrap.querySelector(`.chart-bar[data-idx="${i}"]`);
+    zone.addEventListener("mouseenter", () => {
+      barEl.classList.add("hovered");
+      hoverLine.setAttribute("x1", zone.getAttribute("x") * 1 + slotW / 2);
+      hoverLine.setAttribute("x2", zone.getAttribute("x") * 1 + slotW / 2);
+      hoverLine.style.opacity = "1";
+      tooltip.innerHTML = `<div class="tt-value">${b.count.toLocaleString()}</div><div class="tt-label">${escapeHtml(formatBucketLabel(b.start, rangeKey))}</div>`;
+      const zoneRect = zone.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      tooltip.style.left = `${zoneRect.left - wrapRect.left + zoneRect.width / 2}px`;
+      tooltip.style.top = `${zoneRect.top - wrapRect.top}px`;
+      tooltip.classList.add("visible");
+    });
+    zone.addEventListener("mouseleave", () => {
+      barEl.classList.remove("hovered");
+      hoverLine.style.opacity = "0";
+      tooltip.classList.remove("visible");
+    });
+  });
+}
+
+document.querySelectorAll(".range-switcher").forEach(switcher => {
+  const chartKey = switcher.dataset.chart;
+  switcher.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      switcher.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      chartState[chartKey] = btn.dataset.range;
+      renderTimeSeriesChart(chartKey, chartItems[chartKey] || [], chartKey === "deploy" ? "var(--accent)" : "var(--accent-2)");
+    });
+  });
+});
 
 function goToStatTileTarget(tile) {
   const tab = tile.dataset.linkTab;
@@ -2487,8 +2645,10 @@ async function loadDashboard(netKey) {
     `).join("");
     document.getElementById("dashboardStats").style.display = "grid";
 
-    renderBarChart("deployChart", bucketByDay(cached.recentDeployed || []));
-    renderBarChart("swapChart", bucketByDay(cached.gnoswapSwaps || []), "swap-bar");
+    chartItems.deploy = cached.recentDeployed || [];
+    chartItems.swap = cached.gnoswapSwaps || [];
+    renderTimeSeriesChart("deploy", chartItems.deploy, "var(--accent)");
+    renderTimeSeriesChart("swap", chartItems.swap, "var(--accent-2)");
     document.getElementById("dashboardCharts").style.display = "block";
 
     statusEl.textContent = cacheAgeNote(cached.generatedAt);
