@@ -3098,12 +3098,8 @@ document.getElementById("forceRefreshBtn").addEventListener("click", forceRefres
 
 loadAll(currentKey);
 
-// TODO: replace with the real receiving address before this ships live —
-// GnoDonate.init() intentionally no-ops (logs a console error, renders no
-// button) against a placeholder/invalid address rather than risk donations
-// silently going nowhere or to the wrong wallet.
 GnoDonate.init({
-  recipient: "PENDING_YOUR_ADDRESS_HERE",
+  recipient: "g1ur08yslxv9z4eywcy5dq83w0hkgm9nhjak4d0n",
   projectName: "Gno.Observer",
   appName: "Gno.Observer",
   chainId: NETWORKS.testnet.chainId,
