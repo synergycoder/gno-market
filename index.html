@@ -179,6 +179,29 @@
   .subtab.active { color: var(--accent-2); border-bottom-color: var(--accent-2); font-weight: 600; }
   .subtab-panel { padding-top: 1rem; }
 
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem; margin: 1rem 0 1.5rem;
+  }
+  .stat-tile {
+    background: var(--bg-elevated); border: 1px solid var(--border-soft); border-radius: 8px;
+    padding: 0.9rem 1rem;
+  }
+  .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .stat-tile .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  .bar-chart {
+    display: flex; align-items: flex-end; gap: 2px; height: 110px; margin: 0.5rem 0 1.75rem;
+    border-bottom: 1px solid var(--border-soft); padding-bottom: 1px;
+  }
+  .bar-chart .bar {
+    flex: 1; min-width: 2px; min-height: 2px; background: var(--accent);
+    border-radius: 2px 2px 0 0; cursor: default;
+  }
+  .bar-chart .bar:hover { background: var(--accent-strong); }
+  .bar-chart .bar.swap-bar { background: var(--accent-2); }
+  .bar-chart .bar.swap-bar:hover { opacity: 0.8; }
+
   .wallet-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
   .wallet-form input {
     flex: 1; min-width: 0; padding: 0.55rem 0.7rem; border-radius: 6px;
@@ -279,6 +302,7 @@
   <button class="tab" data-tab="social" role="tab">Social</button>
   <button class="tab" data-tab="defi" role="tab">DeFi (Gnoswap)</button>
   <button class="tab" data-tab="whales" role="tab">Whale Watch</button>
+  <button class="tab" data-tab="console" role="tab">Console</button>
 </div>
 
 <div class="tab-panel" id="panel-new">
@@ -499,6 +523,24 @@
   </table>
 </div>
 
+<div class="tab-panel" id="panel-console" hidden>
+  <h2>Console</h2>
+  <p class="status">Chain-wide stats and activity, built entirely from data already precomputed for the
+    other tabs — no extra queries. Native token price, market cap, and a trading-volume chart are planned
+    but held back for now: GNOT has no real-world market (this is testnet, gno.land has no mainnet yet),
+    so anything price-shaped needs careful, explicit labeling before it ships.</p>
+  <p id="consoleStatus" class="status">Loading…</p>
+
+  <div id="consoleStats" class="stat-grid" style="display:none"></div>
+
+  <div id="consoleCharts" style="display:none">
+    <h3>Realm/package deploys per day (last 30 days)</h3>
+    <div id="deployChart" class="bar-chart"></div>
+    <h3>Gnoswap swaps per day (last 30 days)</h3>
+    <div id="swapChart" class="bar-chart"></div>
+  </div>
+</div>
+
 <div class="tab-panel" id="panel-suggestions" hidden>
   <h2>Suggestions</h2>
   <p class="status">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
@@ -632,10 +674,10 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "consoleStats", "consoleCharts"]) {
     document.getElementById(id).style.display = "none";
   }
-  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus"]) {
+  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus", "consoleStatus"]) {
     document.getElementById(id).textContent = "Loading…";
   }
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
@@ -2210,6 +2252,90 @@ async function loadWhaleWatch(netKey) {
   }
 }
 
+// ---------- Console: chain-wide stats, built entirely from data already
+// fetched for the other tabs (no extra queries) plus one fresh height
+// check for a live-feeling number at the top. ----------
+
+function bucketByDay(items, days = 30) {
+  const dayMs = 86400000;
+  const now = Date.now();
+  const buckets = new Map();
+  for (let i = days - 1; i >= 0; i--) {
+    buckets.set(new Date(now - i * dayMs).toISOString().slice(0, 10), 0);
+  }
+  const cutoff = now - days * dayMs;
+  for (const item of items) {
+    if (!item.blockTime) continue;
+    const t = Date.parse(item.blockTime);
+    if (isNaN(t) || t < cutoff) continue;
+    const key = new Date(t).toISOString().slice(0, 10);
+    if (buckets.has(key)) buckets.set(key, buckets.get(key) + 1);
+  }
+  return [...buckets.entries()];
+}
+
+function renderBarChart(containerId, buckets, extraClass) {
+  const max = Math.max(1, ...buckets.map(([, c]) => c));
+  document.getElementById(containerId).innerHTML = buckets.map(([date, count]) => {
+    const pct = count > 0 ? Math.max(2, Math.round((count / max) * 100)) : 1;
+    return `<div class="bar${extraClass ? " " + extraClass : ""}" style="height:${pct}%" title="${escapeHtml(date)}: ${count}"></div>`;
+  }).join("");
+}
+
+async function loadConsole(netKey) {
+  const statusEl = document.getElementById("consoleStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const net = NETWORKS[netKey];
+    const cached = await getCachedData(netKey);
+    if (!cached) {
+      document.getElementById("consoleStats").style.display = "none";
+      document.getElementById("consoleCharts").style.display = "none";
+      statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+
+    let height = cached.lastHeight;
+    try {
+      const res = await fetch(net.indexerUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: "query { latestBlockHeight }" }),
+      });
+      const json = await res.json();
+      if (json.data && json.data.latestBlockHeight) height = json.data.latestBlockHeight;
+    } catch {
+      // fall back to the cache's own lastHeight, set above
+    }
+
+    const stats = [
+      { label: "Block height", value: (height ?? "—").toLocaleString?.() ?? String(height ?? "—") },
+      { label: "Realms/packages deployed", value: Object.keys(cached.txPackages || {}).length.toLocaleString() },
+      { label: "Known active wallets", value: (cached.whaleWatch || []).length.toLocaleString() },
+      { label: "GRC20 tokens tracked", value: (cached.tokens || []).length.toLocaleString() },
+      { label: "NFT collections detected", value: (cached.stats?.nftRealmCount ?? 0).toLocaleString() },
+      { label: "DAO governance realms", value: (cached.stats?.governanceRealmCount ?? 0).toLocaleString() },
+      { label: "Social realms", value: (cached.stats?.socialRealmCount ?? 0).toLocaleString() },
+      { label: "Gnoswap swaps (all-time)", value: (cached.gnoswapSwaps || []).length.toLocaleString() },
+    ];
+    document.getElementById("consoleStats").innerHTML = stats.map(s => `
+      <div class="stat-tile">
+        <div class="stat-value">${escapeHtml(s.value)}</div>
+        <div class="stat-label">${escapeHtml(s.label)}</div>
+      </div>
+    `).join("");
+    document.getElementById("consoleStats").style.display = "grid";
+
+    renderBarChart("deployChart", bucketByDay(cached.recentDeployed || []));
+    renderBarChart("swapChart", bucketByDay(cached.gnoswapSwaps || []), "swap-bar");
+    document.getElementById("consoleCharts").style.display = "block";
+
+    statusEl.textContent = cacheAgeNote(cached.generatedAt);
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
 function loadAll(key) {
   const net = NETWORKS[key];
   loadRecentlyDeployed(net, key);
@@ -2217,6 +2343,7 @@ function loadAll(key) {
   loadNfts(net, key);
   loadAllActivityTabs(key);
   loadWhaleWatch(key);
+  loadConsole(key);
   // Swaps is lazy-loaded on first open (see the subtab click handler) —
   // but if it's already open when the network changes, nothing would
   // otherwise re-trigger it, leaving it stuck on the "Loading…" state
