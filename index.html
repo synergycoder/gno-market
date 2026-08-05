@@ -156,7 +156,7 @@
   code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
 
   .tabs {
-    display: flex; gap: 0.25rem; margin-top: 1.8rem;
+    display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 1.8rem;
     border-bottom: 1px solid var(--border);
   }
   .tab {
@@ -278,6 +278,7 @@
   <button class="tab" data-tab="governance" role="tab">DAO Governance</button>
   <button class="tab" data-tab="social" role="tab">Social</button>
   <button class="tab" data-tab="defi" role="tab">DeFi (Gnoswap)</button>
+  <button class="tab" data-tab="whales" role="tab">Whale Watch</button>
 </div>
 
 <div class="tab-panel" id="panel-new">
@@ -480,6 +481,24 @@
   </div>
 </div>
 
+<div class="tab-panel" id="panel-whales" hidden>
+  <h2>Whale Watch</h2>
+  <p class="status">Native GNOT balance for every address this site has seen deploy a package, call a
+    realm, or execute a Gnoswap swap — ranked richest first. The indexer has no accounts/balances query
+    at all, so each balance is a real, exact RPC read, not an estimate — but this can only rank addresses
+    this site has actually observed being active, not literally every address that has ever existed on
+    the chain.</p>
+  <p id="whalesStatus" class="status">Loading…</p>
+  <table id="whalesTable" style="display:none">
+    <thead><tr>
+      <th>#</th>
+      <th>Address</th>
+      <th class="sortable" data-sort="balance">Balance (GNOT)</th>
+    </tr></thead>
+    <tbody id="whalesBody"></tbody>
+  </table>
+</div>
+
 <div class="tab-panel" id="panel-suggestions" hidden>
   <h2>Suggestions</h2>
   <p class="status">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
@@ -613,10 +632,10 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable"]) {
     document.getElementById(id).style.display = "none";
   }
-  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus"]) {
+  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus"]) {
     document.getElementById(id).textContent = "Loading…";
   }
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
@@ -624,6 +643,7 @@ function clearAllTabData() {
   }
   document.getElementById("walletStatus").textContent = "";
   swapRows = [];
+  whaleRows = [];
 }
 
 select.addEventListener("change", () => {
@@ -2073,12 +2093,74 @@ async function loadSwaps(netKey) {
   }
 }
 
+// ---------- Whale Watch ----------
+
+let whaleRows = [];
+let whaleSort = { key: "balance", dir: -1 };
+
+function sortedWhaleRows() {
+  const { key, dir } = whaleSort;
+  return whaleRows.slice().sort((a, b) => dir * ((a[key] ?? 0) - (b[key] ?? 0)));
+}
+
+function renderWhaleWatch() {
+  const rows = sortedWhaleRows();
+  document.getElementById("whalesBody").innerHTML = rows.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateMiddle(r.address)}</a></td>
+      <td>${formatGnot(r.balance)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("whalesTable").style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll("#whalesTable th.sortable").forEach(th => {
+    const active = th.dataset.sort === whaleSort.key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (whaleSort.dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+}
+
+document.querySelectorAll("#whalesTable th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    whaleSort = whaleSort.key === key ? { key, dir: whaleSort.dir * -1 } : { key, dir: -1 };
+    renderWhaleWatch();
+  });
+});
+
+async function loadWhaleWatch(netKey) {
+  const statusEl = document.getElementById("whalesStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const cached = await getCachedData(netKey);
+    if (!cached || !cached.whaleWatch) {
+      whaleRows = [];
+      document.getElementById("whalesTable").style.display = "none";
+      statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+    whaleRows = cached.whaleWatch;
+    renderWhaleWatch();
+    statusEl.textContent = `${whaleRows.length} known address${whaleRows.length === 1 ? "" : "es"} checked. ` +
+      cacheAgeNote(cached.generatedAt);
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
 function loadAll(key) {
   const net = NETWORKS[key];
   loadRecentlyDeployed(net, key);
   loadTokens(net, key);
   loadNfts(net, key);
   loadAllActivityTabs(key);
+  loadWhaleWatch(key);
   // Swaps is lazy-loaded on first open (see the subtab click handler) —
   // but if it's already open when the network changes, nothing would
   // otherwise re-trigger it, leaving it stuck on the "Loading…" state

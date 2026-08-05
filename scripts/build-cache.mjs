@@ -432,6 +432,37 @@ async function fetchGnoswapSwaps(net, prevState) {
   return { swaps, lastHeight: newHeight, newCount };
 }
 
+// ---------- whale watch: native GNOT balance of every known-active address ----------
+// The indexer exposes no accounts/balances query at all (confirmed via
+// schema introspection — only latestBlockHeight/getBlocks/getTransactions
+// exist), and reconstructing native GNOT balances from transfer events
+// would be unreliable anyway (gas fees, genesis airdrops, and internal
+// contract-to-contract sends don't surface as any indexed event/message,
+// unlike GRC20 transfers which are fully event-driven by the standard).
+// Instead: query the REAL, current balance via RPC for every address this
+// build has already seen be a deployer, caller, or swap participant — a
+// "known active wallets" ranking, not a true global top-N (there's no way
+// to enumerate literally every address that has ever existed on the
+// chain), but every number shown is exact, not estimated. Re-fetched in
+// full every run rather than cached incrementally — unlike a monotonic
+// counter, a balance can go down, so a "only fetch what's missing" cache
+// would go stale.
+async function fetchWhaleWatch(net, knownAddresses) {
+  const results = await mapLimit([...knownAddresses], 8, async (addr) => {
+    try {
+      const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
+      if (!raw || raw.trim() === "null") return { address: addr, balance: 0 };
+      const parsed = JSON.parse(raw);
+      const coins = parsed?.BaseAccount?.coins || "";
+      const m = /^(\d+)ugnot$/.exec(coins.trim());
+      return { address: addr, balance: m ? Number(m[1]) : 0 };
+    } catch {
+      return null; // leave this address out rather than reporting a false 0
+    }
+  });
+  return results.filter(Boolean).sort((a, b) => b.balance - a.balance);
+}
+
 // ---------- per-network orchestration ----------
 
 async function buildNetwork(netKey, net) {
@@ -519,6 +550,13 @@ async function buildNetwork(netKey, net) {
     }))
     .sort((a, b) => b.blockHeight - a.blockHeight);
 
+  const knownAddresses = new Set();
+  for (const p of Object.values(txResult.packages)) if (p.creator) knownAddresses.add(p.creator);
+  for (const a of Object.values(callActivityResult.byPath)) for (const c of a.callers) knownAddresses.add(c);
+  for (const s of Object.values(swapsResult.swaps)) if (s.caller) knownAddresses.add(s.caller);
+  const whaleWatch = await fetchWhaleWatch(net, knownAddresses);
+  console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked`);
+
   const output = {
     network: netKey,
     generatedAt: new Date().toISOString(),
@@ -531,6 +569,7 @@ async function buildNetwork(netKey, net) {
     socialRealms,
     defiRealms,
     gnoswapSwaps,
+    whaleWatch,
     genesisStandards,
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
@@ -546,6 +585,7 @@ async function buildNetwork(netKey, net) {
       socialRealmCount: socialRealms.length,
       defiRealmCount: defiRealms.length,
       gnoswapSwapCount: gnoswapSwaps.length,
+      whaleWatchCount: whaleWatch.length,
     },
   };
 
