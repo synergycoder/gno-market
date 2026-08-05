@@ -1,7 +1,7 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-05T15:34:36.567Z",
-  "lastHeight": 3125628,
+  "generatedAt": "2026-08-05T15:42:28.495Z",
+  "lastHeight": 3141897,
   "tokens": [
     {
       "name": "wrapped GNOT",
@@ -16,6 +16,13 @@
     }
   ],
   "recentDeployed": [
+    {
+      "path": "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl",
+      "blockHeight": 3141897,
+      "blockTime": "2026-08-05T15:35:45.20136091Z",
+      "creator": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "kind": "Package"
+    },
     {
       "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft",
       "blockHeight": 3125628,
@@ -109,7 +116,7 @@
       "uniqueCallers": 10,
       "lastBlockHeight": 3141881,
       "lastBlockTime": "2026-08-04T16:12:08.633760771Z",
-      "topFunc": "Sign"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoland/boards2/v1",
@@ -416,6 +423,15 @@
       "governance": false,
       "social": false,
       "blockTime": "2026-08-04T16:12:48.348229917Z"
+    },
+    "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl": {
+      "path": "gno.land/p/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/avl",
+      "blockHeight": 3141897,
+      "creator": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T15:35:45.20136091Z"
     }
   },
   "callActivity": {
@@ -456,7 +472,7 @@
           "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
           "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc"
         ],
-        "topFunc": "Sign",
+        "topFunc": null,
         "firstBlockHeight": 59169,
         "lastBlockHeight": 3141881,
         "lastBlockTime": "2026-08-04T16:12:08.633760771Z"
@@ -540,7 +556,7 @@
     "tokenCount": 1,
     "nftRealmCount": 1,
     "totalRealmsScanned": 36,
-    "txPackageCount": 11,
+    "txPackageCount": 12,
     "genesisOnlyCount": 25,
     "trendingRealmCount": 9,
     "governanceRealmCount": 1,
