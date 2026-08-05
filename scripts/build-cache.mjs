@@ -524,6 +524,94 @@ async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
   return { genesisStandards: known, genesisOnlyCount: genesisOnly.length, newlyFetched: toFetch.length };
 }
 
+// ---------- realm imports: dependency popularity + cross-realm graph ----------
+// Neither signal exists anywhere on-chain or on the indexer — a Gno
+// transaction only records its top-level caller (an EOA), never the
+// intermediate realm-to-realm hops inside it, so there's no "call trace"
+// to mine. Static source analysis of each realm's own `import (...)`
+// block is the only real signal available: which packages/realms a realm
+// DECLARES it depends on. That's an accurate proxy for "popularity" (most
+// realms import package X) and a reasonable one for "cross-realm calls"
+// (a realm importing another realm's own package can call its exported
+// functions directly, gno-style) — not a guarantee every import is
+// actually invoked at runtime, just what's structurally possible.
+// Scans EVERY known realm (not just genesis-only, unlike
+// fetchGenesisStandards above) since dependency popularity needs the
+// whole graph, not a subset — cached forever per path once resolved,
+// since a deployed realm's source is immutable, so only genuinely new
+// realms get scanned on any given run.
+function extractImports(source) {
+  const imports = new Set();
+  const blockRe = /import\s*\(([^)]*)\)/g;
+  let m;
+  while ((m = blockRe.exec(source)) !== null) {
+    const lineRe = /"([^"]+)"/g;
+    let lm;
+    while ((lm = lineRe.exec(m[1])) !== null) imports.add(lm[1]);
+  }
+  const singleRe = /import\s+(?:\w+\s+)?"([^"]+)"/g;
+  let sm;
+  while ((sm = singleRe.exec(source)) !== null) imports.add(sm[1]);
+  return [...imports].filter(p => p.startsWith("gno.land/"));
+}
+
+async function fetchRealmImports(net, allRealms, prevImports) {
+  const known = { ...(prevImports || {}) };
+  const toFetch = allRealms.filter(p => !(p in known));
+
+  if (toFetch.length > 0) {
+    await mapLimit(toFetch, 8, async (p) => {
+      try {
+        const listing = await abciQuery(net.rpcUrl, "vm/qfile", p);
+        const filenames = (listing || "").split("\n").map(s => s.trim())
+          .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
+        const files = await mapLimit(filenames, 4, async (name) => {
+          try {
+            return (await abciQuery(net.rpcUrl, "vm/qfile", `${p}/${name}`)) || "";
+          } catch {
+            return "";
+          }
+        });
+        known[p] = extractImports(files.join("\n"));
+      } catch {
+        known[p] = []; // unreadable, treat as no declared imports rather than retry forever
+      }
+    });
+  }
+
+  return { imports: known, newlyFetched: toFetch.length };
+}
+
+// Two views over the same import data: which packages/realms are
+// depended on by the most OTHER realms (popularity), and the subset of
+// those imports that point at another REALM specifically (a `r/` path,
+// as opposed to a reusable `p/` package) — the closest available proxy
+// for an actual cross-realm call graph.
+function buildDependencyViews(importsByPath) {
+  const dependents = new Map(); // imported path -> Set of realm paths that import it
+  for (const [realmPath, imports] of Object.entries(importsByPath)) {
+    for (const imp of imports) {
+      if (imp === realmPath) continue; // a self-referential import isn't a real dependency
+      if (!dependents.has(imp)) dependents.set(imp, new Set());
+      dependents.get(imp).add(realmPath);
+    }
+  }
+
+  const popularDependencies = [...dependents.entries()]
+    .map(([path, realms]) => ({ path, dependentCount: realms.size, kind: path.includes("/p/") ? "Package" : path.includes("/r/") ? "Realm" : "Other" }))
+    .sort((a, b) => b.dependentCount - a.dependentCount)
+    .slice(0, 100);
+
+  const crossRealmEdges = [];
+  for (const [realmPath, imports] of Object.entries(importsByPath)) {
+    for (const imp of imports) {
+      if (imp !== realmPath && imp.includes("/r/")) crossRealmEdges.push({ from: realmPath, to: imp });
+    }
+  }
+
+  return { popularDependencies, crossRealmEdges };
+}
+
 // ---------- Gnoswap swaps (incremental) ----------
 // Every ExactIn/ExactOutSwap event emitted by gno.land/r/gnoswap/router/v1,
 // found by pulling every call to the outer gno.land/r/gnoswap/router proxy
@@ -723,6 +811,11 @@ async function buildNetwork(netKey, net) {
     await fetchGenesisStandards(net, allRealms, txPaths, prev?.genesisStandards);
   console.log(`genesis-only realms: ${genesisOnlyCount} (${newlyFetched} newly fetched this run)`);
 
+  const { imports: realmImports, newlyFetched: importsNewlyFetched } =
+    await fetchRealmImports(net, allRealms, prev?.realmImports);
+  const { popularDependencies, crossRealmEdges } = buildDependencyViews(realmImports);
+  console.log(`realm imports: ${allRealms.length} realms scanned (${importsNewlyFetched} newly fetched this run), ${popularDependencies.length} distinct dependencies, ${crossRealmEdges.length} cross-realm edges`);
+
   function activityFor(p) {
     const a = callActivityResult.byPath[p];
     return a
@@ -828,6 +921,9 @@ async function buildNetwork(netKey, net) {
       path: e.pkg_path, symbol: e.symbol, decimals: e.decimals, image: imageUrlFor(e), name: e.name,
     })),
     genesisStandards,
+    popularDependencies,
+    crossRealmEdges,
+    realmImports,
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
     swapActivity: { swaps: swapsResult.swaps, lastHeight: swapsResult.lastHeight },
@@ -844,6 +940,8 @@ async function buildNetwork(netKey, net) {
       defiRealmCount: defiRealms.length,
       gnoswapSwapCount: gnoswapSwaps.length,
       whaleWatchCount: whaleWatch.length,
+      popularDependencyCount: popularDependencies.length,
+      crossRealmEdgeCount: crossRealmEdges.length,
     },
   };
 

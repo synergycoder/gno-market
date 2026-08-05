@@ -1,6 +1,6 @@
 {
   "network": "testnet",
-  "generatedAt": "2026-08-05T20:08:57.964Z",
+  "generatedAt": "2026-08-05T20:21:00.565Z",
   "lastHeight": 446965,
   "tokens": [
     {
@@ -17,7 +17,7 @@
       "symbol": "wugnot",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
       "description": "This is a GRC20 token issued on topaz-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 8192844784103
+      "totalSupply": null
     },
     {
       "name": "Gnoswap",
@@ -73,7 +73,7 @@
       "symbol": "USDC",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_usdc.svg",
       "description": "This is a GRC20 token issued on topaz-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 70000000000000000
+      "totalSupply": null
     },
     {
       "name": "Sepolia Ether",
@@ -2431,7 +2431,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 446973,
       "lastBlockTime": "2026-08-05T19:43:28.898996203Z",
-      "topFunc": "AddPresetToken"
+      "topFunc": null
     }
   ],
   "governanceRealms": [
@@ -9886,18 +9886,8 @@
       "genesis": true
     },
     {
-      "address": "g1kfd9f5zlvcvy6aammcmqswa7cyjpu2nyt9qfen",
-      "balance": 999999998526497,
-      "genesis": true
-    },
-    {
       "address": "g125em6arxsnj49vx35f0n0z34putv5ty3376fg5",
       "balance": 999999998147197,
-      "genesis": true
-    },
-    {
-      "address": "g15ge0ae9077eh40erwrn2eq0xw6wupwqthpv34l",
-      "balance": 999999993005198,
       "genesis": true
     },
     {
@@ -9906,38 +9896,8 @@
       "genesis": true
     },
     {
-      "address": "g1g3lsfxhvaqgdv4ccemwpnms4fv6t3aq3p5z6u7",
-      "balance": 999999985485896,
-      "genesis": true
-    },
-    {
-      "address": "g1r929wt2qplfawe4lvqv9zuwfdcz4vxdun7qh8l",
-      "balance": 999999944120791,
-      "genesis": true
-    },
-    {
-      "address": "g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p",
-      "balance": 999999878075544,
-      "genesis": true
-    },
-    {
-      "address": "g17290cwvmrapvp869xfnhhawa8sm9edpufzat7d",
-      "balance": 12296400621843,
-      "genesis": false
-    },
-    {
-      "address": "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
-      "balance": 9999837849172,
-      "genesis": false
-    },
-    {
       "address": "g18tml4dnf8rmexdgkcj8ukgdjtcsz8kk0rww4aw",
       "balance": 7994217265819,
-      "genesis": false
-    },
-    {
-      "address": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
-      "balance": 4999928299800,
       "genesis": false
     },
     {
@@ -9951,16 +9911,6 @@
       "genesis": false
     },
     {
-      "address": "g134f34axeecssse9tgjm9397tnrjmdc93xcdgql",
-      "balance": 199724587000,
-      "genesis": false
-    },
-    {
-      "address": "g1kcdd3n0d472g2p5l8svyg9t0wq6h5857nq992f",
-      "balance": 189059196953,
-      "genesis": false
-    },
-    {
       "address": "g1nqnrt3aldzhu6zzeg75yw97wvavqy7wr77g56q",
       "balance": 100000000000,
       "genesis": false
@@ -9968,11 +9918,6 @@
     {
       "address": "g1yvzpzqgm3h3cjjt0ky40fc4my9pmz2qer8x2n0",
       "balance": 99979262306,
-      "genesis": false
-    },
-    {
-      "address": "g19885mge56unnqn6mngeqr5yduswmyrh5xdkrtc",
-      "balance": 99954313704,
       "genesis": false
     },
     {
@@ -10011,11 +9956,6 @@
       "genesis": false
     },
     {
-      "address": "g165j3dqsj4476qpsvuxnpykrs5uuf83uc2e58l3",
-      "balance": 10000000000,
-      "genesis": false
-    },
-    {
       "address": "g1d9etfuh7zrkawx256j6dpckmrll8nz5pxe64gr",
       "balance": 9964631043,
       "genesis": false
@@ -10051,11 +9991,6 @@
       "genesis": false
     },
     {
-      "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 178935573,
-      "genesis": false
-    },
-    {
       "address": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
       "balance": 165000000,
       "genesis": false
@@ -10066,11 +10001,6 @@
       "genesis": false
     },
     {
-      "address": "g13kytw9mpyutwmyg5eq7arqxqcszfl6uq4p89zg",
-      "balance": 79474757,
-      "genesis": false
-    },
-    {
       "address": "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
       "balance": 55481198,
       "genesis": false
@@ -10078,11 +10008,6 @@
     {
       "address": "g1p4r3esnxhahp307gh5kplvnjxdgy8kguvf9znu",
       "balance": 49823622,
-      "genesis": false
-    },
-    {
-      "address": "g1u7y667z64x2h7vc6fmpcprgey4ck233jaww9zq",
-      "balance": 43289900,
       "genesis": false
     },
     {
@@ -10101,16 +10026,6 @@
       "genesis": false
     },
     {
-      "address": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
-      "balance": 30000000,
-      "genesis": false
-    },
-    {
-      "address": "g1nxcwez9fnucyc4aajfgs24yc34747vj36d4xc7",
-      "balance": 30000000,
-      "genesis": false
-    },
-    {
       "address": "g172tf235svs0hkckys8kshnam6ncz7pscx9x59f",
       "balance": 28786300,
       "genesis": false
@@ -10121,18 +10036,8 @@
       "genesis": false
     },
     {
-      "address": "g18rypdhnl9srme07fmyevnj4pkjfm2vys5xs2sc",
-      "balance": 26571400,
-      "genesis": false
-    },
-    {
       "address": "g1nyedlnn35a6wjae9ewy25mq0cqam3v9ln6klta",
       "balance": 25000000,
-      "genesis": false
-    },
-    {
-      "address": "g1dkl350ucvdk42h8xz4xgq9rfltnr8pxh7qxw83",
-      "balance": 23168022,
       "genesis": false
     },
     {
@@ -10141,23 +10046,8 @@
       "genesis": false
     },
     {
-      "address": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
-      "balance": 21090681,
-      "genesis": false
-    },
-    {
-      "address": "g1q4gm7fpmtjur2659mvnh7cavk5uz9mx30dpu8q",
-      "balance": 20000000,
-      "genesis": false
-    },
-    {
       "address": "g1fdez25tufpj7qeskyhncpy432d39vtfzggn9ur",
       "balance": 19277590,
-      "genesis": false
-    },
-    {
-      "address": "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
-      "balance": 18837897,
       "genesis": false
     },
     {
@@ -10271,11 +10161,6 @@
       "genesis": false
     },
     {
-      "address": "g1u456gqvs5uly2hm5f7z8fnncdvwn49xxj8xfth",
-      "balance": 15000000,
-      "genesis": false
-    },
-    {
       "address": "g1sazc3lwtc4qmu8t53k4w8d2srlzhll47c4zykm",
       "balance": 15000000,
       "genesis": false
@@ -10287,11 +10172,6 @@
     },
     {
       "address": "g1ufrtyje3t53j67ps5m7mqrqvsp0nvk9upwux5h",
-      "balance": 15000000,
-      "genesis": false
-    },
-    {
-      "address": "g1nnl7pyeavdn0w8wfgmv883aatdctlspxgsvckk",
       "balance": 15000000,
       "genesis": false
     },
@@ -10336,16 +10216,6 @@
       "genesis": false
     },
     {
-      "address": "g1qd974fj0wgkmj5ah2euqygs7w86tgsskme6n05",
-      "balance": 12643000,
-      "genesis": false
-    },
-    {
-      "address": "g18dw5qfv2zlh372hh3wvdv9k4ywu7jcgmrnnsep",
-      "balance": 12631100,
-      "genesis": false
-    },
-    {
       "address": "g13tx3jp4spy90dtpyxr7gjp2mfgvjnfxr7kt3ue",
       "balance": 12629000,
       "genesis": false
@@ -10353,11 +10223,6 @@
     {
       "address": "g1zlrdlcs65d6yhschadhvlf3qnw9ruelh9rn6wn",
       "balance": 12628100,
-      "genesis": false
-    },
-    {
-      "address": "g1plf3fmy0h4395jcxxh63g7mzeypr06f9yrdk4d",
-      "balance": 12625000,
       "genesis": false
     },
     {
@@ -10396,11 +10261,6 @@
       "genesis": false
     },
     {
-      "address": "g1ppvaadzu0smzqyrgvw73hjdrhvlu43l7g7tw3f",
-      "balance": 12567800,
-      "genesis": false
-    },
-    {
       "address": "g1n68pkpxxd8klsdv8c3pmu6h9t0uys7fkpspau0",
       "balance": 12566800,
       "genesis": false
@@ -10426,11 +10286,6 @@
       "genesis": false
     },
     {
-      "address": "g12aswqv64lg0x8ng9uzczaed8e4yn8ta9d8xr5v",
-      "balance": 12549200,
-      "genesis": false
-    },
-    {
       "address": "g1vcwp9c4yqjxuxqtfaq3ehx8czrqam2k9c83w9d",
       "balance": 12542700,
       "genesis": false
@@ -10441,11 +10296,6 @@
       "genesis": false
     },
     {
-      "address": "g1uzxyk9fvtk0zfsl20kswvatt2da67sjjh4fud0",
-      "balance": 12533300,
-      "genesis": false
-    },
-    {
       "address": "g179t0kaxdl0r2hv3hhr2tcpqdchpt7h80c6m6rn",
       "balance": 12123600,
       "genesis": false
@@ -10453,11 +10303,6 @@
     {
       "address": "g1u7g4cejjqsm44nha34hzpzu6df6a7egc9rpqw5",
       "balance": 12111100,
-      "genesis": false
-    },
-    {
-      "address": "g126u5x2802tycpqupcv32uea8qgqcalxem2smv7",
-      "balance": 12039200,
       "genesis": false
     },
     {
@@ -10473,11 +10318,6 @@
     {
       "address": "g15crxnxd79syggtha6ymfhy8m8a4ytqel58cwkg",
       "balance": 11656800,
-      "genesis": false
-    },
-    {
-      "address": "g19r7z72ap3kjkfwrqw587twjvllq6gjc94nxyqu",
-      "balance": 11626100,
       "genesis": false
     },
     {
@@ -10506,18 +10346,8 @@
       "genesis": false
     },
     {
-      "address": "g1hnl50flwq7t4urmwzkuc629xpvxdwd4zvl0kmy",
-      "balance": 11483500,
-      "genesis": false
-    },
-    {
       "address": "g1thrjnx75dgc95qed7x9edd0rvvpj5d5vevj50h",
       "balance": 11466000,
-      "genesis": false
-    },
-    {
-      "address": "g1xherc2kvp0n6rwc2xjt0qn46un7d40ty9azrtz",
-      "balance": 11404682,
       "genesis": false
     },
     {
@@ -10536,11 +10366,6 @@
       "genesis": false
     },
     {
-      "address": "g1apx2ktj0tc7gqzaqtgl9xluflnqehgpqla0anv",
-      "balance": 11292400,
-      "genesis": false
-    },
-    {
       "address": "g1222c3qnzny0e6spfdhr59386tlfhlatnre3ew7",
       "balance": 11205600,
       "genesis": false
@@ -10548,11 +10373,6 @@
     {
       "address": "g1ca3kqcjampqpmmlmfnulht2d5zhygrwuly8je0",
       "balance": 11061100,
-      "genesis": false
-    },
-    {
-      "address": "g1pd2jqrgc0hwsx3evqk8lakvz7y89zkx4nc78g0",
-      "balance": 11057610,
       "genesis": false
     },
     {
@@ -10631,11 +10451,6 @@
       "genesis": false
     },
     {
-      "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
-      "balance": 9797197,
-      "genesis": false
-    },
-    {
       "address": "g17kuxcnsy7uy6jsm5mlcr8037gsjpz76ru0ddk3",
       "balance": 9651200,
       "genesis": false
@@ -10706,11 +10521,6 @@
       "genesis": false
     },
     {
-      "address": "g17n4y745s08awwq4e0a38lagsgtntna0749tnxe",
-      "balance": 7373359,
-      "genesis": false
-    },
-    {
       "address": "g1m33nveedpgxuz67y35lvhd90grv70a7vj9tnh5",
       "balance": 7344014,
       "genesis": false
@@ -10771,16 +10581,6 @@
       "genesis": false
     },
     {
-      "address": "g1y7vpdkhmyhvl5cpywxagprdua5j8mf88ua4pwn",
-      "balance": 5000000,
-      "genesis": false
-    },
-    {
-      "address": "g1rz44hdy0z4ncy78srwrhq3pe2uklxa7kc98f0f",
-      "balance": 5000000,
-      "genesis": false
-    },
-    {
       "address": "g153tleepfqzx5g9y6nmzl7cws72tul9pk97ees4",
       "balance": 5000000,
       "genesis": false
@@ -10803,11 +10603,6 @@
     {
       "address": "g1l3vdw2gmvayweuwca2mukc8ufw3ttmgps9c0lr",
       "balance": 5000000,
-      "genesis": false
-    },
-    {
-      "address": "g1zalpt8wn8ffm4mhu83yce5led2r3mkl3tz2fhn",
-      "balance": 4999315,
       "genesis": false
     },
     {
@@ -10846,11 +10641,6 @@
       "genesis": false
     },
     {
-      "address": "g1cz86tl8vnh9956cpuu43ksjy7kmur745wdjxsc",
-      "balance": 2793900,
-      "genesis": false
-    },
-    {
       "address": "g1hudwmwn99hwqldtqjz9m6w7q7qef57a2ffp4hg",
       "balance": 2752800,
       "genesis": false
@@ -10886,18 +10676,8 @@
       "genesis": false
     },
     {
-      "address": "g1y5sclwdy8j6l5m8a5hzsx374k6rvege399zvy9",
-      "balance": 2631800,
-      "genesis": false
-    },
-    {
       "address": "g1eep2z6k5u0t5964a5fa6qtqplkt9pnk926kh34",
       "balance": 2630600,
-      "genesis": false
-    },
-    {
-      "address": "g1cm5z4slw83sa3x0gttkvv64nx5dc39n2yxk296",
-      "balance": 2607800,
       "genesis": false
     },
     {
@@ -10931,11 +10711,6 @@
       "genesis": false
     },
     {
-      "address": "g1dhatg6m9svwh06fy5z4fqdeq6p6eduya3emm6a",
-      "balance": 2563100,
-      "genesis": false
-    },
-    {
       "address": "g18x3jntrvu2jmwddsxtqpmzua5cs0fmtf9mda9j",
       "balance": 2560700,
       "genesis": false
@@ -10946,11 +10721,6 @@
       "genesis": false
     },
     {
-      "address": "g18u6htlfee0hyhlqs7dv9y3mdrtz4sn3hmj3n07",
-      "balance": 2524300,
-      "genesis": false
-    },
-    {
       "address": "g14ymnmcklzc8zlr7q5hzc370jv433ltx0aq90np",
       "balance": 2510000,
       "genesis": false
@@ -10958,11 +10728,6 @@
     {
       "address": "g1a2dx6mwcajfqvsr0l6cdwae4zphncpwstzxerp",
       "balance": 2317500,
-      "genesis": false
-    },
-    {
-      "address": "g1z8cw2urskllwj09wl62zz886ssnec3kkgu6qw5",
-      "balance": 2294947,
       "genesis": false
     },
     {
@@ -10996,16 +10761,6 @@
       "genesis": false
     },
     {
-      "address": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
-      "balance": 1461936,
-      "genesis": false
-    },
-    {
-      "address": "g1auczavgptqrs8dfnaqvtgfsmyktyve3kp2ff9f",
-      "balance": 1225364,
-      "genesis": false
-    },
-    {
       "address": "g1a2kttttdtqnu60wcpjtuhyfstn72j6qvx48lxl",
       "balance": 1072247,
       "genesis": false
@@ -11026,11 +10781,6 @@
       "genesis": false
     },
     {
-      "address": "g1px2y5wuj8y0tfq59unwy90qrw7j5evsa9zs3vk",
-      "balance": 564800,
-      "genesis": false
-    },
-    {
       "address": "g1npaccm9xucl696fns8j7na44fmeucduflh59uu",
       "balance": 546800,
       "genesis": false
@@ -11043,11 +10793,6 @@
     {
       "address": "g10xhynczda6d9usa5u9487ly4mlnqew9qucj7te",
       "balance": 498639,
-      "genesis": false
-    },
-    {
-      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
-      "balance": 406158,
       "genesis": false
     },
     {
@@ -11078,11 +10823,6 @@
     {
       "address": "g1ydvzv2y3mshkp4f03yghcglv4cuh0gmt45saxw",
       "balance": 98973,
-      "genesis": false
-    },
-    {
-      "address": "g1z6rxnvv97jhr2f7zplmdux8cfzql02w9wq6ghz",
-      "balance": 24200,
       "genesis": false
     },
     {
@@ -11352,6 +11092,1889 @@
       "governance": false,
       "social": false
     }
+  },
+  "popularDependencies": [
+    {
+      "path": "gno.land/p/nt/ufmt/v0",
+      "dependentCount": 79,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0",
+      "dependentCount": 44,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/bptree/v0",
+      "dependentCount": 21,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/access",
+      "dependentCount": 18,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/demo/tokens/grc20",
+      "dependentCount": 12,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/demo/defi/grc20reg",
+      "dependentCount": 11,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/nt/seqid/v0",
+      "dependentCount": 11,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoswap/rbac",
+      "dependentCount": 11,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/avl",
+      "dependentCount": 11,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoswap/utils",
+      "dependentCount": 10,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/rbac",
+      "dependentCount": 10,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/gnoswap/uint256",
+      "dependentCount": 10,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/md",
+      "dependentCount": 9,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao",
+      "dependentCount": 9,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/gnoswap/gnsmath",
+      "dependentCount": 9,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/mux/v0",
+      "dependentCount": 8,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/ownable/v0",
+      "dependentCount": 8,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/halt",
+      "dependentCount": 8,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/txlink",
+      "dependentCount": 7,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/emission",
+      "dependentCount": 7,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/sys/users",
+      "dependentCount": 6,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/common",
+      "dependentCount": 6,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/referral",
+      "dependentCount": 5,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/onbloc/json",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/realmpath",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/mdtable",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gns",
+      "dependentCount": 4,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/gnoswap/deps/grc721",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gov/staker",
+      "dependentCount": 4,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/pool",
+      "dependentCount": 4,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/protocol_fee",
+      "dependentCount": 4,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/gnoswap/store",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoswap/consts",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/onbloc/ibc/union/types",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/ibc/app",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/ibc/types",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoland/boards",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gov/xgns",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/position",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/staker",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/memberstore",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/gnoswap/int256",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/onbloc/ibc/union/core",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/demo/profile",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/samcrew/grc721",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0/pager",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0/rotree",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/ibc/host",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/ibc/lightclient",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/jsonpage",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/fqname/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/markdown/sanitize/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/grc721",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoland/boards/exts/permissions",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/markdown/foreign/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/jeronimoalbi/mdform",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/jeronimoalbi/pager",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/svgbtn",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/mdalert/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/sys/params",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/sys/validators/v3",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gov/governance",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/launchpad",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/router",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gnft",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/impl",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/helplink",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/basedao",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/daocond",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/daokit",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/mason/md",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/memba_market_core_v2",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/addrset",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/sys/validators",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aib/ibc/lightclient/tendermint",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/aib/ibc/core",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/aib/encoding/proto",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/onbloc/int256",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/ledger",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/commit",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/grc721",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/avl",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u/boards/exts/hub",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/demo/blog",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/authz",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/combinederr/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/ownable/v0/exts/authorizable",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/coinsort",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/ctg",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnoland/boards2/v1",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnops/valopers",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/community_pool",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/gnoswap/protocol_fee/v1",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/aeddi/panictoerr",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/treasury/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/treasury",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/nt/bptree/v0/pager",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient/state_lens/ics23_mpt",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient/cometbls",
+      "dependentCount": 1,
+      "kind": "Package"
+    }
+  ],
+  "crossRealmEdges": [
+    {
+      "from": "gno.land/r/aib/ibc/apps/testing/grc20test",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/demo/defi/grc20factory",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/aib/ibc/apps/transfer",
+      "to": "gno.land/r/aib/ibc/core"
+    },
+    {
+      "from": "gno.land/r/aib/ibc/apps/transfer",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/main",
+      "to": "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/ledger"
+    },
+    {
+      "from": "gno.land/r/gnoland/wugnot",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u/boards2/v1",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoland/blog",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers",
+      "to": "gno.land/r/sys/params"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers",
+      "to": "gno.land/r/sys/validators/v3"
+    },
+    {
+      "from": "gno.land/r/gnoswap/common",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoland/coins",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoland/boards2/v1/hub",
+      "to": "gno.land/r/gnoland/boards2/v1"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/gnops/valopers"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/sys/params"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/sys/validators/v3"
+    },
+    {
+      "from": "gno.land/r/gnoswap/community_pool",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/community_pool",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/community_pool",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/emission",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/emission",
+      "to": "gno.land/r/gnoswap/gns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/emission",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gns",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gns",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gns",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gnft",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gnft",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoland/boards2/v1",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/gov/governance"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/gov/xgns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/community_pool"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/gov/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/launchpad"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/pool"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/position"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/protocol_fee"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/router"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance/v1",
+      "to": "gno.land/r/gnoswap/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance",
+      "to": "gno.land/r/gnoswap/gov/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/governance",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/halt",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/gov/governance"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/gov/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/gov/xgns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/gns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/referral"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker/v1",
+      "to": "gno.land/r/gnoswap/protocol_fee"
+    },
+    {
+      "from": "gno.land/r/gnoswap/gov/staker",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/protocol_fee",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/pool"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/position"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/gnft"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/referral"
+    },
+    {
+      "from": "gno.land/r/gnoswap/position/v1",
+      "to": "gno.land/r/gnoswap/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/launchpad"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/gns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/gov/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/gov/xgns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/referral"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/launchpad/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/test_token/test_dai",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoswap/referral",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/referral",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/test_token/test_sol",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoswap/test_token/test_btc",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoswap/test_token/test_usdc",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao/v3/impl"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker",
+      "to": "gno.land/r/gnoswap/gnft"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker",
+      "to": "gno.land/r/gnoswap/pool"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/referral"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/router"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/protocol_fee"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/protocol_fee/v1"
+    },
+    {
+      "from": "gno.land/r/gnoswap/router/v1",
+      "to": "gno.land/r/gnoswap/pool"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao/v3/treasury"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/staker"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/access"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/halt"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/emission"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/common"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/protocol_fee"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/rbac"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/gns"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/position"
+    },
+    {
+      "from": "gno.land/r/gnoswap/staker/v1",
+      "to": "gno.land/r/gnoswap/referral"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/lightclients/statelensics23mpt",
+      "to": "gno.land/r/onbloc/ibc/union/core"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/lightclients/cometbls",
+      "to": "gno.land/r/onbloc/ibc/union/core"
+    },
+    {
+      "from": "gno.land/r/samcrew/daodemo/simple_dao",
+      "to": "gno.land/r/demo/profile"
+    },
+    {
+      "from": "gno.land/r/samcrew/daodemo/custom_condition",
+      "to": "gno.land/r/demo/profile"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1",
+      "to": "gno.land/r/onbloc/ibc/union/core"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1",
+      "to": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm"
+    },
+    {
+      "from": "gno.land/r/onbloc/ibc/union/core",
+      "to": "gno.land/r/onbloc/ibc/union/access"
+    },
+    {
+      "from": "gno.land/r/samcrew/memba_nft_market_v3_1",
+      "to": "gno.land/r/samcrew/memba_collections"
+    },
+    {
+      "from": "gno.land/r/samcrew/memba_token_otc_v2",
+      "to": "gno.land/r/samcrew/memba_market_config"
+    },
+    {
+      "from": "gno.land/r/samcrew/memba_token_otc_v2",
+      "to": "gno.land/r/samcrew/tokenfactory_v2"
+    },
+    {
+      "from": "gno.land/r/sys/cla",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/namereg/v1",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/sys/namereg/v1",
+      "to": "gno.land/r/demo/profile"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao/v3/impl"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/sys/params",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/validators/v2",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/users",
+      "to": "gno.land/r/gov/dao"
+    }
+  ],
+  "realmImports": {
+    "gno.land/r/aib/ibc/apps/testing/grc20test": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/aib/ibc/apps/testing": [
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/base58": [],
+    "gno.land/r/demo/profile": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/demo/defi/grc20factory": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/nt/avl/v0/rotree",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/eightball": [],
+    "gno.land/r/aib/ibc/core": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/host",
+      "gno.land/p/aib/ibc/lightclient",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/aib/ibc/lightclient/tendermint",
+      "gno.land/p/aib/jsonpage",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/onbloc/json"
+    ],
+    "gno.land/r/aib/ibc/apps/transfer": [
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/aib/ibc/core",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/aib/ibc/host",
+      "gno.land/p/onbloc/json",
+      "gno.land/p/aib/encoding/proto",
+      "gno.land/p/onbloc/int256",
+      "gno.land/p/aib/ibc/lightclient",
+      "gno.land/p/aib/jsonpage",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/erc1155": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/englishauction": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/eggling": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/governor": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/erc721": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/cowsay": [],
+    "gno.land/r/demo/defi/grc20reg": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/avl/v0/rotree",
+      "gno.land/p/nt/fqname/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/lottery": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/markov": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/ratelimit": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/crowdfund": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/piglatin": [],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/levenshtein": [],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/rpgroom": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/markdown/sanitize/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/romannum": [],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/merkledrop": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/rot13": [],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/semver": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/staking": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/auctionhouse": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/timelock": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/wrapped": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/bountyboard": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g12cs4cehujpffpjpywmkqj43m6u5ya53nj69sjz/sieve": [],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/govtreasury": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/deadmanswitch": [],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/streampay": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/main": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/ledger"
+    ],
+    "gno.land/r/g172tf235svs0hkckys8kshnam6ncz7pscx9x59f/demo/demo_v00001/ledger": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1e3jafj9utnprwqlq0ekxwfk4lvxr6qqer52900/tictactoe": [],
+    "gno.land/r/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/tardigrades": [
+      "gno.land/p/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/grc721",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/nftminter": [
+      "gno.land/p/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/grc721",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1g2uc4j0yl70qdzg6zkt5rx77rfspuj05dt8l3e/polls": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/gnomem": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/receipt": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1t0rglz5jdrl4jwqcvx9ukjvcj8j3jgjdlpj6w3/biggingerbutton": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/capwallet": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/passport": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1hudwmwn99hwqldtqjz9m6w7q7qef57a2ffp4hg/gingernft": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/jury": [
+      "gno.land/p/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/commit",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1x3702r5pyv3v36eauc4k055l9wxvxah6dwd29t/tictactoe": [],
+    "gno.land/r/g1manfred47kzduec920z88wfr64ylksmdcedlf5/agents/maintainer": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr/hello": [],
+    "gno.land/r/g1t7msz59h0nyel6j0zr00js05svpx7xat7dyyrv/biggingerbutton": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1tstg4l99ga0zup3s5xs0zm4vl3u8p7ma9m56ma/gingernft": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter": [
+      "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/grc721",
+      "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/avl",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/gnoland/wugnot": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u/boards2/v1": [
+      "gno.land/p/gnoland/boards",
+      "gno.land/p/gnoland/boards/exts/permissions",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/markdown/foreign/v0",
+      "gno.land/r/sys/users",
+      "gno.land/p/g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u/boards/exts/hub",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/jeronimoalbi/mdform",
+      "gno.land/p/jeronimoalbi/pager",
+      "gno.land/p/leon/svgbtn",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/mdalert/v0"
+    ],
+    "gno.land/r/gnoland/blog": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/demo/blog"
+    ],
+    "gno.land/r/gnops/valopers": [
+      "gno.land/p/moul/authz",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/nt/avl/v0/pager",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/combinederr/v0",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ownable/v0/exts/authorizable",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/sys/params",
+      "gno.land/r/sys/validators/v3"
+    ],
+    "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnochat": [
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/markdown/sanitize/v0"
+    ],
+    "gno.land/r/gnoswap/common": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoland/coins": [
+      "gno.land/p/leon/coinsort",
+      "gno.land/p/leon/ctg",
+      "gno.land/p/moul/md",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/sys/users"
+    ],
+    "gno.land/r/g1y909z4www82503pcu5rvyzph3eal2w6dhg3gjc/myrealm": [],
+    "gno.land/r/gnoland/boards2/v1/hub": [
+      "gno.land/p/gnoland/boards",
+      "gno.land/r/gnoland/boards2/v1"
+    ],
+    "gno.land/r/gnops/valopers/proposal": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnops/valopers",
+      "gno.land/r/gov/dao",
+      "gno.land/r/sys/params",
+      "gno.land/r/sys/validators/v3"
+    ],
+    "gno.land/r/gnoswap/access": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoswap/community_pool": [
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/halt"
+    ],
+    "gno.land/r/gnoswap/emission": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/halt"
+    ],
+    "gno.land/r/gnoswap/gns": [
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoswap/gnft": [
+      "gno.land/p/gnoswap/deps/grc721",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoland/boards2/v1": [
+      "gno.land/p/gnoland/boards",
+      "gno.land/p/gnoland/boards/exts/permissions",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/markdown/foreign/v0",
+      "gno.land/r/sys/users",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/jeronimoalbi/mdform",
+      "gno.land/p/jeronimoalbi/pager",
+      "gno.land/p/leon/svgbtn",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/mdalert/v0"
+    ],
+    "gno.land/r/gnoswap/gov/governance/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/common",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/gov/governance",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/community_pool",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/r/gnoswap/launchpad",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/r/gnoswap/position",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/r/gnoswap/router",
+      "gno.land/r/gnoswap/staker"
+    ],
+    "gno.land/r/gnoswap/gov/governance": [
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/halt": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/onbloc/json",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/gov/staker/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/gov/governance",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/p/onbloc/json"
+    ],
+    "gno.land/r/gnoswap/gov/xgns": [],
+    "gno.land/r/gnoswap/gov/staker": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/utils"
+    ],
+    "gno.land/r/gnoswap/pool/v1": [],
+    "gno.land/r/gnoswap/position": [
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/launchpad": [
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/protocol_fee/v1": [],
+    "gno.land/r/gnoswap/pool": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256"
+    ],
+    "gno.land/r/gnoswap/rbac": [],
+    "gno.land/r/gnoswap/protocol_fee": [
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/position/v1": [
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/r/gnoswap/position",
+      "gno.land/p/gnoswap/deps/grc721",
+      "gno.land/r/gnoswap/gnft",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/staker"
+    ],
+    "gno.land/r/gnoswap/launchpad/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/launchpad",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/p/gnoswap/consts"
+    ],
+    "gno.land/r/gnoswap/test_token/test_dai": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/referral": [
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/gnoswap/test_token/test_sol": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_btc": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_usdc": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/router": [
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gov/dao": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/gnoswap/test_token/test_atom": [],
+    "gno.land/r/gov/dao/v3/init": [
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/impl",
+      "gno.land/r/gov/dao/v3/memberstore"
+    ],
+    "gno.land/r/gnoswap/staker": [
+      "gno.land/p/gnoswap/deps/grc721",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/gnft",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/test_token/test_trx": [],
+    "gno.land/r/gnoswap/router/v1": [
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/router",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/r/gnoswap/protocol_fee/v1",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/p/gnoswap/int256"
+    ],
+    "gno.land/r/gov/dao/v3/impl": [
+      "gno.land/p/aeddi/panictoerr",
+      "gno.land/p/moul/md",
+      "gno.land/p/nt/treasury/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/memberstore",
+      "gno.land/r/gov/dao/v3/treasury",
+      "gno.land/p/moul/helplink",
+      "gno.land/p/nt/bptree/v0/pager",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/r/sys/users",
+      "gno.land/p/nt/bptree/v0"
+    ],
+    "gno.land/r/gov/dao/v3/loader": [],
+    "gno.land/r/gov/dao/v3/memberstore": [],
+    "gno.land/r/gov/dao/v3/treasury": [],
+    "gno.land/r/gov/dao/v3/treasury/test": [],
+    "gno.land/r/moul/demo/args/v2": [],
+    "gno.land/r/moul/demo/gnoface/v1": [],
+    "gno.land/r/gnoswap/staker/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/staker",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/position",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/gnoswap/deps/grc721"
+    ],
+    "gno.land/r/moul/demo/grc20/v2": [],
+    "gno.land/r/moul/demo/hello/v2": [],
+    "gno.land/r/moul/demo/microposts/v2": [],
+    "gno.land/r/moul/demo/data/v2": [],
+    "gno.land/r/moul/demo/vault/v2": [],
+    "gno.land/r/moul/outfmt/v2": [
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/moul/demo/wikicoin/v2": [],
+    "gno.land/r/moul/demo/millipede/v1": [],
+    "gno.land/r/moul/hello/v1": [],
+    "gno.land/r/moul/x/daily/counter/v1": [],
+    "gno.land/r/moul/x/daily/calc/v1": [],
+    "gno.land/r/moul/x/daily/dutchauction/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/sapin/v1": [],
+    "gno.land/r/moul/x/daily/coinflipduel/v1": [],
+    "gno.land/r/moul/x/daily/blog/v1": [],
+    "gno.land/r/moul/x/daily/escrow/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/kingofdice/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/connect4/v1": [],
+    "gno.land/r/moul/x/daily/collatz/v1": [],
+    "gno.land/r/moul/x/daily/dice/v1": [],
+    "gno.land/r/moul/x/daily/eggling/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/memory/v1": [],
+    "gno.land/r/moul/x/daily/erc1155/v1": [],
+    "gno.land/r/moul/x/daily/hangman/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/guestbook/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/kudos/v1": [],
+    "gno.land/r/moul/x/daily/polls/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/multisig/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/reactions/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/rpsoracle/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/linktree/v1": [],
+    "gno.land/r/moul/x/daily/rpsduel/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/life/v1": [],
+    "gno.land/r/moul/x/daily/lru/v1": [],
+    "gno.land/r/moul/x/daily/wordle/v1": [],
+    "gno.land/r/moul/x/daily/todos/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/vestoken/v1": [],
+    "gno.land/r/moul/x/daily/tictactoe/v1": [],
+    "gno.land/r/moul/x/daily/urlshort/v1": [],
+    "gno.land/r/moul/x/daily/rpsmatch/v1": [
+      "gno.land/p/nt/avl/v0"
+    ],
+    "gno.land/r/moul/x/daily/stack/v1": [],
+    "gno.land/r/nym-vikbez000/test": [],
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm": [],
+    "gno.land/r/samcrew/agent_registry_v2": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/lightclients/statelensics23mpt": [
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/onbloc/ibc/union/lightclient/state_lens/ics23_mpt",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/core"
+    ],
+    "gno.land/r/onbloc/ibc/union/lightclients/cometbls": [
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/onbloc/ibc/union/lightclient/cometbls",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/core"
+    ],
+    "gno.land/r/onbloc/ibc/union/core/v1": [],
+    "gno.land/r/onbloc/ibc/union/access": [
+      "gno.land/p/onbloc/access/manager"
+    ],
+    "gno.land/r/samcrew/daodemo/simple_dao": [
+      "gno.land/p/samcrew/basedao",
+      "gno.land/p/samcrew/daocond",
+      "gno.land/p/samcrew/daokit",
+      "gno.land/r/demo/profile",
+      "gno.land/p/mason/md",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/gnobuilders_badges_v2": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/onbloc/utils/grc20helper": [],
+    "gno.land/r/samcrew/memba_appstore_v1": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/daodemo/custom_condition": [
+      "gno.land/p/samcrew/basedao",
+      "gno.land/p/samcrew/daocond",
+      "gno.land/p/samcrew/daokit",
+      "gno.land/r/demo/profile",
+      "gno.land/p/mason/md",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/daodemo/custom_resource": [],
+    "gno.land/r/samcrew/memba_dao_channels_v2": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/escrow_v3": [],
+    "gno.land/r/samcrew/memba_dao_candidature_v3": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/memba_feed_v1": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/memba_market_config": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1": [
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/p/onbloc/ibc/union/zkgm",
+      "gno.land/p/onbloc/math/uint256",
+      "gno.land/r/onbloc/ibc/union/core",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm",
+      "gno.land/p/onbloc/ibc/union/zkgm/tokenbucket",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/fqname/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/core": [
+      "gno.land/p/onbloc/ibc/union/app",
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/access",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/samcrew/memba_nft_market_v3_1": [
+      "gno.land/p/samcrew/grc721",
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/samcrew/memba_market_core_v2",
+      "gno.land/r/samcrew/memba_collections"
+    ],
+    "gno.land/r/samcrew/memba_quest_attestation_v1": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/samcrew/memba_appstore_v2": [],
+    "gno.land/r/samcrew/memba_collections": [],
+    "gno.land/r/samcrew/memba_dao": [],
+    "gno.land/r/samcrew/memba_token_otc_v2": [
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/samcrew/memba_market_config",
+      "gno.land/r/samcrew/tokenfactory_v2"
+    ],
+    "gno.land/r/samcrew/memba_feedback_v2": [],
+    "gno.land/r/samcrew/memba_nft_market_v2": [],
+    "gno.land/r/samcrew/memba_nft_market_v3_2": [
+      "gno.land/p/samcrew/grc721",
+      "gno.land/p/samcrew/avl",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/samcrew/memba_market_core_v2"
+    ],
+    "gno.land/r/samcrew/memba_nft_v2": [
+      "gno.land/p/samcrew/grc721",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/sys/rewards": [],
+    "gno.land/r/sys/txfees": [],
+    "gno.land/r/samcrew/memba_reviews_v1": [],
+    "gno.land/r/samcrew/tokenfactory_v2": [],
+    "gno.land/r/sys/cla": [
+      "gno.land/p/moul/addrset",
+      "gno.land/p/moul/helplink",
+      "gno.land/r/gov/dao",
+      "gno.land/p/moul/md",
+      "gno.land/p/moul/mdtable",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/sys/namereg/v1": [
+      "gno.land/r/sys/users",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/moul/md",
+      "gno.land/p/moul/realmpath",
+      "gno.land/p/moul/txlink",
+      "gno.land/r/demo/profile",
+      "gno.land/p/moul/fifo"
+    ],
+    "gno.land/r/sys/names": [
+      "gno.land/r/gov/dao",
+      "gno.land/r/gov/dao/v3/impl",
+      "gno.land/r/gov/dao/v3/memberstore",
+      "gno.land/r/sys/users"
+    ],
+    "gno.land/r/sys/params": [
+      "gno.land/r/gov/dao",
+      "gno.land/p/sys/validators"
+    ],
+    "gno.land/r/sys/users/init": [],
+    "gno.land/r/sys/validators/v2": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/poa/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/sys/validators",
+      "gno.land/r/gov/dao",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/sys/users": [
+      "gno.land/p/moul/addrset",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gov/dao",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/bptree/v0/rotree"
+    ],
+    "gno.land/r/sys/validators/v3": [],
+    "gno.land/r/test1/tba": [],
+    "gno.land/r/tests/vm": [],
+    "gno.land/r/tests/vm/subtests": []
   },
   "txPackages": {
     "gno.land/p/aib/encoding": {
@@ -14515,7 +16138,7 @@
         "callers": [
           "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv"
         ],
-        "topFunc": "AddPresetToken",
+        "topFunc": null,
         "firstBlockHeight": 446973,
         "lastBlockHeight": 446973,
         "lastBlockTime": "2026-08-05T19:43:28.898996203Z"
@@ -21932,6 +23555,8 @@
     "socialRealmCount": 4,
     "defiRealmCount": 16,
     "gnoswapSwapCount": 715,
-    "whaleWatchCount": 253
+    "whaleWatchCount": 201,
+    "popularDependencyCount": 100,
+    "crossRealmEdgeCount": 140
   }
 }

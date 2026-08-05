@@ -208,6 +208,7 @@
   }
   .tab:hover { color: var(--text); background: var(--border-soft); }
   .tab.active { color: var(--accent-strong); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab-icon { margin-right: 0.35rem; opacity: 0.85; }
   .tab-panel { padding-top: 1.5rem; }
 
   .subtabs { display: flex; gap: 0.25rem; margin-top: 0.5rem; border-bottom: 1px solid var(--border-soft); }
@@ -362,17 +363,18 @@
 <p class="status" id="refreshStatus"></p>
 
 <div class="tabs" role="tablist">
-  <button class="tab active" data-tab="dashboard" role="tab">Dashboard</button>
-  <button class="tab" data-tab="new" role="tab">What's New</button>
-  <button class="tab" data-tab="tokens" role="tab">Fungible Tokens</button>
-  <button class="tab" data-tab="nfts" role="tab">NFT Collections</button>
-  <button class="tab" data-tab="wallet" role="tab">Scan Wallet</button>
-  <button class="tab" data-tab="trending" role="tab">Trending</button>
-  <button class="tab" data-tab="governance" role="tab">DAO Governance</button>
-  <button class="tab" data-tab="social" role="tab">Social</button>
-  <button class="tab" data-tab="defi" role="tab">DeFi (Gnoswap)</button>
-  <button class="tab" data-tab="whales" role="tab">Whale Watch</button>
-  <button class="tab" data-tab="links" role="tab">Links</button>
+  <button class="tab active" data-tab="dashboard" role="tab"><span class="tab-icon">📊</span>Dashboard</button>
+  <button class="tab" data-tab="new" role="tab"><span class="tab-icon">🆕</span>What's New</button>
+  <button class="tab" data-tab="tokens" role="tab"><span class="tab-icon">🪙</span>Fungible Tokens</button>
+  <button class="tab" data-tab="nfts" role="tab"><span class="tab-icon">🖼️</span>NFT Collections</button>
+  <button class="tab" data-tab="wallet" role="tab"><span class="tab-icon">👛</span>Scan Wallet</button>
+  <button class="tab" data-tab="trending" role="tab"><span class="tab-icon">🔥</span>Trending</button>
+  <button class="tab" data-tab="governance" role="tab"><span class="tab-icon">🏛️</span>DAO Governance</button>
+  <button class="tab" data-tab="social" role="tab"><span class="tab-icon">💬</span>Social</button>
+  <button class="tab" data-tab="defi" role="tab"><span class="tab-icon">🔄</span>DeFi (Gnoswap)</button>
+  <button class="tab" data-tab="whales" role="tab"><span class="tab-icon">🐋</span>Whale Watch</button>
+  <button class="tab" data-tab="deps" role="tab"><span class="tab-icon">🕸️</span>Dependencies</button>
+  <button class="tab" data-tab="links" role="tab"><span class="tab-icon">🔗</span>Links</button>
 </div>
 
 <div class="tab-panel" id="panel-new" hidden>
@@ -605,6 +607,44 @@
   <div id="whaleTierLegend" class="whale-legend" style="display:none"></div>
 </div>
 
+<div class="tab-panel" id="panel-deps" hidden>
+  <h2>🕸️ Dependencies</h2>
+
+  <div class="subtabs" role="tablist">
+    <button class="subtab active" data-subtab="deps-popular" role="tab">Popular Dependencies</button>
+    <button class="subtab" data-subtab="deps-graph" role="tab">Cross-Realm Graph</button>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-deps-popular">
+    <p class="status">Which shared packages (<code>p/...</code>) and realms (<code>r/...</code>) get
+      imported by the most other realms — read directly from each realm's own <code>import (...)</code>
+      block, not runtime call traces (Gno transactions only record the top-level caller, never
+      intermediate realm-to-realm hops, so there's no "who actually got called" data to mine). An
+      import is what a realm declares it depends on, which is the closest real signal available.</p>
+    <p id="depsPopularStatus" class="status">Loading…</p>
+    <table id="depsPopularTable" style="display:none">
+      <thead><tr>
+        <th class="sortable" data-sort="dependentCount">Dependents</th>
+        <th>Kind</th>
+        <th>Path</th>
+      </tr></thead>
+      <tbody id="depsPopularBody"></tbody>
+    </table>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-deps-graph" hidden>
+    <p class="status">Every realm-to-realm import found (a realm importing another realm's own package
+      at <code>gno.land/r/...</code>, rather than a shared <code>p/...</code> library) — the closest
+      available proxy for a cross-realm call graph, since which imports are actually invoked at runtime
+      isn't observable on-chain. One row per import edge.</p>
+    <p id="depsGraphStatus" class="status">Loading…</p>
+    <table id="depsGraphTable" style="display:none">
+      <thead><tr><th>From realm</th><th>Imports realm</th></tr></thead>
+      <tbody id="depsGraphBody"></tbody>
+    </table>
+  </div>
+</div>
+
 <div class="tab-panel" id="panel-links" hidden>
   <h2>🔗 Links</h2>
   <p class="status">The official gno.land project's own sites and community channels — sourced directly
@@ -828,7 +868,7 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "dashboardStats", "dashboardCharts"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "depsPopularTable", "depsGraphTable", "dashboardStats", "dashboardCharts"]) {
     document.getElementById(id).style.display = "none";
   }
   for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus", "dashboardStatus"]) {
@@ -2386,6 +2426,10 @@ function gnoscanAccountUrl(address, netKey = currentKey) {
   const chainId = NETWORKS[netKey].chainId;
   return `https://gnoscan.io/account/${encodeURIComponent(address)}?chainId=${encodeURIComponent(chainId)}`;
 }
+function gnoscanRealmUrl(path, netKey = currentKey) {
+  const chainId = NETWORKS[netKey].chainId;
+  return `https://gnoscan.io/realms/details?path=${encodeURIComponent(path)}&chainId=${encodeURIComponent(chainId)}`;
+}
 
 const SWAPS_DISPLAY_LIMIT = 300;
 let swapRows = [];
@@ -2677,6 +2721,106 @@ async function loadWhaleWatch(netKey) {
   }
 }
 
+// ---------- Dependencies: popular packages/realms + cross-realm graph ----------
+
+let depsPopularRows = [];
+let depsPopularSort = { key: "dependentCount", dir: -1 };
+
+function sortedDepsPopularRows() {
+  const { key, dir } = depsPopularSort;
+  return depsPopularRows.slice().sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (typeof av === "string") return dir * av.localeCompare(bv);
+    return dir * ((av ?? 0) - (bv ?? 0));
+  });
+}
+
+function renderDepsPopular() {
+  const rows = sortedDepsPopularRows();
+  document.getElementById("depsPopularBody").innerHTML = rows.map(r => `
+    <tr${r.kind === "Realm" ? ` class="clickable" data-path="${escapeHtml(r.path)}"` : ""}>
+      <td>${r.dependentCount}</td>
+      <td><span class="badge">${escapeHtml(r.kind)}</span></td>
+      <td>${escapeHtml(r.path)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("depsPopularTable").style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll("#depsPopularTable th.sortable").forEach(th => {
+    const active = th.dataset.sort === depsPopularSort.key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (depsPopularSort.dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+}
+
+document.querySelectorAll("#depsPopularTable th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    depsPopularSort = depsPopularSort.key === key ? { key, dir: depsPopularSort.dir * -1 } : { key, dir: -1 };
+    renderDepsPopular();
+  });
+});
+
+document.getElementById("depsPopularBody").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.clickable");
+  if (row) togglePreview(row);
+});
+
+function renderDepsGraph(edges) {
+  document.getElementById("depsGraphBody").innerHTML = edges.map(e => `
+    <tr>
+      <td><a href="${gnoscanRealmUrl(e.from)}" target="_blank" rel="noopener">${truncateMiddle(e.from)}</a></td>
+      <td><a href="${gnoscanRealmUrl(e.to)}" target="_blank" rel="noopener">${truncateMiddle(e.to)}</a></td>
+    </tr>
+  `).join("");
+  document.getElementById("depsGraphTable").style.display = edges.length ? "table" : "none";
+}
+
+async function loadDependencies(netKey) {
+  const popularStatusEl = document.getElementById("depsPopularStatus");
+  const graphStatusEl = document.getElementById("depsGraphStatus");
+  popularStatusEl.textContent = "Loading…";
+  graphStatusEl.textContent = "Loading…";
+  try {
+    const cached = await getCachedData(netKey);
+    if (!cached || !cached.popularDependencies) {
+      depsPopularRows = [];
+      document.getElementById("depsPopularTable").style.display = "none";
+      document.getElementById("depsGraphTable").style.display = "none";
+      popularStatusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      graphStatusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+    depsPopularRows = cached.popularDependencies;
+    renderDepsPopular();
+    popularStatusEl.textContent = `${depsPopularRows.length} distinct dependenc${depsPopularRows.length === 1 ? "y" : "ies"}, ranked by how many realms import them. ` +
+      cacheAgeNote(cached.generatedAt);
+
+    const edges = cached.crossRealmEdges || [];
+    renderDepsGraph(edges);
+    graphStatusEl.textContent = edges.length
+      ? `${edges.length} realm-to-realm import edge${edges.length === 1 ? "" : "s"} found. ` + cacheAgeNote(cached.generatedAt)
+      : "No realm-to-realm imports found (most gno.land code reuse happens via shared p/ packages, not realm-to-realm imports).";
+  } catch (err) {
+    popularStatusEl.textContent = "Failed to load: " + err.message;
+    graphStatusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
+document.querySelectorAll("#panel-deps .subtab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#panel-deps .subtab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#panel-deps .subtab-panel").forEach(p => { p.hidden = true; });
+    btn.classList.add("active");
+    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
+  });
+});
+
 // ---------- Dashboard: chain-wide stats, built entirely from data already
 // fetched for the other tabs (no extra queries) plus one fresh height
 // check for a live-feeling number at the top. ----------
@@ -2901,6 +3045,7 @@ function loadAll(key) {
   loadNfts(net, key);
   loadAllActivityTabs(key);
   loadWhaleWatch(key);
+  loadDependencies(key);
   loadDashboard(key);
   // Swaps is lazy-loaded on first open (see the subtab click handler) —
   // but if it's already open when the network changes, nothing would
