@@ -1282,6 +1282,29 @@ async function connectAdena() {
   }
 }
 
+// Content scripts (Adena's included) commonly inject at "document_idle",
+// which can run AFTER a page's own inline <script> has already executed
+// during HTML parsing — so a single synchronous `typeof window.adena`
+// check right at page load can catch it mid-injection and see "undefined"
+// even though it appears a few hundred ms later. Poll briefly instead of
+// checking once; a first-time visitor never even calls this (see the
+// wasConnected guard below), so this added wait never affects them.
+function waitForAdena(timeoutMs = 3000, intervalMs = 150) {
+  return new Promise((resolve) => {
+    if (typeof window.adena !== "undefined") { resolve(true); return; }
+    const start = Date.now();
+    const timer = setInterval(() => {
+      if (typeof window.adena !== "undefined") {
+        clearInterval(timer);
+        resolve(true);
+      } else if (Date.now() - start > timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, intervalMs);
+  });
+}
+
 // Runs once on page load. If the user connected successfully before (per
 // our own localStorage flag) and Adena is present, silently redo the same
 // AddEstablish + GetAccount round-trip — since the domain is already
@@ -1289,10 +1312,11 @@ async function connectAdena() {
 // connection genuinely survives a refresh instead of dropping back to a
 // disconnected "Connect Adena" button every time.
 async function autoReconnectAdena() {
-  if (typeof window.adena === "undefined") return;
   let wasConnected = false;
   try { wasConnected = localStorage.getItem(ADENA_CONNECTED_KEY) === "1"; } catch {}
   if (!wasConnected) return;
+
+  if (!(await waitForAdena())) return; // extension not present / never injected — leave idle
 
   const btn = document.getElementById("adenaConnectBtn");
   btn.disabled = true;
