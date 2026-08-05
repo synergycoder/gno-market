@@ -857,6 +857,54 @@ async function fetchGenesisBalanceAddresses(net) {
   }
 }
 
+// ---------- gno.land's community airdrop wallet list ----------
+// gno.land's own RPC /genesis endpoint truncates on betanet — confirmed
+// live: the response cuts off mid-string at exactly ~30MB (a proxy/CDN
+// response-size cap, not the node itself), so app_state.balances can't be
+// read directly there at all despite genuinely containing this same data
+// (betanet's real genesis balance count is in the low millions, not the
+// 19 addresses testnet's small genesis file has). The canonical,
+// untruncated source is the gnolang team's own published input to that
+// genesis file: github.com/gnolang/independence-day (repo description:
+// "Gno.land airdrop scripts"), specifically mkgenesis/balances.txt.gz
+// (3,262,505 lines, confirmed via that repo's own README) minus
+// mkgenesis/non-airdrop.txt (team/foundation/reserve addresses the repo
+// itself excludes from being counted as real airdrop recipients).
+// Fetched ONCE per build run (a real cost: ~53MB compressed, ~30s over
+// the network, but well under a second to decompress+parse 3.26M lines)
+// and shared across both networks — this is fixed historical genesis
+// data, identical regardless of which network's known-address pool it's
+// being checked against (testnet's pool will naturally show ~zero
+// matches, since this specific airdrop was a betanet/mainnet-launch
+// event, not something testnet participated in).
+const AIRDROP_BALANCES_URL = "https://raw.githubusercontent.com/gnolang/independence-day/main/mkgenesis/balances.txt.gz";
+const AIRDROP_NON_AIRDROP_URL = "https://raw.githubusercontent.com/gnolang/independence-day/main/mkgenesis/non-airdrop.txt";
+
+async function fetchAirdropAddressSet() {
+  try {
+    const zlib = await import("node:zlib");
+    const [balancesRes, nonAirdropRes] = await Promise.all([
+      fetch(AIRDROP_BALANCES_URL),
+      fetch(AIRDROP_NON_AIRDROP_URL),
+    ]);
+    if (!balancesRes.ok) throw new Error(`balances.txt.gz: HTTP ${balancesRes.status}`);
+    const gz = Buffer.from(await balancesRes.arrayBuffer());
+    const text = zlib.gunzipSync(gz).toString("utf-8");
+    const excluded = new Set(
+      nonAirdropRes.ok ? (await nonAirdropRes.text()).split("\n").map(l => l.trim()).filter(Boolean) : []
+    );
+    const addrs = new Set();
+    for (const line of text.split("\n")) {
+      const addr = line.split("=")[0].trim();
+      if (addr && !excluded.has(addr)) addrs.add(addr);
+    }
+    return addrs;
+  } catch (err) {
+    console.error("airdrop address list fetch failed (non-fatal, treating as empty):", err.message);
+    return new Set(); // non-critical enrichment — a failure here shouldn't fail the whole build
+  }
+}
+
 // ---------- whale watch: native GNOT balance of every known-active address ----------
 // The indexer exposes no accounts/balances query at all (confirmed via
 // schema introspection — only latestBlockHeight/getBlocks/getTransactions
@@ -872,9 +920,10 @@ async function fetchGenesisBalanceAddresses(net) {
 // shown is exact, not estimated. Re-fetched in full every run rather than
 // cached incrementally — unlike a monotonic counter, a balance can go
 // down, so a "only fetch what's missing" cache would go stale.
-async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
+async function fetchWhaleWatch(net, knownAddresses, genesisAddresses, airdropAddresses) {
   const results = await mapLimit([...knownAddresses], 8, async (addr) => {
     const genesis = genesisAddresses.has(addr);
+    const airdrop = airdropAddresses.has(addr);
     // One retry on failure before giving up on this address. This pass
     // runs LAST in the build (after every other, now-heavier scan), so by
     // the time it starts the RPC endpoint has already handled a lot of
@@ -885,11 +934,11 @@ async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
-        if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis };
+        if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis, airdrop };
         const parsed = JSON.parse(raw);
         const coins = parsed?.BaseAccount?.coins || "";
         const m = /^(\d+)ugnot$/.exec(coins.trim());
-        return { address: addr, balance: m ? Number(m[1]) : 0, genesis };
+        return { address: addr, balance: m ? Number(m[1]) : 0, genesis, airdrop };
       } catch {
         if (attempt === 1) return null; // leave this address out rather than reporting a false 0
       }
@@ -900,7 +949,7 @@ async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
 
 // ---------- per-network orchestration ----------
 
-async function buildNetwork(netKey, net) {
+async function buildNetwork(netKey, net, airdropAddresses) {
   console.log(`\n=== ${netKey} (${net.label}) ===`);
   const outPath = path.join(DATA_DIR, `${netKey}.json`);
   let prev = null;
@@ -1047,7 +1096,9 @@ async function buildNetwork(netKey, net) {
   const genesisAddrs = await fetchGenesisBalanceAddresses(net);
   const genesisAddrSet = new Set(genesisAddrs);
   for (const addr of genesisAddrs) knownAddresses.add(addr);
-  const whaleWatch = await fetchWhaleWatch(net, knownAddresses, genesisAddrSet);
+  const whaleWatch = await fetchWhaleWatch(net, knownAddresses, genesisAddrSet, airdropAddresses);
+  const airdropMatchCount = whaleWatch.filter(w => w.airdrop).length;
+  console.log(`airdrop matches: ${airdropMatchCount}/${whaleWatch.length} known wallets also received gno.land's community airdrop`);
   console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked (${genesisAddrs.length} from genesis balances, ${bankSendResult.addresses.length} from bank sends)`);
 
   const output = {
@@ -1116,9 +1167,12 @@ async function main() {
   // as failed (non-zero exit, visible in the Actions UI) after everything
   // that *could* succeed has been given the chance to.
   let anyFailed = false;
+  console.log("Fetching gno.land's community airdrop address list (shared across both networks)...");
+  const airdropAddresses = await fetchAirdropAddressSet();
+  console.log(`airdrop address list: ${airdropAddresses.size} addresses`);
   for (const [netKey, net] of Object.entries(NETWORKS)) {
     try {
-      await buildNetwork(netKey, net);
+      await buildNetwork(netKey, net, airdropAddresses);
     } catch (err) {
       anyFailed = true;
       console.error(`\n=== ${netKey} FAILED ===`);

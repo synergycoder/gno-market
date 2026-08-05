@@ -154,6 +154,8 @@
     border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
     margin-right: 0.3rem; font-weight: 600;
   }
+  .badge-realm { background: color-mix(in srgb, var(--accent-2) 18%, transparent); color: var(--accent-2); }
+  .badge-package { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
   .link-group { margin-top: 1.5rem; }
   .link-group h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 0.7rem; }
   .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.8rem; }
@@ -718,10 +720,16 @@
     Toggle any combination of criteria below — matching wallets are added to the list, automatically
     deduplicated; toggle a criterion back off to remove exactly the wallets it contributed (a wallet
     stays listed if another still-active criterion also matches it). Counts on each button are that
-    criterion's own unique wallet count, on its own.</p>
+    criterion's own unique wallet count, on its own. Every criterion here is scoped to wallets this site
+    has actually observed being active in some way — except "Received gno.land's community airdrop",
+    which is checked against the real, complete airdrop distribution list
+    (<a href="https://github.com/gnolang/independence-day" target="_blank" rel="noopener">gnolang/independence-day</a>
+    on GitHub — 3.26M addresses) rather than something derived from on-chain activity, so it can only
+    show a match for a wallet that's also in this site's own known-address pool.</p>
   <div id="snapshotCriteria" class="snapshot-criteria"></div>
   <div class="snapshot-summary">
     <span><strong id="snapshotCount">0</strong> unique wallet<span id="snapshotCountPlural">s</span> selected</span>
+    <button id="snapshotSelectAllBtn" type="button" class="snapshot-action-btn">Select all</button>
     <button id="snapshotClearBtn" type="button" class="snapshot-action-btn">Clear all</button>
     <button id="snapshotCopyBtn" type="button" class="snapshot-action-btn">Copy list</button>
     <button id="snapshotCsvBtn" type="button" class="snapshot-action-btn">Download CSV</button>
@@ -1512,6 +1520,10 @@ function sortedNewFeedRows() {
   });
 }
 
+function kindBadgeClass(kind) {
+  return kind === "Realm" ? "badge-realm" : kind === "Package" ? "badge-package" : "";
+}
+
 function renderNewFeedRows() {
   const rows = sortedNewFeedRows();
   const shown = rows.slice(0, NEW_FEED_DISPLAY_LIMIT);
@@ -1522,7 +1534,7 @@ function renderNewFeedRows() {
       <tr class="${isRealm ? "clickable" : ""}" ${isRealm ? `data-path="${escapeHtml(p.path)}"` : ""}>
         <td>${p.blockHeight}</td>
         <td>${formatDate(p.blockTime)}</td>
-        <td><span class="badge">${p.kind}</span></td>
+        <td><span class="badge ${kindBadgeClass(p.kind)}">${p.kind}</span></td>
         <td>${truncateMiddle(p.path)}</td>
         <td>${p.creator ? truncateAddress(p.creator) : "—"}</td>
         <td>${p.hash ? `<a href="${gnoscanTxUrl(p.hash)}" target="_blank" rel="noopener">view ↗</a>` : "—"}</td>
@@ -2904,16 +2916,27 @@ function buildSnapshotCriteria(cached) {
     return out;
   }
 
+  // Every address that currently holds a positive balance of ANY tracked
+  // GRC20 token — tokenHolders.balances is keyed "path|SYMBOL" -> {address: balance},
+  // built by the same Transfer-event replay that powers the Fungible
+  // Tokens tab's Holders column (see build-cache.mjs's fetchTokenHolders).
+  const tokenHolderAddresses = [];
+  for (const bal of Object.values(cached.tokenHolders?.balances || {})) {
+    for (const [addr, amount] of Object.entries(bal)) {
+      if (amount > 0) tokenHolderAddresses.push(addr);
+    }
+  }
+
   const defs = [
-    { key: "genesis", label: "🎁 Genesis-funded wallet", addresses: (cached.whaleWatch || []).filter(w => w.genesis).map(w => w.address) },
+    { key: "airdrop", label: "🪂 Received gno.land's community airdrop", addresses: (cached.whaleWatch || []).filter(w => w.airdrop).map(w => w.address) },
     { key: "faucet", label: "🚰 Received a faucet drip", addresses: (cached.faucetDrips || []).map(d => d.to) },
     { key: "deployer", label: "📦 Deployed a realm/package", addresses: Object.values(cached.txPackages || {}).map(p => p.creator).filter(Boolean) },
     { key: "swap", label: "🔄 Executed a Gnoswap swap", addresses: (cached.gnoswapSwaps || []).map(s => s.caller).filter(Boolean) },
     { key: "banksend", label: "💸 Sent/received a native GNOT transfer", addresses: cached.bankSendActivity?.addresses || [] },
+    { key: "tokenholder", label: "🪙 Currently holds a GRC20 token", addresses: tokenHolderAddresses },
     { key: "nft", label: "🖼️ Called an NFT-collection realm", addresses: callersOfRealms(cached.nftRealms) },
     { key: "governance", label: "🏛️ Called a DAO governance realm", addresses: callersOfRealms(cached.governanceRealms) },
     { key: "social", label: "💬 Called a social realm", addresses: callersOfRealms(cached.socialRealms) },
-    { key: "any", label: "🌐 Any known active wallet", addresses: (cached.whaleWatch || []).map(w => w.address) },
   ];
   return defs.map(d => ({ ...d, uniqueAddresses: [...new Set(d.addresses)] }));
 }
@@ -2960,6 +2983,12 @@ document.getElementById("snapshotCriteria").addEventListener("click", (e) => {
   const key = btn.dataset.key;
   if (snapshotActiveKeys.has(key)) snapshotActiveKeys.delete(key);
   else snapshotActiveKeys.add(key);
+  renderSnapshotCriteria();
+  renderSnapshotResult();
+});
+
+document.getElementById("snapshotSelectAllBtn").addEventListener("click", () => {
+  snapshotActiveKeys = new Set(snapshotCriteria.map(c => c.key));
   renderSnapshotCriteria();
   renderSnapshotResult();
 });
@@ -3025,7 +3054,7 @@ function renderDepsPopular() {
   document.getElementById("depsPopularBody").innerHTML = rows.map(r => `
     <tr${r.kind === "Realm" ? ` class="clickable" data-path="${escapeHtml(r.path)}"` : ""}>
       <td>${r.dependentCount}</td>
-      <td><span class="badge">${escapeHtml(r.kind)}</span></td>
+      <td><span class="badge ${kindBadgeClass(r.kind)}">${escapeHtml(r.kind)}</span></td>
       <td>${escapeHtml(r.path)}</td>
     </tr>
   `).join("");
