@@ -185,10 +185,15 @@
   }
   .stat-tile {
     background: var(--bg-elevated); border: 1px solid var(--border-soft); border-radius: 8px;
-    padding: 0.9rem 1rem;
+    padding: 0.9rem 1rem; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
   .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1.2; }
   .stat-tile .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .stat-tile.clickable { cursor: pointer; }
+  .stat-tile.clickable:hover, .stat-tile.clickable:focus-visible {
+    border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); outline: none;
+  }
+  .stat-tile.clickable:hover .stat-value { color: var(--accent-strong); }
 
   .bar-chart {
     display: flex; align-items: flex-end; gap: 2px; height: 110px; margin: 0.5rem 0 1.75rem;
@@ -293,7 +298,8 @@
 <p class="status" id="refreshStatus"></p>
 
 <div class="tabs" role="tablist">
-  <button class="tab active" data-tab="new" role="tab">What's New</button>
+  <button class="tab active" data-tab="dashboard" role="tab">Dashboard</button>
+  <button class="tab" data-tab="new" role="tab">What's New</button>
   <button class="tab" data-tab="tokens" role="tab">Fungible Tokens</button>
   <button class="tab" data-tab="nfts" role="tab">NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab">Scan Wallet</button>
@@ -302,10 +308,9 @@
   <button class="tab" data-tab="social" role="tab">Social</button>
   <button class="tab" data-tab="defi" role="tab">DeFi (Gnoswap)</button>
   <button class="tab" data-tab="whales" role="tab">Whale Watch</button>
-  <button class="tab" data-tab="console" role="tab">Console</button>
 </div>
 
-<div class="tab-panel" id="panel-new">
+<div class="tab-panel" id="panel-new" hidden>
   <h2>What's New on Gno.land</h2>
   <p class="status">Every package/realm deployed via a transaction, most recent first. Genesis-deployed
     content (seeded at chain launch, not via a transaction — many well-known realms like boards/blog) is
@@ -525,17 +530,17 @@
   </table>
 </div>
 
-<div class="tab-panel" id="panel-console" hidden>
-  <h2>Console</h2>
+<div class="tab-panel" id="panel-dashboard">
+  <h2>Dashboard</h2>
   <p class="status">Chain-wide stats and activity, built entirely from data already precomputed for the
     other tabs — no extra queries. Native token price, market cap, and a trading-volume chart are planned
     but held back for now: GNOT has no real-world market (this is testnet, gno.land has no mainnet yet),
     so anything price-shaped needs careful, explicit labeling before it ships.</p>
-  <p id="consoleStatus" class="status">Loading…</p>
+  <p id="dashboardStatus" class="status">Loading…</p>
 
-  <div id="consoleStats" class="stat-grid" style="display:none"></div>
+  <div id="dashboardStats" class="stat-grid" style="display:none"></div>
 
-  <div id="consoleCharts" style="display:none">
+  <div id="dashboardCharts" style="display:none">
     <h3>Realm/package deploys per day (last 30 days)</h3>
     <div id="deployChart" class="bar-chart"></div>
     <h3>Gnoswap swaps per day (last 30 days)</h3>
@@ -678,10 +683,10 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "consoleStats", "consoleCharts"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "dashboardStats", "dashboardCharts"]) {
     document.getElementById(id).style.display = "none";
   }
-  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus", "consoleStatus"]) {
+  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus", "dashboardStatus"]) {
     document.getElementById(id).textContent = "Loading…";
   }
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
@@ -703,6 +708,24 @@ select.addEventListener("change", () => {
 
 const TAB_STORAGE_KEY = "gnoObserver:activeTab";
 
+// Keeps the address bar reflecting the current view (tab/subtab/token
+// filter) so any view can be bookmarked or shared as-is — e.g.
+// ?tab=defi&subtab=defi-swaps&token=<path> lands directly on a
+// pre-filtered Swaps view. Only touches the keys passed in: a value of
+// null explicitly removes that param (used when switching to a tab with
+// no notion of subtab/token), omitting a key leaves it untouched.
+// replaceState (not pushState) on purpose — switching tabs shouldn't
+// spam the browser's back-button history.
+function updateUrlForView(partial) {
+  const params = new URLSearchParams(location.search);
+  for (const [k, v] of Object.entries(partial)) {
+    if (v) params.set(k, v);
+    else params.delete(k);
+  }
+  const qs = params.toString();
+  history.replaceState(null, "", qs ? `${location.pathname}?${qs}` : location.pathname);
+}
+
 function activateTab(tabName) {
   const panel = document.getElementById("panel-" + tabName);
   if (!panel) return;
@@ -711,6 +734,9 @@ function activateTab(tabName) {
   document.getElementById("suggestionsLink").classList.toggle("active", tabName === "suggestions");
   panel.hidden = false;
   if (tabName === "suggestions") loadSuggestions();
+  // subtab/token only mean anything under the defi tab — clear them from
+  // the URL for every other tab so a stale filter doesn't linger there.
+  updateUrlForView(tabName === "defi" ? { tab: tabName } : { tab: tabName, subtab: null, token: null });
 }
 
 document.querySelectorAll(".tab").forEach(btn => {
@@ -725,12 +751,37 @@ document.getElementById("suggestionsLink").addEventListener("click", () => {
   try { localStorage.setItem(TAB_STORAGE_KEY, "suggestions"); } catch {}
 });
 
-try {
-  const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
-  if (savedTab) activateTab(savedTab);
-} catch {
-  // storage unavailable — falls back to whichever tab has "active" in the HTML
-}
+// A URL's own ?tab=... (someone following a shared/bookmarked link) wins
+// over the locally-remembered last-open tab — that's the whole point of
+// making a view linkable. Falls back to the saved tab, then to whichever
+// tab has "active" in the HTML (Dashboard), same as before this existed.
+(function restoreInitialView() {
+  const params = new URLSearchParams(location.search);
+  const urlTab = params.get("tab");
+  if (urlTab && document.getElementById("panel-" + urlTab)) {
+    activateTab(urlTab);
+    if (urlTab === "defi") {
+      const subtab = params.get("subtab");
+      if (subtab && document.querySelector(`#panel-defi .subtab[data-subtab="${subtab}"]`)) {
+        activateDefiSubtab(subtab, { token: params.get("token") });
+      }
+    }
+    return;
+  }
+  // Always explicitly activate something — a first-time visitor (no saved
+  // tab, no URL param) previously relied on the raw HTML's own default
+  // hidden/active markup staying in sync with whichever tab was meant to
+  // be the default, which silently broke the moment that default changed
+  // (Dashboard's button got `active` in markup but its panel still had
+  // `hidden`, while What's New's panel — the old default — never got
+  // `hidden` added back). Calling activateTab() unconditionally makes the
+  // actual displayed state independent of that markup bookkeeping.
+  let savedTab = null;
+  try { savedTab = localStorage.getItem(TAB_STORAGE_KEY); } catch {
+    // storage unavailable — falls through to the "dashboard" default below
+  }
+  activateTab(savedTab || "dashboard");
+})();
 
 // ---------- low-level chain access ----------
 
@@ -2134,18 +2185,27 @@ function loadAllActivityTabs(netKey) {
 
 // ---------- DeFi sub-tabs: Overview (above) / Swaps ----------
 
+function activateDefiSubtab(subtabKey, opts) {
+  const btn = document.querySelector(`#panel-defi .subtab[data-subtab="${subtabKey}"]`);
+  if (!btn) return;
+  document.querySelectorAll("#panel-defi .subtab").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll("#panel-defi .subtab-panel").forEach(p => { p.hidden = true; });
+  btn.classList.add("active");
+  document.getElementById("subpanel-" + subtabKey).hidden = false;
+  // Reloaded on every open rather than cached client-side — getCachedData
+  // is already memoized per network, so this costs nothing extra unless
+  // the network changed since the last time Swaps was opened, in which
+  // case it needs to anyway.
+  if (subtabKey === "defi-swaps") {
+    loadSwaps(currentKey).then(() => {
+      if (opts && opts.token) setSwapTokenFilter(opts.token);
+    });
+  }
+  updateUrlForView({ subtab: subtabKey });
+}
+
 document.querySelectorAll("#panel-defi .subtab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#panel-defi .subtab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll("#panel-defi .subtab-panel").forEach(p => { p.hidden = true; });
-    btn.classList.add("active");
-    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
-    // Reloaded on every open rather than cached client-side — getCachedData
-    // is already memoized per network, so this costs nothing extra unless
-    // the network changed since the last time Swaps was opened, in which
-    // case it needs to anyway.
-    if (btn.dataset.subtab === "defi-swaps") loadSwaps(currentKey);
-  });
+  btn.addEventListener("click", () => activateDefiSubtab(btn.dataset.subtab));
 });
 
 function tokenSymbol(path) {
@@ -2220,7 +2280,28 @@ document.querySelectorAll("#swapsTable th.sortable").forEach(th => {
 document.getElementById("swapTokenFilter").addEventListener("change", (e) => {
   swapTokenFilterValue = e.target.value;
   renderSwaps();
+  updateUrlForView({ token: e.target.value || null });
 });
+
+// Used both by manual filter changes above and by URL restoration
+// (?token=...) — sets the <select> to a token path if it's one of the
+// currently-loaded options (a stale/unknown token in the URL is just
+// ignored rather than erroring).
+function setSwapTokenFilter(tokenPath) {
+  if (!tokenPath) return;
+  const select = document.getElementById("swapTokenFilter");
+  // Filter options are keyed by the compound "<path>.<SYMBOL>" form (same
+  // as swap tokenIn/tokenOut) — accept either that exact value or the
+  // bare realm path (friendlier for a hand-typed/shared URL) and match
+  // via the same normalization used for decimals lookups.
+  const normalized = realmPathOnly(tokenPath);
+  const opt = [...select.options].find(o => o.value === tokenPath || realmPathOnly(o.value) === normalized);
+  if (!opt) return;
+  select.value = opt.value;
+  swapTokenFilterValue = opt.value;
+  renderSwaps();
+  updateUrlForView({ token: opt.value });
+}
 
 async function loadSwaps(netKey) {
   const statusEl = document.getElementById("swapsStatus");
@@ -2314,7 +2395,7 @@ async function loadWhaleWatch(netKey) {
   }
 }
 
-// ---------- Console: chain-wide stats, built entirely from data already
+// ---------- Dashboard: chain-wide stats, built entirely from data already
 // fetched for the other tabs (no extra queries) plus one fresh height
 // check for a live-feeling number at the top. ----------
 
@@ -2344,15 +2425,32 @@ function renderBarChart(containerId, buckets, extraClass) {
   }).join("");
 }
 
-async function loadConsole(netKey) {
-  const statusEl = document.getElementById("consoleStatus");
+function goToStatTileTarget(tile) {
+  const tab = tile.dataset.linkTab;
+  if (!tab) return;
+  activateTab(tab);
+  try { localStorage.setItem(TAB_STORAGE_KEY, tab); } catch {}
+  if (tile.dataset.linkSubtab) activateDefiSubtab(tile.dataset.linkSubtab);
+}
+document.getElementById("dashboardStats").addEventListener("click", (e) => {
+  const tile = e.target.closest(".stat-tile[data-link-tab]");
+  if (tile) goToStatTileTarget(tile);
+});
+document.getElementById("dashboardStats").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const tile = e.target.closest(".stat-tile[data-link-tab]");
+  if (tile) { e.preventDefault(); goToStatTileTarget(tile); }
+});
+
+async function loadDashboard(netKey) {
+  const statusEl = document.getElementById("dashboardStatus");
   statusEl.textContent = "Loading…";
   try {
     const net = NETWORKS[netKey];
     const cached = await getCachedData(netKey);
     if (!cached) {
-      document.getElementById("consoleStats").style.display = "none";
-      document.getElementById("consoleCharts").style.display = "none";
+      document.getElementById("dashboardStats").style.display = "none";
+      document.getElementById("dashboardCharts").style.display = "none";
       statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
       return;
     }
@@ -2372,25 +2470,26 @@ async function loadConsole(netKey) {
 
     const stats = [
       { label: "Block height", value: (height ?? "—").toLocaleString?.() ?? String(height ?? "—") },
-      { label: "Realms/packages deployed", value: Object.keys(cached.txPackages || {}).length.toLocaleString() },
-      { label: "Known active wallets", value: (cached.whaleWatch || []).length.toLocaleString() },
-      { label: "GRC20 tokens tracked", value: (cached.tokens || []).length.toLocaleString() },
-      { label: "NFT collections detected", value: (cached.stats?.nftRealmCount ?? 0).toLocaleString() },
-      { label: "DAO governance realms", value: (cached.stats?.governanceRealmCount ?? 0).toLocaleString() },
-      { label: "Social realms", value: (cached.stats?.socialRealmCount ?? 0).toLocaleString() },
-      { label: "Gnoswap swaps (all-time)", value: (cached.gnoswapSwaps || []).length.toLocaleString() },
+      { label: "Realms/packages deployed", value: Object.keys(cached.txPackages || {}).length.toLocaleString(), link: { tab: "new" } },
+      { label: "Known active wallets", value: (cached.whaleWatch || []).length.toLocaleString(), link: { tab: "whales" } },
+      { label: "GRC20 tokens tracked", value: (cached.tokens || []).length.toLocaleString(), link: { tab: "tokens" } },
+      { label: "NFT collections detected", value: (cached.stats?.nftRealmCount ?? 0).toLocaleString(), link: { tab: "nfts" } },
+      { label: "DAO governance realms", value: (cached.stats?.governanceRealmCount ?? 0).toLocaleString(), link: { tab: "governance" } },
+      { label: "Social realms", value: (cached.stats?.socialRealmCount ?? 0).toLocaleString(), link: { tab: "social" } },
+      { label: "Gnoswap swaps (all-time)", value: (cached.gnoswapSwaps || []).length.toLocaleString(), link: { tab: "defi", subtab: "defi-swaps" } },
     ];
-    document.getElementById("consoleStats").innerHTML = stats.map(s => `
-      <div class="stat-tile">
+    document.getElementById("dashboardStats").innerHTML = stats.map(s => `
+      <div class="stat-tile${s.link ? " clickable" : ""}"
+        ${s.link ? `tabindex="0" role="button" data-link-tab="${s.link.tab}" data-link-subtab="${s.link.subtab || ""}"` : ""}>
         <div class="stat-value">${escapeHtml(s.value)}</div>
         <div class="stat-label">${escapeHtml(s.label)}</div>
       </div>
     `).join("");
-    document.getElementById("consoleStats").style.display = "grid";
+    document.getElementById("dashboardStats").style.display = "grid";
 
     renderBarChart("deployChart", bucketByDay(cached.recentDeployed || []));
     renderBarChart("swapChart", bucketByDay(cached.gnoswapSwaps || []), "swap-bar");
-    document.getElementById("consoleCharts").style.display = "block";
+    document.getElementById("dashboardCharts").style.display = "block";
 
     statusEl.textContent = cacheAgeNote(cached.generatedAt);
   } catch (err) {
@@ -2405,14 +2504,22 @@ function loadAll(key) {
   loadNfts(net, key);
   loadAllActivityTabs(key);
   loadWhaleWatch(key);
-  loadConsole(key);
+  loadDashboard(key);
   // Swaps is lazy-loaded on first open (see the subtab click handler) —
   // but if it's already open when the network changes, nothing would
   // otherwise re-trigger it, leaving it stuck on the "Loading…" state
   // clearAllTabData() just set. Same class of bug as the network-switch
-  // fix for the main tabs, just for a sub-tab.
+  // fix for the main tabs, just for a sub-tab. On the very first page
+  // load this races with restoreInitialView()'s own loadSwaps() call (both
+  // fire in the same tick, off the same memoized getCachedData promise) —
+  // re-reading ?token= from the URL here too, rather than only in that
+  // other call, makes the final state correct regardless of which one's
+  // render actually lands last.
   const swapsPanel = document.getElementById("subpanel-defi-swaps");
-  if (swapsPanel && !swapsPanel.hidden) loadSwaps(key);
+  if (swapsPanel && !swapsPanel.hidden) {
+    const urlToken = new URLSearchParams(location.search).get("token");
+    loadSwaps(key).then(() => { if (urlToken) setSwapTokenFilter(urlToken); });
+  }
   showSnapshotHeight(net);
 }
 
