@@ -362,7 +362,7 @@
   <div id="walletNftSection" style="display:none">
     <h3>NFT holdings</h3>
     <table id="walletNftTable">
-      <thead><tr><th>Collection</th><th>Standard</th><th>Count</th></tr></thead>
+      <thead><tr><th>Collection</th><th>Standard</th><th>Count</th><th>Token IDs</th></tr></thead>
       <tbody id="walletNftBody"></tbody>
     </table>
   </div>
@@ -1222,6 +1222,47 @@ function formatGnot(ugnot) {
   return (ugnot / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
+async function fetchOwnedTokenIds(net, collectionPath, ownerAddress) {
+  // No standard "tokens of owner" enumeration exists on GRC721, and token
+  // ids aren't guaranteed to be simple sequential integers — confirmed
+  // against a real deployed collection, whose ids are zero-padded seqid
+  // strings ("0000000", not 0/1/2...), so brute-forcing a guessed id range
+  // doesn't work in general. Instead, replay this collection's own
+  // Mint/Transfer/Burn events (same event-reconstruction pattern as Whale
+  // Watch/Swaps) to derive current ownership per token id. Best-effort:
+  // a collection whose implementation doesn't emit these event names/attrs
+  // (not universally guaranteed either) just yields no results here, same
+  // spirit as the NFT-standard detection heuristic elsewhere on this page.
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        messages: { value: { MsgCall: { pkg_path: { eq: "${collectionPath}" } } } }
+      }) {
+        block_height
+        response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+      }
+    }`;
+  const data = await graphqlQuery(net, query);
+  const events = [];
+  for (const tx of data.getTransactions || []) {
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent") continue;
+      if (ev.type !== "Mint" && ev.type !== "Transfer" && ev.type !== "Burn") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (!attrs.tokenId) continue;
+      events.push({ blockHeight: tx.block_height, type: ev.type, tokenId: attrs.tokenId, to: attrs.to });
+    }
+  }
+  events.sort((a, b) => a.blockHeight - b.blockHeight);
+  const owners = new Map();
+  for (const ev of events) {
+    if (ev.type === "Burn") owners.delete(ev.tokenId);
+    else if (ev.to) owners.set(ev.tokenId, ev.to);
+  }
+  return [...owners.entries()].filter(([, owner]) => owner === ownerAddress).map(([tokenId]) => tokenId).sort();
+}
+
 let walletScanInFlight = false;
 async function scanWallet() {
   if (walletScanInFlight) return;
@@ -1287,6 +1328,20 @@ async function scanWallet() {
       .sort((a, b) => b.count - a.count);
     const errorCount = tokenResults.filter(t => t.error).length + nftResults.filter(n => n.error).length;
 
+    // Token-id enumeration only runs for collections this wallet is
+    // already known to hold something in (not all detected collections),
+    // so the extra cost scales with what the wallet actually owns.
+    statusEl.textContent = heldNfts.length
+      ? `Found holdings — looking up individual token IDs for ${heldNfts.length} collection${heldNfts.length === 1 ? "" : "s"}…`
+      : statusEl.textContent;
+    await mapLimit(heldNfts, 4, async (n) => {
+      try {
+        n.tokenIds = await fetchOwnedTokenIds(net, n.path, address);
+      } catch {
+        n.tokenIds = null; // enumeration unavailable for this collection specifically
+      }
+    });
+
     document.getElementById("walletTokenBody").innerHTML = heldTokens.map(t => `
       <tr class="clickable" data-path="${escapeHtml(t.path)}">
         <td>${escapeHtml(t.name)}</td>
@@ -1302,6 +1357,7 @@ async function scanWallet() {
         <td>${escapeHtml(n.path)}</td>
         <td><span class="badge">${n.std}</span></td>
         <td>${n.count}</td>
+        <td>${n.tokenIds === null ? "not available" : n.tokenIds.length ? n.tokenIds.map(escapeHtml).join(", ") : "(none found — may lag the count above)"}</td>
       </tr>
     `).join("");
     nftSection.style.display = heldNfts.length ? "block" : "none";
