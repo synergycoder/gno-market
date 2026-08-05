@@ -141,13 +141,23 @@ async function fetchTokens(net) {
 // this is re-fetched in full every run rather than cached incrementally.
 async function fetchTokenTotalSupplies(net, tokenPaths) {
   const results = await mapLimit(tokenPaths, 8, async (path) => {
-    try {
-      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.TotalSupply()`);
-      const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
-      return [path, m ? Number(m[1]) : null];
-    } catch {
-      return [path, null];
+    for (const fn of ["TotalSupply()", "GetTotalSupply()"]) {
+      try {
+        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.${fn}`);
+        const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
+        if (m) return [path, Number(m[1])];
+      } catch {
+        // try the next convention
+      }
     }
+    // Confirmed on gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm: neither
+    // convention exists there at all (VM error: "name TotalSupply/
+    // GetTotalSupply not declared") — it's an IBC bridge hosting multiple
+    // tokens (GetVoucherSize() -> 2 for SepoliaETH+USDT) behind a
+    // paginated GetVoucherList(start, count) API with no simple
+    // "current total supply" accessor, not a plain GRC20. Left
+    // unresolved rather than guessing at bespoke pagination args.
+    return [path, null];
   });
   return Object.fromEntries(results);
 }

@@ -1,7 +1,7 @@
 {
   "network": "testnet",
-  "generatedAt": "2026-08-05T18:34:57.243Z",
-  "lastHeight": 442117,
+  "generatedAt": "2026-08-05T20:08:57.964Z",
+  "lastHeight": 446965,
   "tokens": [
     {
       "name": "Test",
@@ -33,7 +33,7 @@
       "symbol": "ATOM",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_atom.svg",
       "description": "This is a GRC20 token issued on topaz-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 300000000000000
+      "totalSupply": null
     },
     {
       "name": "Bitcoin",
@@ -110,6 +110,10 @@
       "standard": "GRC721"
     },
     {
+      "path": "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter",
+      "standard": "GRC721"
+    },
+    {
       "path": "gno.land/r/gnoswap/gnft",
       "standard": "GRC721"
     },
@@ -139,6 +143,30 @@
     }
   ],
   "recentDeployed": [
+    {
+      "path": "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter",
+      "blockHeight": 446965,
+      "blockTime": "2026-08-05T19:43:00.950984861Z",
+      "hash": "9Pc7DVVYJW3EFRGzr5aT76Xh2PnS5/dNF3ngFEv2Bcg=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/grc721",
+      "blockHeight": 446939,
+      "blockTime": "2026-08-05T19:41:25.202506344Z",
+      "hash": "5TWRZpH4s27UOLPCZ6NWycz8YYbNXxW2s0imDKSsU/A=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/avl",
+      "blockHeight": 446895,
+      "blockTime": "2026-08-05T19:38:48.949591961Z",
+      "hash": "ch4r1shRT73MxBE/CZnL7Xp26VOcYlJyjL24ykQJLOM=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "kind": "Package"
+    },
     {
       "path": "gno.land/r/g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr/hello",
       "blockHeight": 442117,
@@ -2396,6 +2424,14 @@
       "lastBlockHeight": 415748,
       "lastBlockTime": "2026-08-04T12:06:13.252123483Z",
       "topFunc": null
+    },
+    {
+      "path": "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 446973,
+      "lastBlockTime": "2026-08-05T19:43:28.898996203Z",
+      "topFunc": "AddPresetToken"
     }
   ],
   "governanceRealms": [
@@ -10070,6 +10106,11 @@
       "genesis": false
     },
     {
+      "address": "g1nxcwez9fnucyc4aajfgs24yc34747vj36d4xc7",
+      "balance": 30000000,
+      "genesis": false
+    },
+    {
       "address": "g172tf235svs0hkckys8kshnam6ncz7pscx9x59f",
       "balance": 28786300,
       "genesis": false
@@ -10246,6 +10287,11 @@
     },
     {
       "address": "g1ufrtyje3t53j67ps5m7mqrqvsp0nvk9upwux5h",
+      "balance": 15000000,
+      "genesis": false
+    },
+    {
+      "address": "g1nnl7pyeavdn0w8wfgmv883aatdctlspxgsvckk",
       "balance": 15000000,
       "genesis": false
     },
@@ -10581,11 +10627,6 @@
     },
     {
       "address": "g1zqat0zdgagvp5u5mdypsaqum5gw75a6r7lq85h",
-      "balance": 10000000,
-      "genesis": false
-    },
-    {
-      "address": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
       "balance": 10000000,
       "genesis": false
     },
@@ -10952,6 +10993,11 @@
     {
       "address": "g1t77whwu4ct4y77g9x82j74vzl88eyk8a6f5wz3",
       "balance": 1465100,
+      "genesis": false
+    },
+    {
+      "address": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "balance": 1461936,
       "genesis": false
     },
     {
@@ -13687,6 +13733,36 @@
       "governance": false,
       "social": false,
       "blockTime": "2026-08-05T14:54:16.757292302Z"
+    },
+    "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/avl": {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/avl",
+      "blockHeight": 446895,
+      "hash": "ch4r1shRT73MxBE/CZnL7Xp26VOcYlJyjL24ykQJLOM=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T19:38:48.949591961Z"
+    },
+    "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/grc721": {
+      "path": "gno.land/p/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/grc721",
+      "blockHeight": 446939,
+      "hash": "5TWRZpH4s27UOLPCZ6NWycz8YYbNXxW2s0imDKSsU/A=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T19:41:25.202506344Z"
+    },
+    "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter": {
+      "path": "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter",
+      "blockHeight": 446965,
+      "hash": "9Pc7DVVYJW3EFRGzr5aT76Xh2PnS5/dNF3ngFEv2Bcg=",
+      "creator": "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "blockTime": "2026-08-05T19:43:00.950984861Z"
     }
   },
   "callActivity": {
@@ -14433,9 +14509,19 @@
         "firstBlockHeight": 434383,
         "lastBlockHeight": 434722,
         "lastBlockTime": "2026-08-05T07:31:06.522174404Z"
+      },
+      "gno.land/r/g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv/nftminter": {
+        "calls": 1,
+        "callers": [
+          "g1w7kytlgsgstspzlpy4fdtd9uqf0ga2dzud4wzv"
+        ],
+        "topFunc": "AddPresetToken",
+        "firstBlockHeight": 446973,
+        "lastBlockHeight": 446973,
+        "lastBlockTime": "2026-08-05T19:43:28.898996203Z"
       }
     },
-    "lastHeight": 445517
+    "lastHeight": 446973
   },
   "swapActivity": {
     "swaps": {
@@ -21837,15 +21923,15 @@
   },
   "stats": {
     "tokenCount": 11,
-    "nftRealmCount": 11,
-    "totalRealmsScanned": 190,
-    "txPackageCount": 238,
+    "nftRealmCount": 12,
+    "totalRealmsScanned": 191,
+    "txPackageCount": 241,
     "genesisOnlyCount": 31,
-    "trendingRealmCount": 44,
+    "trendingRealmCount": 45,
     "governanceRealmCount": 9,
     "socialRealmCount": 4,
     "defiRealmCount": 16,
     "gnoswapSwapCount": 715,
-    "whaleWatchCount": 251
+    "whaleWatchCount": 253
   }
 }

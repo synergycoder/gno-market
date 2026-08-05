@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-05T18:37:11.860Z",
+  "generatedAt": "2026-08-05T20:10:30.502Z",
   "lastHeight": 3142566,
   "tokens": [
     {
@@ -162,19 +162,19 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades",
+      "calls": 8,
+      "uniqueCallers": 2,
+      "lastBlockHeight": 3144702,
+      "lastBlockTime": "2026-08-05T17:09:25.206992899Z",
+      "topFunc": "Mint"
+    },
+    {
       "path": "gno.land/r/gnoland/wugnot",
       "calls": 7,
       "uniqueCallers": 3,
       "lastBlockHeight": 3002190,
       "lastBlockTime": "2026-07-28T04:42:01.98263286Z",
-      "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades",
-      "calls": 7,
-      "uniqueCallers": 2,
-      "lastBlockHeight": 3143220,
-      "lastBlockTime": "2026-08-05T17:09:25.206992899Z",
       "topFunc": null
     },
     {
@@ -348,7 +348,7 @@
     },
     {
       "address": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
-      "balance": 484606404,
+      "balance": 484347965,
       "genesis": false
     },
     {
@@ -9611,18 +9611,18 @@
         "lastBlockTime": "2026-08-04T16:45:33.17326554Z"
       },
       "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades": {
-        "calls": 7,
+        "calls": 8,
         "callers": [
           "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
           "g1g5lmzrrecpfknd2vp6qwzj48ejk6pgeeq5rjru"
         ],
-        "topFunc": null,
+        "topFunc": "Mint",
         "firstBlockHeight": 3142658,
-        "lastBlockHeight": 3143220,
+        "lastBlockHeight": 3144702,
         "lastBlockTime": "2026-08-05T17:09:25.206992899Z"
       }
     },
-    "lastHeight": 3143220
+    "lastHeight": 3144702
   },
   "swapActivity": {
     "swaps": {},
