@@ -264,6 +264,10 @@
   <button class="tab" data-tab="tokens" role="tab">Fungible Tokens</button>
   <button class="tab" data-tab="nfts" role="tab">NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab">Scan Wallet</button>
+  <button class="tab" data-tab="trending" role="tab">Trending</button>
+  <button class="tab" data-tab="governance" role="tab">DAO Governance</button>
+  <button class="tab" data-tab="social" role="tab">Social</button>
+  <button class="tab" data-tab="defi" role="tab">DeFi (Gnoswap)</button>
 </div>
 
 <div class="tab-panel" id="panel-new">
@@ -352,6 +356,85 @@
     </table>
   </div>
   <p class="status">Click any result row to preview that realm's Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-trending" hidden>
+  <h2>Trending / Active Realms</h2>
+  <p class="status">Every realm ranked by how many successful function-call transactions it has received,
+    all-time (not just deploys — this is realms actually being <em>used</em>). Precomputed from the shared
+    cache, same 30-minute refresh as the other tabs.</p>
+  <p id="trendingStatus" class="status">Loading…</p>
+  <table id="trendingTable" style="display:none">
+    <thead><tr>
+      <th>Realm</th>
+      <th>Top function</th>
+      <th class="sortable" data-sort="calls">Calls</th>
+      <th class="sortable" data-sort="uniqueCallers">Callers</th>
+      <th class="sortable" data-sort="lastBlockTime">Last active</th>
+    </tr></thead>
+    <tbody id="trendingBody"></tbody>
+  </table>
+  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-governance" hidden>
+  <h2>DAO Governance Activity</h2>
+  <p class="status">Best-effort detection, not a guarantee (same caveat as NFT Collections): a realm is
+    flagged here if its source mentions "governance"/"dao"/"gov" <strong>and</strong> defines a
+    <code>Propose</code>, <code>Vote</code>, or <code>Execute</code> function — a realm using different
+    naming for the same idea won't be caught. Call counts are all activity on that realm, not only
+    governance-specific calls (a realm can expose other functions too).</p>
+  <p id="governanceStatus" class="status">Loading…</p>
+  <table id="governanceTable" style="display:none">
+    <thead><tr>
+      <th>Realm</th>
+      <th>Top function</th>
+      <th class="sortable" data-sort="calls">Calls</th>
+      <th class="sortable" data-sort="uniqueCallers">Callers</th>
+      <th class="sortable" data-sort="lastBlockTime">Last active</th>
+    </tr></thead>
+    <tbody id="governanceBody"></tbody>
+  </table>
+  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-social" hidden>
+  <h2>Social Realm Activity</h2>
+  <p class="status">Best-effort detection, not a guarantee: a realm is flagged here if its source mentions
+    "board"/"blog"/"social" <strong>and</strong> defines a thread/post/reply-style function (e.g.
+    <code>CreateThread</code>, <code>CreatePost</code>, <code>CreateBoard</code>). Misses realms using
+    different naming for the same idea.</p>
+  <p id="socialStatus" class="status">Loading…</p>
+  <table id="socialTable" style="display:none">
+    <thead><tr>
+      <th>Realm</th>
+      <th>Top function</th>
+      <th class="sortable" data-sort="calls">Calls</th>
+      <th class="sortable" data-sort="uniqueCallers">Callers</th>
+      <th class="sortable" data-sort="lastBlockTime">Last active</th>
+    </tr></thead>
+    <tbody id="socialBody"></tbody>
+  </table>
+  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-defi" hidden>
+  <h2>DeFi Activity (Gnoswap)</h2>
+  <p class="status">Every realm deployed under <code>gno.land/r/gnoswap/</code> — the ecosystem's DEX —
+    ranked by call activity. Path-prefix based, not a heuristic, so this one's exact rather than
+    best-effort.</p>
+  <p id="defiStatus" class="status">Loading…</p>
+  <table id="defiTable" style="display:none">
+    <thead><tr>
+      <th>Realm</th>
+      <th>Top function</th>
+      <th class="sortable" data-sort="calls">Calls</th>
+      <th class="sortable" data-sort="uniqueCallers">Callers</th>
+      <th class="sortable" data-sort="lastBlockTime">Last active</th>
+    </tr></thead>
+    <tbody id="defiBody"></tbody>
+  </table>
+  <p class="status">Click any realm row to preview its on-chain Render() output.</p>
 </div>
 
 <div class="tab-panel" id="panel-suggestions" hidden>
@@ -487,10 +570,10 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable"]) {
     document.getElementById(id).style.display = "none";
   }
-  for (const id of ["tokenStatus", "nftStatus", "newStatus"]) {
+  for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus"]) {
     document.getElementById(id).textContent = "Loading…";
   }
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
@@ -723,8 +806,13 @@ function detectStandard(files) {
   return null;
 }
 
+// Gno's "filetest" format lives in files suffixed `_filetest.gno`, not
+// `_test.gno` — realms with many of these (boards2/v1 alone has ~190) were
+// being needlessly fetched and scanned in full.
 function nonTestGnoFiles(files) {
-  return (files || []).filter(f => f.name.endsWith(".gno") && !f.name.endsWith("_test.gno"));
+  return (files || []).filter(f =>
+    f.name.endsWith(".gno") && !f.name.endsWith("_test.gno") && !f.name.endsWith("_filetest.gno")
+  );
 }
 
 // Every deployed-package feature (NFT detection, What's New) reads from this
@@ -842,11 +930,18 @@ async function fetchGenesisRealmFiles(net, netKey, paths) {
         const listing = await abciQuery(net, "vm/qfile", path);
         const filenames = (listing || "").split("\n")
           .map(s => s.trim())
-          .filter(name => name.endsWith(".gno") && !name.endsWith("_test.gno"));
-        const files = await mapLimit(filenames, 4, async (name) => ({
-          name,
-          body: (await abciQuery(net, "vm/qfile", `${path}/${name}`)) || "",
-        }));
+          .filter(name => name.endsWith(".gno") && !name.endsWith("_test.gno") && !name.endsWith("_filetest.gno"));
+        // One flaky RPC call among many used to wipe the whole realm's file
+        // list (and thus its detection result) to empty via the outer
+        // catch. Fail per-file instead — a missing file just means less
+        // source to scan, not a false "unreadable" for the whole realm.
+        const files = await mapLimit(filenames, 4, async (name) => {
+          try {
+            return { name, body: (await abciQuery(net, "vm/qfile", `${path}/${name}`)) || "" };
+          } catch {
+            return { name, body: "" };
+          }
+        });
         cache.set(path, files);
       } catch {
         cache.set(path, []); // unreadable package, treat as no matches rather than retrying forever
@@ -1715,11 +1810,112 @@ async function showSnapshotHeight(net) {
   }
 }
 
+// ---------- Trending / DAO Governance / Social / DeFi(Gnoswap) ----------
+// All four are the same shape under the hood — {path, calls, uniqueCallers,
+// lastBlockTime, topFunc} — precomputed server-side by build-cache.mjs:
+// Trending is every realm with any call activity, Governance/Social are
+// heuristic-filtered by source content, DeFi is a `gno.land/r/gnoswap/`
+// path-prefix filter. Cache-only, no live-scan fallback: unlike the other
+// tabs, source-scanning every realm on gno.land client-side just to detect
+// governance/social patterns would be prohibitively slow for a visitor
+// with no cache available, so these three simply wait for the next
+// scheduled refresh in that case rather than doubling the implementation
+// to duplicate what build-cache.mjs already does server-side.
+
+const ACTIVITY_TABS = [
+  { key: "trending", cacheField: "trendingRealms", label: "active realm" },
+  { key: "governance", cacheField: "governanceRealms", label: "governance realm" },
+  { key: "social", cacheField: "socialRealms", label: "social realm" },
+  { key: "defi", cacheField: "defiRealms", label: "Gnoswap realm" },
+];
+
+const activitySort = {}; // tabKey -> {key, dir}
+const activityRows = {}; // tabKey -> rows array, source order from cache
+for (const t of ACTIVITY_TABS) activitySort[t.key] = { key: "calls", dir: -1 };
+
+function sortedActivityRows(tabKey) {
+  const rows = activityRows[tabKey] || [];
+  const { key, dir } = activitySort[tabKey];
+  return rows.slice().sort((a, b) => {
+    let av = a[key], bv = b[key];
+    if (key === "lastBlockTime") { av = av ? Date.parse(av) : 0; bv = bv ? Date.parse(bv) : 0; }
+    return dir * ((av ?? 0) - (bv ?? 0));
+  });
+}
+
+function renderActivityTable(tabKey) {
+  const rows = sortedActivityRows(tabKey);
+  document.getElementById(`${tabKey}Body`).innerHTML = rows.map(r => `
+    <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td>${truncateMiddle(r.path, 22)}</td>
+      <td>${r.topFunc ? escapeHtml(r.topFunc) : "—"}</td>
+      <td>${r.calls}</td>
+      <td>${r.uniqueCallers}</td>
+      <td>${formatDate(r.lastBlockTime)}</td>
+    </tr>
+  `).join("");
+  document.getElementById(`${tabKey}Table`).style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll(`#${tabKey}Table th.sortable`).forEach(th => {
+    const active = th.dataset.sort === activitySort[tabKey].key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (activitySort[tabKey].dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+}
+
+for (const t of ACTIVITY_TABS) {
+  document.querySelectorAll(`#${t.key}Table th.sortable`).forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      // every sortable column here is numeric/date — biggest/most-recent
+      // first is the natural default, same convention as What's New.
+      activitySort[t.key] = activitySort[t.key].key === key
+        ? { key, dir: activitySort[t.key].dir * -1 }
+        : { key, dir: -1 };
+      renderActivityTable(t.key);
+    });
+  });
+  document.getElementById(`${t.key}Body`).addEventListener("click", (e) => {
+    const row = e.target.closest("tr.clickable");
+    if (row) togglePreview(row);
+  });
+}
+
+async function loadActivityTab(netKey, tabKey, cacheField, label) {
+  const statusEl = document.getElementById(`${tabKey}Status`);
+  statusEl.textContent = "Loading…";
+  try {
+    const cached = await getCachedData(netKey);
+    if (!cached || !cached[cacheField]) {
+      activityRows[tabKey] = [];
+      document.getElementById(`${tabKey}Table`).style.display = "none";
+      statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+    activityRows[tabKey] = cached[cacheField];
+    renderActivityTable(tabKey);
+    const count = cached[cacheField].length;
+    statusEl.textContent = `${count} ${label}${count === 1 ? "" : "s"}. ` + cacheAgeNote(cached.generatedAt);
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
+function loadAllActivityTabs(netKey) {
+  for (const t of ACTIVITY_TABS) loadActivityTab(netKey, t.key, t.cacheField, t.label);
+}
+
 function loadAll(key) {
   const net = NETWORKS[key];
   loadRecentlyDeployed(net, key);
   loadTokens(net, key);
   loadNfts(net, key);
+  loadAllActivityTabs(key);
   showSnapshotHeight(net);
 }
 

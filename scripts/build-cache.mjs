@@ -124,8 +124,32 @@ function detectStandard(files) {
   return null;
 }
 
+// Same "mention + characteristic function" heuristic as NFT detection above,
+// applied to two more categories. Independent of the NFT check (a realm
+// could in principle match more than one), and reuses whatever source was
+// already fetched for the NFT pass — no extra RPC calls.
+const GOVERNANCE_MARKERS = [
+  { mentionRe: /governance|\bdao\b|\bgov\b/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(Propose|Vote|Execute)\s*\(/ },
+];
+const SOCIAL_MARKERS = [
+  { mentionRe: /board|blog|social/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(CreateThread|CreatePost|CreateReply|CreateBoard|Comment|NewPost)\s*\(/ },
+];
+
+function matchesAnyMarker(files, markers) {
+  const combined = files.map(f => f.body).join("\n");
+  return markers.some(m => m.mentionRe.test(combined) && m.funcRe.test(combined));
+}
+
+// Gno's "filetest" format (single file combining setup + expected output)
+// lives in files suffixed `_filetest.gno`, not `_test.gno` — realms with
+// many of these (boards2/v1 alone has ~190) were being needlessly fetched
+// and scanned in full, multiplying RPC calls and the chance of one flaky
+// fetch tanking the whole realm's detection (see the per-file try/catch
+// below, which is the other half of that fix).
 function nonTestGnoFiles(files) {
-  return (files || []).filter(f => f.name.endsWith(".gno") && !f.name.endsWith("_test.gno"));
+  return (files || []).filter(f =>
+    f.name.endsWith(".gno") && !f.name.endsWith("_test.gno") && !f.name.endsWith("_filetest.gno")
+  );
 }
 
 // ---------- block times ----------
@@ -181,11 +205,14 @@ async function fetchDeployedPackages(net, prevState) {
       if (!pkg) continue;
       newCount++;
       const isRealm = pkg.path.startsWith("gno.land/r/");
+      const files = nonTestGnoFiles(pkg.files);
       packages[pkg.path] = {
         path: pkg.path,
         blockHeight: tx.block_height,
         creator: v.creator,
-        standard: isRealm ? detectStandard(nonTestGnoFiles(pkg.files)) : null,
+        standard: isRealm ? detectStandard(files) : null,
+        governance: isRealm ? matchesAnyMarker(files, GOVERNANCE_MARKERS) : false,
+        social: isRealm ? matchesAnyMarker(files, SOCIAL_MARKERS) : false,
       };
       if (tx.block_height > newHeight) newHeight = tx.block_height;
     }
@@ -214,26 +241,123 @@ async function fetchDeployedPackages(net, prevState) {
   return { packages, lastHeight: newHeight, newCount };
 }
 
+// ---------- realm call activity (incremental) ----------
+// Powers four different views — Trending/active realms, DAO governance,
+// Social, and DeFi/Gnoswap — which all just filter/sort the same "which
+// realms got MsgCall'd, how often, by whom, and when" dataset differently.
+// One shared fetch instead of four separate ones.
+
+async function fetchCallActivity(net, prevState) {
+  const lastHeight = prevState?.lastHeight || 0;
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        block_height: { gt: ${lastHeight} },
+        messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
+      }) {
+        block_height
+        messages { value { ... on MsgCall { caller pkg_path func } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 60000);
+
+  // Re-hydrate from the previous run's plain-JSON shape into working Sets
+  // so incremental unique-caller counting stays correct across runs (a
+  // caller seen in an earlier run must not be double-counted as "new").
+  const byPath = {};
+  for (const [p, entry] of Object.entries(prevState?.byPath || {})) {
+    byPath[p] = { ...entry, callers: new Set(entry.callers), funcs: { ...entry.funcs } };
+  }
+
+  let newHeight = lastHeight;
+  let newCount = 0;
+  for (const tx of data.getTransactions || []) {
+    for (const msg of tx.messages) {
+      const v = msg.value;
+      if (!v || !v.pkg_path) continue;
+      newCount++;
+      let agg = byPath[v.pkg_path];
+      if (!agg) {
+        agg = { calls: 0, callers: new Set(), funcs: {}, firstBlockHeight: tx.block_height, lastBlockHeight: 0 };
+        byPath[v.pkg_path] = agg;
+      }
+      agg.calls++;
+      agg.callers.add(v.caller);
+      agg.funcs[v.func] = (agg.funcs[v.func] || 0) + 1;
+      agg.firstBlockHeight = Math.min(agg.firstBlockHeight, tx.block_height);
+      agg.lastBlockHeight = Math.max(agg.lastBlockHeight, tx.block_height);
+      if (tx.block_height > newHeight) newHeight = tx.block_height;
+    }
+  }
+
+  // Same "resolve once, persist forever" block-time backfill pattern as
+  // fetchDeployedPackages — only the most recent activity height per realm
+  // needs a human-readable date, and past a realm's OWN most recent call
+  // this run, it never changes, so it's never re-fetched.
+  const heightsNeedingTime = [...new Set(
+    Object.values(byPath).filter(a => !a.lastBlockTime).map(a => a.lastBlockHeight)
+  )];
+  if (heightsNeedingTime.length > 0) {
+    const blockTimes = await fetchBlockTimes(net, heightsNeedingTime);
+    for (const agg of Object.values(byPath)) {
+      if (!agg.lastBlockTime && blockTimes.has(agg.lastBlockHeight)) {
+        agg.lastBlockTime = blockTimes.get(agg.lastBlockHeight);
+      }
+    }
+  }
+
+  const serializedByPath = {};
+  for (const [p, agg] of Object.entries(byPath)) {
+    serializedByPath[p] = {
+      calls: agg.calls,
+      callers: [...agg.callers], // kept (not just the count) so a future run can re-hydrate the Set for correct incremental uniqueness
+      topFunc: Object.entries(agg.funcs).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+      firstBlockHeight: agg.firstBlockHeight,
+      lastBlockHeight: agg.lastBlockHeight,
+      lastBlockTime: agg.lastBlockTime || null,
+    };
+  }
+
+  return { byPath: serializedByPath, lastHeight: newHeight, newCount };
+}
+
 // ---------- genesis-only realms: same qpaths-diff + qfile scan as the client ----------
 
 async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
   const genesisOnly = allRealms.filter(p => !txPaths.has(p));
   const known = { ...(prevGenesis || {}) };
-  const toFetch = genesisOnly.filter(p => !(p in known));
+  // Also re-fetch anything left in the old (pre-governance/social) cache
+  // shape, where a path's value was a bare standard string or null instead
+  // of {standard, governance, social} — a one-time self-healing migration,
+  // cheap since the genesis-only set is small (tens of realms, not hundreds).
+  const toFetch = genesisOnly.filter(p => !(p in known) || known[p] === null || typeof known[p] !== "object");
 
   if (toFetch.length > 0) {
     await mapLimit(toFetch, 8, async (p) => {
       try {
         const listing = await abciQuery(net.rpcUrl, "vm/qfile", p);
         const filenames = (listing || "").split("\n").map(s => s.trim())
-          .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno"));
-        const files = await mapLimit(filenames, 4, async (name) => ({
-          name,
-          body: (await abciQuery(net.rpcUrl, "vm/qfile", `${p}/${name}`)) || "",
-        }));
-        known[p] = detectStandard(files);
+          .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
+        // A realm can have a hundred-plus files (mostly gno "filetest" files,
+        // now filtered above, but genuine source files too) — one flaky RPC
+        // call among many used to wipe the WHOLE realm's detection result to
+        // "no match" via the outer catch. Fail per-file instead: a missing
+        // file just means less source to scan, not a false "unreadable".
+        const files = await mapLimit(filenames, 4, async (name) => {
+          try {
+            return { name, body: (await abciQuery(net.rpcUrl, "vm/qfile", `${p}/${name}`)) || "" };
+          } catch {
+            return { name, body: "" };
+          }
+        });
+        known[p] = {
+          standard: detectStandard(files),
+          governance: matchesAnyMarker(files, GOVERNANCE_MARKERS),
+          social: matchesAnyMarker(files, SOCIAL_MARKERS),
+        };
       } catch {
-        known[p] = null; // unreadable, treat as no match rather than retry forever
+        known[p] = { standard: null, governance: false, social: false }; // unreadable, treat as no match rather than retry forever
       }
     });
   }
@@ -253,13 +377,15 @@ async function buildNetwork(netKey, net) {
     // no previous run, or corrupt — start fresh
   }
 
-  const [tokens, allRealmsRaw, txResult] = await Promise.all([
+  const [tokens, allRealmsRaw, txResult, callActivityResult] = await Promise.all([
     fetchTokens(net),
     abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
+    fetchCallActivity(net, prev?.callActivity),
   ]);
   console.log(`tokens: ${tokens.length}`);
   console.log(`tx-deployed packages: ${Object.keys(txResult.packages).length} (${txResult.newCount} new this run)`);
+  console.log(`call activity: ${Object.keys(callActivityResult.byPath).length} realms with calls (${callActivityResult.newCount} new calls this run)`);
 
   const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
   const txPaths = new Set(Object.keys(txResult.packages).filter(p => p.startsWith("gno.land/r/")));
@@ -267,12 +393,45 @@ async function buildNetwork(netKey, net) {
     await fetchGenesisStandards(net, allRealms, txPaths, prev?.genesisStandards);
   console.log(`genesis-only realms: ${genesisOnlyCount} (${newlyFetched} newly fetched this run)`);
 
+  function activityFor(p) {
+    const a = callActivityResult.byPath[p];
+    return a
+      ? { calls: a.calls, uniqueCallers: a.callers.length, lastBlockHeight: a.lastBlockHeight, lastBlockTime: a.lastBlockTime, topFunc: a.topFunc }
+      : { calls: 0, uniqueCallers: 0, lastBlockHeight: null, lastBlockTime: null, topFunc: null };
+  }
+
+  // nftRealms/governanceRealms/socialRealms all come from the same
+  // per-path tag lookup (tx-deployed packages carry their own tags;
+  // genesis-only realms carry theirs from fetchGenesisStandards) — one
+  // pass over every known realm path instead of three.
   const nftRealms = [];
-  for (const path of allRealms) {
-    const std = txPaths.has(path) ? txResult.packages[path].standard : genesisStandards[path];
-    if (std) nftRealms.push({ path, standard: std });
+  const governanceRealms = [];
+  const socialRealms = [];
+  for (const p of allRealms) {
+    const tags = txPaths.has(p) ? txResult.packages[p] : genesisStandards[p];
+    if (!tags) continue;
+    if (tags.standard) nftRealms.push({ path: p, standard: tags.standard });
+    if (tags.governance) governanceRealms.push({ path: p, ...activityFor(p) });
+    if (tags.social) socialRealms.push({ path: p, ...activityFor(p) });
   }
   nftRealms.sort((a, b) => a.path.localeCompare(b.path));
+  governanceRealms.sort((a, b) => b.calls - a.calls);
+  socialRealms.sort((a, b) => b.calls - a.calls);
+
+  // Trending/active realms and DeFi(Gnoswap) both come straight from call
+  // activity, unfiltered by any source-based tag — a realm doesn't need to
+  // match the NFT/governance/social heuristics to be "trending", it just
+  // needs calls. Gnoswap's whole ecosystem deploys under the
+  // `gno.land/r/gnoswap/...` path prefix (confirmed against real deployed
+  // paths: pool, router, staker, gov/*, launchpad, etc.) — no separate
+  // source-scan heuristic needed, just a prefix filter on the same data.
+  const trendingRealms = Object.entries(callActivityResult.byPath)
+    .map(([p, a]) => ({
+      path: p, calls: a.calls, uniqueCallers: a.callers.length,
+      lastBlockHeight: a.lastBlockHeight, lastBlockTime: a.lastBlockTime, topFunc: a.topFunc,
+    }))
+    .sort((a, b) => b.calls - a.calls);
+  const defiRealms = trendingRealms.filter(r => r.path.startsWith("gno.land/r/gnoswap/"));
 
   const recentDeployed = Object.values(txResult.packages)
     .map(p => ({
@@ -291,14 +450,23 @@ async function buildNetwork(netKey, net) {
     tokens,
     nftRealms,
     recentDeployed,
+    trendingRealms,
+    governanceRealms,
+    socialRealms,
+    defiRealms,
     genesisStandards,
     txPackages: txResult.packages,
+    callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
     stats: {
       tokenCount: tokens.length,
       nftRealmCount: nftRealms.length,
       totalRealmsScanned: allRealms.length,
       txPackageCount: Object.keys(txResult.packages).length,
       genesisOnlyCount,
+      trendingRealmCount: trendingRealms.length,
+      governanceRealmCount: governanceRealms.length,
+      socialRealmCount: socialRealms.length,
+      defiRealmCount: defiRealms.length,
     },
   };
 

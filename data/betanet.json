@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-04T23:24:56.448Z",
+  "generatedAt": "2026-08-05T08:01:15.470Z",
   "lastHeight": 3125628,
   "tokens": [
     {
@@ -94,32 +94,227 @@
       "kind": "Realm"
     }
   ],
+  "trendingRealms": [
+    {
+      "path": "gno.land/r/gnoland/blog",
+      "calls": 64,
+      "uniqueCallers": 2,
+      "lastBlockHeight": 2276387,
+      "lastBlockTime": "2026-06-23T08:58:45.882068773Z",
+      "topFunc": "ModAddPost"
+    },
+    {
+      "path": "gno.land/r/sys/cla",
+      "calls": 14,
+      "uniqueCallers": 9,
+      "lastBlockHeight": 3125620,
+      "lastBlockTime": "2026-08-04T16:12:08.633760771Z",
+      "topFunc": "Sign"
+    },
+    {
+      "path": "gno.land/r/gnoland/boards2/v1",
+      "calls": 12,
+      "uniqueCallers": 3,
+      "lastBlockHeight": 528666,
+      "lastBlockTime": "2026-04-10T08:49:03.334118767Z",
+      "topFunc": "InviteMember"
+    },
+    {
+      "path": "gno.land/r/gnoland/wugnot",
+      "calls": 7,
+      "uniqueCallers": 3,
+      "lastBlockHeight": 3002190,
+      "lastBlockTime": "2026-07-28T04:42:01.98263286Z",
+      "topFunc": "Approve"
+    },
+    {
+      "path": "gno.land/r/gnops/valopers",
+      "calls": 6,
+      "uniqueCallers": 6,
+      "lastBlockHeight": 3122756,
+      "lastBlockTime": "2026-08-04T12:06:17.137113056Z",
+      "topFunc": "Register"
+    },
+    {
+      "path": "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze",
+      "calls": 2,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 32030,
+      "lastBlockTime": "2026-03-17T14:06:14.802780091Z",
+      "topFunc": "GenerateNextLevel"
+    },
+    {
+      "path": "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 364073,
+      "lastBlockTime": "2026-04-03T12:05:33.237993671Z",
+      "topFunc": "Increment"
+    },
+    {
+      "path": "gno.land/r/sys/users",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 1389424,
+      "lastBlockTime": "2026-05-17T11:15:55.635602769Z",
+      "topFunc": "RegisterUser"
+    },
+    {
+      "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 3126007,
+      "lastBlockTime": "2026-08-04T16:45:33.17326554Z",
+      "topFunc": "Mint"
+    }
+  ],
+  "governanceRealms": [
+    {
+      "path": "gno.land/r/gov/dao",
+      "calls": 0,
+      "uniqueCallers": 0,
+      "lastBlockHeight": null,
+      "lastBlockTime": null,
+      "topFunc": null
+    }
+  ],
+  "socialRealms": [
+    {
+      "path": "gno.land/r/gnoland/boards2/v1",
+      "calls": 12,
+      "uniqueCallers": 3,
+      "lastBlockHeight": 528666,
+      "lastBlockTime": "2026-04-10T08:49:03.334118767Z",
+      "topFunc": "InviteMember"
+    }
+  ],
+  "defiRealms": [],
   "genesisStandards": {
-    "gno.land/r/demo/defi/grc20reg": null,
-    "gno.land/r/demo/defi/grc20factory": null,
-    "gno.land/r/gnoland/wugnot": null,
-    "gno.land/r/gnoland/blog": null,
-    "gno.land/r/gnops/valopers/proposal": null,
-    "gno.land/r/gnoland/coins": null,
-    "gno.land/r/gnops/valopers": null,
-    "gno.land/r/gov/dao": null,
-    "gno.land/r/gov/dao/v3/loader": null,
-    "gno.land/r/gov/dao/v3/init": null,
-    "gno.land/r/gov/dao/v3/treasury": null,
-    "gno.land/r/gov/dao/v3/treasury/test": null,
-    "gno.land/r/gov/dao/v3/memberstore": null,
-    "gno.land/r/gov/dao/v3/impl": null,
-    "gno.land/r/sys/cla": null,
-    "gno.land/r/sys/names": null,
-    "gno.land/r/sys/params": null,
-    "gno.land/r/sys/txfees": null,
-    "gno.land/r/sys/users/init": null,
-    "gno.land/r/sys/rewards": null,
-    "gno.land/r/tests/vm/subtests": null,
-    "gno.land/r/sys/users": null,
-    "gno.land/r/sys/validators/v2": null,
-    "gno.land/r/tests/vm": null,
-    "gno.land/r/gnoland/boards2/v1": null
+    "gno.land/r/demo/defi/grc20reg": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/demo/defi/grc20factory": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/wugnot": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnops/valopers/proposal": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao": {
+      "standard": null,
+      "governance": true,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/init": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/coins": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/blog": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/loader": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/impl": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnops/valopers": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/treasury": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/treasury/test": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/cla": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/names": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/params": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gov/dao/v3/memberstore": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/rewards": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/txfees": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/users/init": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/tests/vm/subtests": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/users": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/sys/validators/v2": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    },
+    "gno.land/r/gnoland/boards2/v1": {
+      "standard": null,
+      "governance": false,
+      "social": true
+    },
+    "gno.land/r/tests/vm": {
+      "standard": null,
+      "governance": false,
+      "social": false
+    }
   },
   "txPackages": {
     "gno.land/r/g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9/counter": {
@@ -127,6 +322,8 @@
       "blockHeight": 10241,
       "creator": "g17wparzzj7stjzyxthf32csewkgr54ganvsmdc9",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-16T18:19:15.542890341Z"
     },
     "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze": {
@@ -134,6 +331,8 @@
       "blockHeight": 31850,
       "creator": "g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-17T13:56:26.77523674Z"
     },
     "gno.land/r/g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z/helloworld": {
@@ -141,6 +340,8 @@
       "blockHeight": 59172,
       "creator": "g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-18T16:28:57.460557966Z"
     },
     "gno.land/r/g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4/home": {
@@ -148,6 +349,8 @@
       "blockHeight": 60836,
       "creator": "g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-18T18:04:30.774254588Z"
     },
     "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/boards2/permissions/v1": {
@@ -155,6 +358,8 @@
       "blockHeight": 227223,
       "creator": "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-25T12:24:36.534126196Z"
     },
     "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/helloworld": {
@@ -162,6 +367,8 @@
       "blockHeight": 352388,
       "creator": "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-03-30T13:43:41.006405695Z"
     },
     "gno.land/r/g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun/hello": {
@@ -169,6 +376,8 @@
       "blockHeight": 353892,
       "creator": "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-04-02T22:19:49.551964438Z"
     },
     "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter": {
@@ -176,6 +385,8 @@
       "blockHeight": 364047,
       "creator": "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-04-03T12:03:54.733287281Z"
     },
     "gno.land/r/g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5/hello": {
@@ -183,6 +394,8 @@
       "blockHeight": 1773831,
       "creator": "g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-06-02T12:01:41.850492317Z"
     },
     "gno.land/r/g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay/utils/grc20helper": {
@@ -190,6 +403,8 @@
       "blockHeight": 3005970,
       "creator": "g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay",
       "standard": null,
+      "governance": false,
+      "social": false,
       "blockTime": "2026-07-28T10:07:45.224095319Z"
     },
     "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft": {
@@ -197,14 +412,133 @@
       "blockHeight": 3125628,
       "creator": "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
       "standard": "GRC721",
+      "governance": false,
+      "social": false,
       "blockTime": "2026-08-04T16:12:48.348229917Z"
     }
+  },
+  "callActivity": {
+    "byPath": {
+      "gno.land/r/g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x/gnomaze": {
+        "calls": 2,
+        "callers": [
+          "g19p3yzr3cuhzqa02j0ce6kzvyjqfzwemw3vam0x"
+        ],
+        "topFunc": "GenerateNextLevel",
+        "firstBlockHeight": 31998,
+        "lastBlockHeight": 32030,
+        "lastBlockTime": "2026-03-17T14:06:14.802780091Z"
+      },
+      "gno.land/r/gnoland/wugnot": {
+        "calls": 7,
+        "callers": [
+          "g1p4lsyhrjwpw5kdm2cg2vjz83arqzhfqzfq4rj2",
+          "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
+          "g1ffzxha57dh0qgv9ma5v393ur0zexfvp6lsjpae"
+        ],
+        "topFunc": "Approve",
+        "firstBlockHeight": 58936,
+        "lastBlockHeight": 3002190,
+        "lastBlockTime": "2026-07-28T04:42:01.98263286Z"
+      },
+      "gno.land/r/sys/cla": {
+        "calls": 14,
+        "callers": [
+          "g1lyejwwmxef5tn8nx69saykmgm8rlr4xq9yeh3z",
+          "g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4",
+          "g1778y2yphxs2wpuaflsy5y9qwcd4gttn4g5yjx5",
+          "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
+          "g1x0ytm7qt4l80djl2n05mz9v0u285vwz03rktf9",
+          "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e",
+          "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
+          "g12vx7dn3dqq89mz550zwunvg4qw6epq73d9csay",
+          "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg"
+        ],
+        "topFunc": "Sign",
+        "firstBlockHeight": 59169,
+        "lastBlockHeight": 3125620,
+        "lastBlockTime": "2026-08-04T16:12:08.633760771Z"
+      },
+      "gno.land/r/gnoland/boards2/v1": {
+        "calls": 12,
+        "callers": [
+          "g16jpf0puufcpcjkph5nxueec8etpcldz7zwgydq",
+          "g1hy6zry03hg5d8le9s2w4fxme6236hkgd928dun",
+          "g1rp7cmetn27eqlpjpc4vuusf8kaj746tysc0qgh"
+        ],
+        "topFunc": "InviteMember",
+        "firstBlockHeight": 126810,
+        "lastBlockHeight": 528666,
+        "lastBlockTime": "2026-04-10T08:49:03.334118767Z"
+      },
+      "gno.land/r/gnoland/blog": {
+        "calls": 64,
+        "callers": [
+          "g1rp7cmetn27eqlpjpc4vuusf8kaj746tysc0qgh",
+          "g1manfred47kzduec920z88wfr64ylksmdcedlf5"
+        ],
+        "topFunc": "ModAddPost",
+        "firstBlockHeight": 178394,
+        "lastBlockHeight": 2276387,
+        "lastBlockTime": "2026-06-23T08:58:45.882068773Z"
+      },
+      "gno.land/r/gnops/valopers": {
+        "calls": 6,
+        "callers": [
+          "g1m0rgan0rla00ygmdmp55f5m0unvsvknluyg2a4",
+          "g1qynsu9dwj9lq0m5fkje7jh6qy3md80ztqnshhm",
+          "g1cn0dah4t8m6tt0z5zgcd4yew9par9h50x9tdrv",
+          "g1plf3fmy0h4395jcxxh63g7mzeypr06f9yrdk4d",
+          "g1ker4vvggvsyatexxn3hkthp2hu80pkhrwmuczr",
+          "g13nwzm5dfd26ue74jr6sc39gyn3qze0rj5cvpcw"
+        ],
+        "topFunc": "Register",
+        "firstBlockHeight": 275321,
+        "lastBlockHeight": 3122756,
+        "lastBlockTime": "2026-08-04T12:06:17.137113056Z"
+      },
+      "gno.land/r/g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e/counter": {
+        "calls": 1,
+        "callers": [
+          "g1q8txq2r5rxwkzu00l64j8d596tjc5p2t0uwf4e"
+        ],
+        "topFunc": "Increment",
+        "firstBlockHeight": 364073,
+        "lastBlockHeight": 364073,
+        "lastBlockTime": "2026-04-03T12:05:33.237993671Z"
+      },
+      "gno.land/r/sys/users": {
+        "calls": 1,
+        "callers": [
+          "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w"
+        ],
+        "topFunc": "RegisterUser",
+        "firstBlockHeight": 1389424,
+        "lastBlockHeight": 1389424,
+        "lastBlockTime": "2026-05-17T11:15:55.635602769Z"
+      },
+      "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft": {
+        "calls": 1,
+        "callers": [
+          "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg"
+        ],
+        "topFunc": "Mint",
+        "firstBlockHeight": 3126007,
+        "lastBlockHeight": 3126007,
+        "lastBlockTime": "2026-08-04T16:45:33.17326554Z"
+      }
+    },
+    "lastHeight": 3126007
   },
   "stats": {
     "tokenCount": 1,
     "nftRealmCount": 1,
     "totalRealmsScanned": 36,
     "txPackageCount": 11,
-    "genesisOnlyCount": 25
+    "genesisOnlyCount": 25,
+    "trendingRealmCount": 9,
+    "governanceRealmCount": 1,
+    "socialRealmCount": 1,
+    "defiRealmCount": 0
   }
 }
