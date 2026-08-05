@@ -1,12 +1,14 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-05T18:23:56.038Z",
+  "generatedAt": "2026-08-05T18:37:11.860Z",
   "lastHeight": 3142566,
   "tokens": [
     {
       "name": "wrapped GNOT",
       "path": "gno.land/r/gnoland/wugnot",
       "symbol": "—",
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt ultricies.",
       "totalSupply": 0
     }
   ],
@@ -9163,6 +9165,71 @@
   "tokenDecimals": {
     "gno.land/r/gnoland/wugnot": 6
   },
+  "tokenRegistry": [
+    {
+      "path": "gno.land/r/demo/defi/foo20",
+      "symbol": "FOO",
+      "decimals": 4,
+      "image": null,
+      "name": "Foo"
+    },
+    {
+      "path": "gno.land/r/gnoland/wugnot",
+      "symbol": "wugnot",
+      "decimals": 0,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
+      "name": "wrapped GNOT"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/foo",
+      "symbol": "FOO",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_foo.svg",
+      "name": "Foo"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/bar",
+      "symbol": "BAR",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_bar.svg",
+      "name": "Bar"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/baz",
+      "symbol": "BAZ",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_baz.svg",
+      "name": "Baz"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/qux",
+      "symbol": "QUX",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_qux.svg",
+      "name": "Qux"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gns",
+      "symbol": "GNS",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_gnoswap_gns.svg",
+      "name": "GnoSwap"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/obl",
+      "symbol": "OBL",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_obl.svg",
+      "name": "Onbloc"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/usdc",
+      "symbol": "USDC",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_usdc.svg",
+      "name": "Usd Coin"
+    }
+  ],
   "genesisStandards": {
     "gno.land/r/demo/defi/grc20reg": {
       "standard": null,

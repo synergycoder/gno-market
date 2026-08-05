@@ -24,15 +24,41 @@ const DATA_DIR = path.join(__dirname, "..", "data");
 const NETWORKS = {
   testnet: {
     label: "topaz-1 (testnet)",
+    chainId: "topaz-1",
     rpcUrl: "https://rpc.topaz.testnets.gno.land",
     indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
   },
   betanet: {
     label: "gnoland1 (betanet)",
+    chainId: "gnoland1",
     rpcUrl: "https://rpc.gno.land",
     indexerUrl: "https://indexer.gno.land/graphql/query",
   },
 };
+
+// Onbloc (the team behind GnoScan and Adena) publishes a curated GRC20
+// metadata registry, one JSON file per chain-id, that GnoScan's own token
+// page reads directly (confirmed by inspecting gnoscan.io/tokens' actual
+// <img> src attributes and cross-checking its displayed decimals against
+// this file). This is a much better decimals source than on-chain
+// Decimals()/GetDecimals() probing: most real tokens (wugnot included)
+// don't expose either function at all, so probing alone left most of the
+// table unresolved — this registry has every token GnoScan itself shows.
+const TOKEN_RESOURCE_BASE = "https://raw.githubusercontent.com/onbloc/gno-token-resource/main";
+async function fetchTokenRegistry(chainId) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${TOKEN_RESOURCE_BASE}/grc20/${chainId}.json`, { signal: controller.signal });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return []; // non-critical enrichment — falls back to on-chain probing below
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // ---------- low-level chain access (Node port of index.html's abciQuery) ----------
 
@@ -158,12 +184,24 @@ const KNOWN_DECIMALS = {
   "gno.land/r/gnoland/wugnot": 6,
 };
 
-async function fetchTokenDecimals(net, tokenPaths, prevDecimals) {
+async function fetchTokenDecimals(net, tokenPaths, prevDecimals, registryDecimals) {
   const known = { ...(prevDecimals || {}) };
-  const toFetch = tokenPaths.filter(p => !(p in known) && !(p in KNOWN_DECIMALS));
+  // The onbloc registry (re-fetched fresh every run, see fetchTokenRegistry)
+  // is authoritative and re-applied unconditionally — this upgrades any
+  // path a previous run cached as null ("no Decimals()/GetDecimals()
+  // exposed") the moment it shows up in the registry, without waiting for
+  // some future successful RPC probe that may never come.
+  for (const [path, decimals] of Object.entries(registryDecimals || {})) {
+    if (tokenPaths.includes(path)) known[path] = decimals;
+  }
+  // KNOWN_DECIMALS is our own source-code-verified override and wins over
+  // even the registry (see wugnot's comment above: the registry lists it
+  // as decimals=0, but its Deposit() mints 1:1 with raw ugnot, so treating
+  // it at GNOT's own 6 decimals is what actually matches user expectations).
   for (const [path, decimals] of Object.entries(KNOWN_DECIMALS)) {
     if (tokenPaths.includes(path)) known[path] = decimals;
   }
+  const toFetch = tokenPaths.filter(p => !(p in known));
   await mapLimit(toFetch, 8, async (path) => {
     for (const fn of ["Decimals()", "GetDecimals()"]) {
       try {
@@ -629,19 +667,45 @@ async function buildNetwork(netKey, net) {
     // no previous run, or corrupt — start fresh
   }
 
-  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult] = await Promise.all([
+  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry] = await Promise.all([
     fetchTokens(net),
     abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
     fetchCallActivity(net, prev?.callActivity),
     fetchGnoswapSwaps(net, prev?.swapActivity),
     fetchBankSendAddresses(net, prev?.bankSendActivity),
+    fetchTokenRegistry(net.chainId),
   ]);
   console.log(`tokens: ${tokens.length}`);
   console.log(`tx-deployed packages: ${Object.keys(txResult.packages).length} (${txResult.newCount} new this run)`);
   console.log(`call activity: ${Object.keys(callActivityResult.byPath).length} realms with calls (${callActivityResult.newCount} new calls this run)`);
   console.log(`gnoswap swaps: ${Object.keys(swapsResult.swaps).length} (${swapsResult.newCount} new this run)`);
   console.log(`bank sends: ${bankSendResult.addresses.length} addresses seen (${bankSendResult.newCount} new this run)`);
+  console.log(`token registry: ${tokenRegistry.length} entries fetched from onbloc/gno-token-resource`);
+
+  // Keyed by "path|SYMBOL" first (a path can host more than one token —
+  // e.g. the ucs03_zkgm IBC bridge realm registers both SepoliaETH and
+  // USDT under one pkg_path with different decimals), falling back to a
+  // bare-path map for lookups that only have the path (like tokenDecimals,
+  // which is keyed by realmPathOnly() and can't disambiguate by symbol).
+  const registryByPathSymbol = new Map();
+  const registryByPath = new Map();
+  for (const entry of tokenRegistry) {
+    if (!entry.pkg_path) continue;
+    registryByPathSymbol.set(`${entry.pkg_path}|${entry.symbol}`, entry);
+    if (!registryByPath.has(entry.pkg_path)) registryByPath.set(entry.pkg_path, entry);
+  }
+  const registryDecimals = Object.fromEntries(
+    [...registryByPath.entries()].map(([p, e]) => [p, e.decimals])
+  );
+  function imageUrlFor(entry) {
+    return entry && entry.image ? `${TOKEN_RESOURCE_BASE}${entry.image}` : null;
+  }
+  for (const t of tokens) {
+    const entry = registryByPathSymbol.get(`${t.path}|${t.symbol}`) || registryByPath.get(t.path);
+    t.image = imageUrlFor(entry);
+    t.description = entry?.description || null;
+  }
 
   const allRealms = (allRealmsRaw || "").split("\n").map(s => s.trim()).filter(Boolean);
   const txPaths = new Set(Object.keys(txResult.packages).filter(p => p.startsWith("gno.land/r/")));
@@ -712,7 +776,7 @@ async function buildNetwork(netKey, net) {
     if (s.tokenIn) tokenPathsNeedingDecimals.add(realmPathOnly(s.tokenIn));
     if (s.tokenOut) tokenPathsNeedingDecimals.add(realmPathOnly(s.tokenOut));
   }
-  const tokenDecimals = await fetchTokenDecimals(net, [...tokenPathsNeedingDecimals], prev?.tokenDecimals);
+  const tokenDecimals = await fetchTokenDecimals(net, [...tokenPathsNeedingDecimals], prev?.tokenDecimals, registryDecimals);
   console.log(`token decimals: ${Object.values(tokenDecimals).filter(d => d != null).length}/${Object.keys(tokenDecimals).length} resolved`);
 
   const totalSupplies = await fetchTokenTotalSupplies(net, tokens.map(t => t.path));
@@ -744,6 +808,15 @@ async function buildNetwork(netKey, net) {
     gnoswapSwaps,
     whaleWatch,
     tokenDecimals,
+    // Small (a dozen-ish entries), so shipped in full rather than
+    // pre-joined against every other table — lets the client look up a
+    // logo/description by path+symbol wherever a token identity shows up
+    // (Swaps' tokenIn/tokenOut, Scan Wallet's held tokens, etc.), not just
+    // the Fungible Tokens tab's own `tokens[]` rows (which already carry
+    // their own `image`/`description` fields, joined above).
+    tokenRegistry: [...registryByPathSymbol.values()].map(e => ({
+      path: e.pkg_path, symbol: e.symbol, decimals: e.decimals, image: imageUrlFor(e), name: e.name,
+    })),
     genesisStandards,
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },

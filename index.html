@@ -142,6 +142,15 @@
     border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
     margin-right: 0.3rem; font-weight: 600;
   }
+  .token-logo {
+    width: 22px; height: 22px; border-radius: 50%; object-fit: contain;
+    vertical-align: middle; background: var(--bg-elevated);
+  }
+  .token-logo-placeholder {
+    display: inline-block; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--border-soft); vertical-align: middle;
+  }
+  .token-inline { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
   .genesis-tag {
     display: inline-block; font-size: 0.72rem; padding: 0.1rem 0.5rem;
     border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
@@ -153,6 +162,15 @@
   }
   .whale-tier .tier-emoji { font-size: 1.15rem; line-height: 1; }
   #whalesTable td:nth-child(2) { white-space: nowrap; }
+  .whale-legend {
+    margin-top: 1rem; padding: 0.9rem 1.1rem; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .whale-legend h3 { margin: 0 0 0.6rem; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .whale-legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.5rem 1rem; }
+  .whale-legend-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
+  .whale-legend-row .tier-emoji { font-size: 1.1rem; }
+  .whale-legend-row .tier-range { color: var(--text-muted); }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover { background: var(--border-soft); }
   .preview-row td { padding: 0; border-bottom: none; }
@@ -371,7 +389,7 @@
     of how it was deployed.</p>
   <p id="tokenStatus" class="status">Loading…</p>
   <table id="tokenTable" style="display:none">
-    <thead><tr><th>Name</th><th>Symbol</th><th>Realm</th></tr></thead>
+    <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Realm</th><th>Decimals</th><th>Total supply</th></tr></thead>
     <tbody id="tokenBody"></tbody>
   </table>
   <p class="status">Click any row to preview its on-chain Render() output.</p>
@@ -526,7 +544,7 @@
       its on-chain decimals (e.g. 5 GNS, not 5000000); a token whose decimals aren't exposed on-chain
       falls back to showing its raw units, labeled as such. Native GNOT itself never appears here —
       Gnoswap's pools require GRC20-compliant tokens, so native GNOT is traded via its 1:1 wrapped
-      form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot" target="_blank" rel="noopener">wugnot</a>,
+      form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot&chainId=topaz-1" target="_blank" rel="noopener">wugnot</a>,
       instead. Follows the network selected above, same as every other tab — Gnoswap is currently only
       deployed on testnet, so betanet will show none.</p>
     <div class="wallet-form">
@@ -571,6 +589,7 @@
     </tr></thead>
     <tbody id="whalesBody"></tbody>
   </table>
+  <div id="whaleTierLegend" class="whale-legend" style="display:none"></div>
 </div>
 
 <div class="tab-panel" id="panel-dashboard">
@@ -666,11 +685,13 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 const NETWORKS = {
   testnet: {
     label: "topaz-1 (testnet)",
+    chainId: "topaz-1",
     rpcUrl: "https://rpc.topaz.testnets.gno.land",
     indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
   },
   betanet: {
     label: "gnoland1 (betanet)",
+    chainId: "gnoland1",
     rpcUrl: "https://rpc.gno.land",
     indexerUrl: "https://indexer.gno.land/graphql/query",
   },
@@ -976,16 +997,27 @@ function cacheAgeNote(generatedAt) {
 
 // ---------- Fungible tokens: read grc20reg's Render() via RPC vm/qrender ----------
 
+function tokenLogoImg(imageUrl, symbol) {
+  return imageUrl
+    ? `<img class="token-logo" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+    : `<span class="token-logo token-logo-placeholder" title="${escapeHtml(symbol || "")}"></span>`;
+}
+
 function renderTokenRows(rows) {
   currentTokens = rows;
   const tbody = document.getElementById("tokenBody");
-  tbody.innerHTML = rows.map(r => `
+  tbody.innerHTML = rows.map(r => {
+    const decimals = currentTokenDecimals[r.path];
+    return `
     <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td>${tokenLogoImg(r.image, r.symbol)}</td>
       <td>${escapeHtml(r.name)}</td>
       <td>${escapeHtml(r.symbol)}</td>
       <td>${escapeHtml(r.path)}</td>
-    </tr>
-  `).join("");
+      <td>${decimals ?? "—"}</td>
+      <td>${r.totalSupply != null ? formatTokenAmount(r.totalSupply, decimals) : "—"}</td>
+    </tr>`;
+  }).join("");
   document.getElementById("tokenTable").style.display = rows.length ? "table" : "none";
 }
 
@@ -998,8 +1030,8 @@ async function loadTokens(net, netKey, forceLive = false) {
   try {
     const cached = forceLive ? null : await getCachedData(netKey);
     if (cached && cached.tokens) {
-      renderTokenRows(cached.tokens);
       currentTokenDecimals = cached.tokenDecimals || {};
+      renderTokenRows(cached.tokens);
       statusEl.textContent =
         `${cached.tokens.length} token${cached.tokens.length === 1 ? "" : "s"} registered. ` +
         cacheAgeNote(cached.generatedAt);
@@ -1967,7 +1999,7 @@ function renderSuggestions(rows) {
       <div class="suggestion-text">
         ${escapeHtml(r.text)}
         <div class="suggestion-meta">by ${truncateAddress(r.from)} · ${formatDate(r.blockTime)} ·
-          <a href="${gnoscanTxUrl(r.hash)}" target="_blank" rel="noopener">view tx ↗</a></div>
+          <a href="${gnoscanTxUrl(r.hash, "testnet")}" target="_blank" rel="noopener">view tx ↗</a></div>
       </div>
       <button class="suggestion-vote" data-hash="${escapeHtml(r.hash)}"
         title="Vote for this suggestion — signs a small on-chain transaction via Adena">
@@ -2278,15 +2310,37 @@ function tokenSymbol(path) {
   return path.slice(path.lastIndexOf(".") + 1);
 }
 
-function gnoscanTxUrl(hash) {
-  return `https://gnoscan.io/transactions/details?txhash=${encodeURIComponent(hash)}`;
+// GnoScan is one site covering multiple chains, disambiguated by a
+// `chainId` query param (confirmed live: gnoscan.io/?chainId=gnoland1
+// switches its whole dashboard — stats, top accounts, everything — to
+// betanet; omitting it or getting it wrong silently shows the wrong
+// chain's data, or none, for a hash/address that only exists on the
+// OTHER chain). Every link defaults to whichever network is currently
+// selected on this site, but takes an explicit netKey override for
+// content that's pinned to one specific chain regardless of the
+// selector (Suggestions live on testnet only, see loadSuggestions()).
+function gnoscanTxUrl(hash, netKey = currentKey) {
+  const chainId = NETWORKS[netKey].chainId;
+  return `https://gnoscan.io/transactions/details?chainId=${encodeURIComponent(chainId)}&txhash=${encodeURIComponent(hash)}`;
+}
+function gnoscanAccountUrl(address, netKey = currentKey) {
+  const chainId = NETWORKS[netKey].chainId;
+  return `https://gnoscan.io/account/${encodeURIComponent(address)}?chainId=${encodeURIComponent(chainId)}`;
 }
 
 const SWAPS_DISPLAY_LIMIT = 300;
 let swapRows = [];
 let swapTokenDecimals = {};
+let swapTokenImages = {}; // "path|SYMBOL" -> logo URL, from the onbloc registry shipped as cached.tokenRegistry
 let swapSort = { key: "blockTime", dir: -1 };
 let swapTokenFilterValue = "";
+
+// Swap tokenIn/tokenOut arrive as compound "<path>.<SYMBOL>" strings (see
+// realmPathOnly's own comment) — this builds the same key shape the cached
+// tokenRegistry array uses, so a swap row can look its logo up directly.
+function tokenRegistryKey(compoundId) {
+  return `${realmPathOnly(compoundId)}|${tokenSymbol(compoundId)}`;
+}
 
 function sortedFilteredSwaps() {
   let rows = swapRows;
@@ -2307,9 +2361,9 @@ function renderSwaps() {
   document.getElementById("swapsBody").innerHTML = shown.map(s => `
     <tr>
       <td>${formatDate(s.blockTime)}</td>
-      <td title="${escapeHtml(s.tokenIn)}">${escapeHtml(tokenSymbol(s.tokenIn))}</td>
+      <td title="${escapeHtml(s.tokenIn)}"><span class="token-inline">${tokenLogoImg(swapTokenImages[tokenRegistryKey(s.tokenIn)], tokenSymbol(s.tokenIn))}${escapeHtml(tokenSymbol(s.tokenIn))}</span></td>
       <td>${formatTokenAmount(s.amountIn, swapTokenDecimals[realmPathOnly(s.tokenIn)])}</td>
-      <td title="${escapeHtml(s.tokenOut)}">${escapeHtml(tokenSymbol(s.tokenOut))}</td>
+      <td title="${escapeHtml(s.tokenOut)}"><span class="token-inline">${tokenLogoImg(swapTokenImages[tokenRegistryKey(s.tokenOut)], tokenSymbol(s.tokenOut))}${escapeHtml(tokenSymbol(s.tokenOut))}</span></td>
       <td>${formatTokenAmount(s.amountOut, swapTokenDecimals[realmPathOnly(s.tokenOut)])}</td>
       <td>${truncateAddress(s.caller)}</td>
       <td><a href="${gnoscanTxUrl(s.hash)}" target="_blank" rel="noopener">view ↗</a></td>
@@ -2381,6 +2435,7 @@ async function loadSwaps(netKey) {
     }
     swapRows = cached.gnoswapSwaps;
     swapTokenDecimals = cached.tokenDecimals || {};
+    swapTokenImages = Object.fromEntries((cached.tokenRegistry || []).map(e => [`${e.path}|${e.symbol}`, e.image]));
 
     // Populate the token filter from the real token set in this network's
     // data (not a hardcoded list, which would go stale as Gnoswap adds
@@ -2410,49 +2465,118 @@ function sortedWhaleRows() {
 }
 
 // A fun, meme-standard "size of sea creature" scale (the same idea as the
-// whale/shark/fish tiers crypto communities use for token holders), but
-// recomputed live from RANK within the current known-wallet list rather
-// than fixed GNOT thresholds — so it stays meaningful automatically as
-// more wallets get discovered (a "whale" among 20 known wallets and a
-// "whale" among 2,000 mean the same thing: top of THIS list), and a new,
-// even-bigger wallet showing up correctly demotes everyone below it.
+// whale/shark/fish tiers crypto communities use for token holders). Tiers
+// are boundaries on BALANCE itself (log-scale bands spanning the current
+// known min→max), never on rank position — two wallets with the identical
+// balance must always land in the identical tier, which a rank/percentile
+// split can't guarantee (a tie sitting right at a percentile cutoff gets
+// arbitrarily split across two tiers). The band edges are recomputed from
+// the live min/max every render, so the scale still adapts automatically
+// as bigger or smaller wallets get discovered — just anchored to value,
+// not list position.
 const WHALE_TIERS = [
-  { emoji: "🐋", label: "Humpback Whale", pct: 0.02 },
-  { emoji: "🐳", label: "Whale", pct: 0.05 },
-  { emoji: "🦈", label: "Shark", pct: 0.15 },
-  { emoji: "🐬", label: "Dolphin", pct: 0.30 },
-  { emoji: "🐙", label: "Octopus", pct: 0.45 },
-  { emoji: "🐠", label: "Tropical Fish", pct: 0.65 },
-  { emoji: "🐟", label: "Fish", pct: 0.85 },
-  { emoji: "🦀", label: "Crab", pct: 0.95 },
-  { emoji: "🦐", label: "Shrimp", pct: 1.01 },
+  { emoji: "🐋", label: "Humpback Whale" },
+  { emoji: "🐳", label: "Whale" },
+  { emoji: "🦈", label: "Shark" },
+  { emoji: "🐬", label: "Dolphin" },
+  { emoji: "🐙", label: "Octopus" },
+  { emoji: "🐠", label: "Tropical Fish" },
+  { emoji: "🐟", label: "Fish" },
+  { emoji: "🦀", label: "Crab" },
+  { emoji: "🦐", label: "Shrimp" },
 ];
+// Boundaries come from the 2nd–98th percentile of the log-balance
+// distribution, not the raw min/max. This chain's known-wallet list spans
+// an absurd range (genesis test allocations of literally 1 trillion GNOT
+// down to 1-ugnot transfer dust picked up by bank-send scanning) — anchoring
+// the bands to the true extremes would let a handful of outliers on either
+// end swallow the whole scale, squashing every "normal" wallet into one or
+// two tiers. Trimming lets the middle tiers reflect where most known
+// wallets actually sit; the outliers still land in the top/bottom tier,
+// just via clamping instead of stretching the bands to fit them.
+function percentileOf(sortedValues, p) {
+  const idx = (sortedValues.length - 1) * p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return sortedValues[lo];
+  return sortedValues[lo] + (sortedValues[hi] - sortedValues[lo]) * (idx - lo);
+}
 function computeWhaleTiers(rows) {
-  const byBalanceDesc = rows.slice().sort((a, b) => b.balance - a.balance);
-  const total = byBalanceDesc.length || 1;
+  const n = WHALE_TIERS.length;
   const tierByAddress = new Map();
-  byBalanceDesc.forEach((r, i) => {
-    const pct = (i + 1) / total;
-    const tier = WHALE_TIERS.find(t => pct <= t.pct) || WHALE_TIERS[WHALE_TIERS.length - 1];
-    tierByAddress.set(r.address, { ...tier, rank: i + 1 });
+  const nonZero = rows.filter(r => r.balance > 0);
+
+  if (nonZero.length === 0) {
+    rows.forEach(r => tierByAddress.set(r.address, WHALE_TIERS[n - 1]));
+    return { tierByAddress, tierRanges: WHALE_TIERS.map((t, i) => ({ ...t, maxBalance: 0, minBalance: 0, isBottom: i === n - 1, isTop: i === 0 })) };
+  }
+
+  const logs = nonZero.map(r => Math.log10(r.balance)).sort((a, b) => a - b);
+  const maxLog = percentileOf(logs, 0.98);
+  const minLog = percentileOf(logs, 0.02);
+  const span = maxLog - minLog;
+
+  function tierIndexFor(balance) {
+    if (balance <= 0) return n - 1;
+    if (span < 1e-9) return 0; // every known wallet holds ~the same balance
+    const frac = (maxLog - Math.log10(balance)) / span; // 0 at the richest, 1 at the poorest — can fall outside [0,1] for trimmed outliers, clamped below
+    return Math.min(Math.max(Math.floor(frac * n), 0), n - 1);
+  }
+
+  rows.forEach(r => tierByAddress.set(r.address, WHALE_TIERS[tierIndexFor(r.balance)]));
+
+  const tierRanges = WHALE_TIERS.map((t, i) => {
+    if (span < 1e-9) return { ...t, maxBalance: nonZero[0].balance, minBalance: i === 0 ? nonZero[0].balance : 0, isBottom: i === n - 1, isTop: i === 0 };
+    const maxBalance = Math.pow(10, maxLog - (i / n) * span);
+    const minBalance = i === n - 1 ? 0 : Math.pow(10, maxLog - ((i + 1) / n) * span);
+    return { ...t, maxBalance, minBalance, isBottom: i === n - 1, isTop: i === 0 };
   });
-  return tierByAddress;
+
+  return { tierByAddress, tierRanges };
+}
+function formatTierBound(ugnot) {
+  const gnot = ugnot / 1_000_000;
+  if (gnot === 0) return "0";
+  // Small values need more than 2 decimals to read as anything but "0.00" —
+  // formatGnot's fixed 2-decimal rounding (right everywhere else on this
+  // site) would make every low tier's boundary look identical.
+  if (gnot < 1) return gnot.toLocaleString(undefined, { maximumSignificantDigits: 2 });
+  return formatGnot(ugnot);
+}
+
+function renderWhaleTierLegend(tierRanges) {
+  const el = document.getElementById("whaleTierLegend");
+  if (!tierRanges || !tierRanges.length) { el.style.display = "none"; return; }
+  el.innerHTML = `<h3>Size tier legend (recalculated from the current list; top/bottom tiers are open-ended)</h3><div class="whale-legend-grid">` +
+    tierRanges.map(t => {
+      const range = t.isTop ? `&ge; ${formatTierBound(t.minBalance)} GNOT`
+        : t.isBottom ? `&lt; ${formatTierBound(t.maxBalance)} GNOT`
+        : `${formatTierBound(t.minBalance)}–${formatTierBound(t.maxBalance)} GNOT`;
+      return `
+      <div class="whale-legend-row">
+        <span class="tier-emoji">${t.emoji}</span>
+        <span>${t.label}</span>
+        <span class="tier-range">${range}</span>
+      </div>`;
+    }).join("") +
+    `</div>`;
+  el.style.display = "block";
 }
 
 function renderWhaleWatch() {
   const rows = sortedWhaleRows();
-  const tierMap = computeWhaleTiers(whaleRows);
+  const { tierByAddress, tierRanges } = computeWhaleTiers(whaleRows);
   document.getElementById("whalesBody").innerHTML = rows.map((r, i) => {
-    const tier = tierMap.get(r.address) || WHALE_TIERS[WHALE_TIERS.length - 1];
+    const tier = tierByAddress.get(r.address) || WHALE_TIERS[WHALE_TIERS.length - 1];
     return `
     <tr>
       <td>${i + 1}</td>
-      <td><span class="whale-tier" title="Ranked #${tier.rank} of ${whaleRows.length} known wallets by balance"><span class="tier-emoji">${tier.emoji}</span>${tier.label}</span></td>
-      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a>${r.genesis ? ' <span class="genesis-tag">Genesis</span>' : ""}</td>
+      <td><span class="whale-tier" title="${tier.label} — ${formatGnot(r.balance)} GNOT"><span class="tier-emoji">${tier.emoji}</span>${tier.label}</span></td>
+      <td><a href="${gnoscanAccountUrl(r.address)}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a>${r.genesis ? ' <span class="genesis-tag">Genesis</span>' : ""}</td>
       <td>${formatGnot(r.balance)}</td>
     </tr>`;
   }).join("");
   document.getElementById("whalesTable").style.display = rows.length ? "table" : "none";
+  renderWhaleTierLegend(rows.length ? tierRanges : null);
 
   document.querySelectorAll("#whalesTable th.sortable").forEach(th => {
     const active = th.dataset.sort === whaleSort.key;
