@@ -2953,7 +2953,16 @@ function computeSnapshotUnion() {
   return matchMap;
 }
 
+function computeTotalUnionCount() {
+  const all = new Set();
+  for (const c of snapshotCriteria) for (const addr of c.uniqueAddresses) all.add(addr);
+  return all.size;
+}
+
 function renderSnapshotCriteria() {
+  const selectAllBtn = document.getElementById("snapshotSelectAllBtn");
+  selectAllBtn.textContent = `Select all (${computeTotalUnionCount().toLocaleString()})`;
+
   document.getElementById("snapshotCriteria").innerHTML = snapshotCriteria.map(c => `
     <button type="button" class="snapshot-toggle ${snapshotActiveKeys.has(c.key) ? "active" : ""}" data-key="${c.key}">
       ${c.label} <span class="snapshot-toggle-count">${c.uniqueAddresses.length.toLocaleString()}</span>
