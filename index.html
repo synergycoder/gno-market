@@ -378,7 +378,7 @@
 </div>
 
 <div class="tab-panel" id="panel-new" hidden>
-  <h2>What's New on Gno.land</h2>
+  <h2>🆕 What's New on Gno.land</h2>
   <p class="status">Every package/realm deployed via a transaction, most recent first. Genesis-deployed
     content (seeded at chain launch, not via a transaction — many well-known realms like boards/blog) is
     invisible to this kind of scan, same limitation as the NFT detection below.</p>
@@ -398,7 +398,7 @@
 </div>
 
 <div class="tab-panel" id="panel-tokens" hidden>
-  <h2>Fungible Tokens (GRC20)</h2>
+  <h2>🪙 Fungible Tokens (GRC20)</h2>
   <p class="status">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
     tokens are already included, since registration happens in each token's <code>init()</code> regardless
     of how it was deployed.</p>
@@ -411,7 +411,7 @@
 </div>
 
 <div class="tab-panel" id="panel-nfts" hidden>
-  <h2>NFT Collections (detected)</h2>
+  <h2>🖼️ NFT Collections (detected)</h2>
   <p class="status">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
     library AND defines a matching function (Mint/OwnerOf/TokenURI/...). No central registry exists for
     NFTs, so this is best-effort detection, not a guarantee — a realm that merely references someone
@@ -427,7 +427,7 @@
 </div>
 
 <div class="tab-panel" id="panel-wallet" hidden>
-  <h2>Scan Wallet</h2>
+  <h2>👛 Scan Wallet</h2>
   <p class="status">Checks the address below (read-only — no keys, no signing) for: native GNOT balance,
     plus every fungible token and detected NFT collection from the other two tabs. Token/NFT coverage is
     limited to whatever those tabs found, so their caveats apply here too. Amounts are shown human-scale
@@ -467,7 +467,7 @@
 </div>
 
 <div class="tab-panel" id="panel-trending" hidden>
-  <h2>Trending / Active Realms</h2>
+  <h2>🔥 Trending / Active Realms</h2>
   <p class="status">Every realm ranked by how many successful function-call transactions it has received,
     all-time (not just deploys — this is realms actually being <em>used</em>). Precomputed from the shared
     cache, same 30-minute refresh as the other tabs.</p>
@@ -486,7 +486,7 @@
 </div>
 
 <div class="tab-panel" id="panel-governance" hidden>
-  <h2>DAO Governance Activity</h2>
+  <h2>🏛️ DAO Governance Activity</h2>
   <p class="status">Best-effort detection, not a guarantee (same caveat as NFT Collections): a realm is
     flagged here if its source mentions "governance"/"dao"/"gov" <strong>and</strong> defines a
     <code>Propose</code>, <code>Vote</code>, or <code>Execute</code> function — a realm using different
@@ -507,7 +507,7 @@
 </div>
 
 <div class="tab-panel" id="panel-social" hidden>
-  <h2>Social Realm Activity</h2>
+  <h2>💬 Social Realm Activity</h2>
   <p class="status">Best-effort detection, not a guarantee: a realm is flagged here if its source mentions
     "board"/"blog"/"social" <strong>and</strong> defines a thread/post/reply-style function (e.g.
     <code>CreateThread</code>, <code>CreatePost</code>, <code>CreateBoard</code>). Misses realms using
@@ -527,7 +527,7 @@
 </div>
 
 <div class="tab-panel" id="panel-defi" hidden>
-  <h2>DeFi Activity (Gnoswap)</h2>
+  <h2>🔄 DeFi Activity (Gnoswap)</h2>
 
   <div class="subtabs" role="tablist">
     <button class="subtab active" data-subtab="defi-overview" role="tab">Overview</button>
@@ -692,7 +692,7 @@
 </div>
 
 <div class="tab-panel" id="panel-dashboard">
-  <h2>Dashboard</h2>
+  <h2>📊 Dashboard</h2>
   <p class="status">Chain-wide stats and activity, built entirely from data already precomputed for the
     other tabs — no extra queries. Native token price, market cap, and a trading-volume chart are planned
     but held back for now: GNOT has no real-world market (this is testnet, gno.land has no mainnet yet),
@@ -732,7 +732,7 @@
 </div>
 
 <div class="tab-panel" id="panel-suggestions" hidden>
-  <h2>Suggestions</h2>
+  <h2>💡 Suggestions</h2>
   <p class="status">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
     dedicated collector address, submitted through your own Adena wallet on <strong>testnet only</strong>
     (regardless of which network is selected above). Nothing is stored on this site or its cache — the
