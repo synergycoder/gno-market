@@ -117,8 +117,7 @@
   }
   .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
   .icon-btn:disabled { opacity: 0.5; cursor: default; }
-  #forceRefreshBtn { font-size: 1.1rem; line-height: 1; }
-  #forceRefreshBtn.spinning { animation: spin 0.8s linear infinite; }
+  #forceRefreshBtn.spinning svg { animation: spin 0.8s linear infinite; }
   .icon-btn .icon-sun { display: none; }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme]) .icon-btn .icon-sun { display: inline-block; }
@@ -387,7 +386,9 @@
     <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
     <select id="networkSelect"></select>
     <button id="forceRefreshBtn" class="icon-btn" type="button" aria-label="Force refresh"
-      title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">⟳</button>
+      title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.03-6.75"/><path d="M21 3v6h-6"/></svg>
+    </button>
     <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
       <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>

@@ -875,15 +875,24 @@ async function fetchGenesisBalanceAddresses(net) {
 async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
   const results = await mapLimit([...knownAddresses], 8, async (addr) => {
     const genesis = genesisAddresses.has(addr);
-    try {
-      const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
-      if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis };
-      const parsed = JSON.parse(raw);
-      const coins = parsed?.BaseAccount?.coins || "";
-      const m = /^(\d+)ugnot$/.exec(coins.trim());
-      return { address: addr, balance: m ? Number(m[1]) : 0, genesis };
-    } catch {
-      return null; // leave this address out rather than reporting a false 0
+    // One retry on failure before giving up on this address. This pass
+    // runs LAST in the build (after every other, now-heavier scan), so by
+    // the time it starts the RPC endpoint has already handled a lot of
+    // traffic this run — a transient timeout here is common enough that a
+    // single retry measurably improves the resolved count without much
+    // added runtime (retries are rare, and only for addresses that
+    // actually failed once, not a blanket second pass over everything).
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
+        if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis };
+        const parsed = JSON.parse(raw);
+        const coins = parsed?.BaseAccount?.coins || "";
+        const m = /^(\d+)ugnot$/.exec(coins.trim());
+        return { address: addr, balance: m ? Number(m[1]) : 0, genesis };
+      } catch {
+        if (attempt === 1) return null; // leave this address out rather than reporting a false 0
+      }
     }
   });
   return results.filter(Boolean).sort((a, b) => b.balance - a.balance);
