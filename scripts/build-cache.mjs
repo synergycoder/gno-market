@@ -36,6 +36,10 @@ const NETWORKS = {
   },
 };
 
+// User-identified faucet wallet — same address checked on both networks;
+// see fetchFaucetDrips's own comment for the live confirmation.
+const FAUCET_ADDRESS = "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp";
+
 // Onbloc (the team behind GnoScan and Adena) publishes a curated GRC20
 // metadata registry, one JSON file per chain-id, that GnoScan's own token
 // page reads directly (confirmed by inspecting gnoscan.io/tokens' actual
@@ -442,6 +446,138 @@ async function fetchCallActivity(net, prevState) {
   return { byPath: serializedByPath, lastHeight: newHeight, newCount };
 }
 
+// ---------- GRC20 holder counts: event-replay balance ledger ----------
+// GnoScan's own tokens page shows a "Holders" count per token; there's no
+// direct query for it (same root limitation as whale watch — no
+// accounts/balances query exists anywhere). Confirmed live that a token's
+// GRC20 standard emits a plain "Transfer" event (attrs: token, from, to,
+// value) for every balance change, INCLUDING mints/burns — the standard
+// convention of using an empty-string address as the zero-address
+// sentinel (from:"" on mint, to:"" on burn), not a separate Mint/Burn
+// event type (checked wugnot's Deposit() directly). Critically, this
+// can't be scoped to calls on the token's OWN pkg_path: a swap through
+// gno.land/r/gnoswap/router emits Transfer events for the traded tokens
+// as a side effect (confirmed live — one router call's events included
+// Transfer entries for GNS, wugnot, and USDC together), so the only
+// correct source is every exec transaction chain-wide, filtered by the
+// event's own `token` attr instead of by caller. Same incremental
+// block_height-watermark pattern as fetchCallActivity, but keeps a full
+// per-token, per-address running balance (not just a call count) so a
+// holder who empties their balance later correctly drops out of the
+// count on the next run rather than being counted forever.
+// A Transfer event's own `token` attr is shaped `<path>.<SYMBOL>.<suffix>`
+// (confirmed live: "gno.land/r/gnoswap/gns.GNS.0000000") — a DIFFERENT
+// compound shape than the swap events' bare `<path>.<SYMBOL>` (no
+// trailing suffix), so realmPathOnly() alone isn't enough here. This
+// matters concretely: gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm hosts
+// TWO distinct tokens (SepoliaETH and USDT) under one shared pkg_path —
+// keying balances by bare path alone silently merges their holders into
+// one pool (confirmed by a first pass at this that produced nonsense
+// counts: 25 for both instead of GnoScan's 3 and 30). The symbol segment
+// right after the path is the real disambiguator.
+function tokenKeyFromTransferAttr(tokenAttr) {
+  const path = realmPathOnly(tokenAttr);
+  const symbol = tokenAttr.slice(path.length).replace(/^\./, "").split(".")[0] || "";
+  return `${path}|${symbol}`;
+}
+
+async function fetchTokenHolders(net, tokens, prevState) {
+  const lastHeight = prevState?.lastHeight || 0;
+  const tokenKeys = tokens.map(t => `${t.path}|${t.symbol}`);
+  const tokenKeySet = new Set(tokenKeys);
+  const balances = {};
+  for (const key of tokenKeys) balances[key] = { ...(prevState?.balances?.[key] || {}) };
+
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        block_height: { gt: ${lastHeight} },
+        messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
+      }) {
+        block_height
+        response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 90000);
+
+  let newHeight = lastHeight;
+  for (const tx of data.getTransactions || []) {
+    if (tx.block_height > newHeight) newHeight = tx.block_height;
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent" || ev.type !== "Transfer") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (!attrs.token) continue;
+      const key = tokenKeyFromTransferAttr(attrs.token);
+      if (!tokenKeySet.has(key)) continue;
+      const amount = Number(attrs.value || 0);
+      if (!Number.isFinite(amount) || amount <= 0) continue;
+      const bal = balances[key];
+      if (attrs.from) bal[attrs.from] = (bal[attrs.from] || 0) - amount;
+      if (attrs.to) bal[attrs.to] = (bal[attrs.to] || 0) + amount;
+    }
+  }
+
+  const holderCounts = {};
+  for (const key of tokenKeys) {
+    holderCounts[key] = Object.values(balances[key]).filter(b => b > 0).length;
+  }
+  return { balances, holderCounts, lastHeight: newHeight };
+}
+
+// ---------- faucet drips: every outgoing send from a known faucet wallet ----------
+// A user-identified address (confirmed live: 429 outgoing BankMsgSend on
+// testnet, in round amounts like 5 or 15 GNOT — a real faucet drip
+// pattern, not guessed). Same incremental block_height-watermark query
+// shape as fetchBankSendAddresses, but scoped to one specific
+// `from_address` and keeping the full per-drip record (recipient,
+// amount, tx hash) rather than just a Set of addresses, since the whole
+// point here is to list the drips, not just discover wallets. Recipient
+// addresses are ALSO folded into the whale-watch known-address set by
+// the caller — a wallet that only ever received a faucet drip and never
+// did anything else on-chain wouldn't show up in call activity or bank
+// sends scoped elsewhere, but a drip is itself a real bank send, so this
+// is really the same "known address" signal fetchBankSendAddresses
+// already captures, just also kept as a labeled list for its own tab.
+async function fetchFaucetDrips(net, faucetAddress, prevState) {
+  const lastHeight = prevState?.lastHeight || 0;
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        block_height: { gt: ${lastHeight} },
+        messages: { value: { BankMsgSend: { from_address: { eq: "${faucetAddress}" } } } }
+      }) {
+        hash
+        block_height
+        messages { value { ... on BankMsgSend { to_address amount } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 60000);
+
+  const drips = [...(prevState?.drips || [])];
+  let newHeight = lastHeight;
+  for (const tx of data.getTransactions || []) {
+    for (const msg of tx.messages) {
+      const v = msg.value;
+      if (!v || !v.to_address) continue;
+      const m = /^(\d+)ugnot$/.exec((v.amount || "").trim());
+      drips.push({ hash: tx.hash, blockHeight: tx.block_height, blockTime: null, to: v.to_address, amount: m ? Number(m[1]) : null });
+    }
+    if (tx.block_height > newHeight) newHeight = tx.block_height;
+  }
+
+  const heightsNeedingTime = [...new Set(drips.filter(d => !d.blockTime).map(d => d.blockHeight))];
+  if (heightsNeedingTime.length > 0) {
+    const blockTimes = await fetchBlockTimes(net, heightsNeedingTime);
+    for (const d of drips) {
+      if (!d.blockTime && blockTimes.has(d.blockHeight)) d.blockTime = blockTimes.get(d.blockHeight);
+    }
+  }
+
+  return { drips, lastHeight: newHeight };
+}
+
 // ---------- bank sends: catches wallets that never called a contract at all ----------
 // fetchCallActivity only ever sees addresses that issued a MsgCall/MsgAddPackage
 // — a wallet that has only ever sent or received plain native GNOT (a raw
@@ -765,7 +901,7 @@ async function buildNetwork(netKey, net) {
     // no previous run, or corrupt — start fresh
   }
 
-  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry] = await Promise.all([
+  const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry, faucetResult] = await Promise.all([
     fetchTokens(net),
     abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
@@ -773,6 +909,7 @@ async function buildNetwork(netKey, net) {
     fetchGnoswapSwaps(net, prev?.swapActivity),
     fetchBankSendAddresses(net, prev?.bankSendActivity),
     fetchTokenRegistry(net.chainId),
+    fetchFaucetDrips(net, FAUCET_ADDRESS, prev?.faucetDripsActivity),
   ]);
   console.log(`tokens: ${tokens.length}`);
   console.log(`tx-deployed packages: ${Object.keys(txResult.packages).length} (${txResult.newCount} new this run)`);
@@ -780,6 +917,7 @@ async function buildNetwork(netKey, net) {
   console.log(`gnoswap swaps: ${Object.keys(swapsResult.swaps).length} (${swapsResult.newCount} new this run)`);
   console.log(`bank sends: ${bankSendResult.addresses.length} addresses seen (${bankSendResult.newCount} new this run)`);
   console.log(`token registry: ${tokenRegistry.length} entries fetched from onbloc/gno-token-resource`);
+  console.log(`faucet drips: ${faucetResult.drips.length} total from ${FAUCET_ADDRESS}`);
 
   // Keyed by "path|SYMBOL" first (a path can host more than one token —
   // e.g. the ucs03_zkgm IBC bridge realm registers both SepoliaETH and
@@ -886,11 +1024,17 @@ async function buildNetwork(netKey, net) {
   for (const t of tokens) t.totalSupply = totalSupplies[t.path] ?? null;
   console.log(`token total supplies: ${Object.values(totalSupplies).filter(s => s != null).length}/${tokens.length} resolved`);
 
+  const { balances: tokenHolderBalances, holderCounts, lastHeight: tokenHoldersLastHeight } =
+    await fetchTokenHolders(net, tokens, prev?.tokenHolders);
+  for (const t of tokens) t.holderCount = holderCounts[`${t.path}|${t.symbol}`] ?? 0;
+  console.log(`token holders: ${Object.values(holderCounts).reduce((a, b) => a + b, 0)} total holder-rows across ${tokens.length} tokens`);
+
   const knownAddresses = new Set();
   for (const p of Object.values(txResult.packages)) if (p.creator) knownAddresses.add(p.creator);
   for (const a of Object.values(callActivityResult.byPath)) for (const c of a.callers) knownAddresses.add(c);
   for (const s of Object.values(swapsResult.swaps)) if (s.caller) knownAddresses.add(s.caller);
   for (const addr of bankSendResult.addresses) knownAddresses.add(addr);
+  for (const d of faucetResult.drips) if (d.to) knownAddresses.add(d.to);
   const genesisAddrs = await fetchGenesisBalanceAddresses(net);
   const genesisAddrSet = new Set(genesisAddrs);
   for (const addr of genesisAddrs) knownAddresses.add(addr);
@@ -910,6 +1054,8 @@ async function buildNetwork(netKey, net) {
     defiRealms,
     gnoswapSwaps,
     whaleWatch,
+    faucetDrips: faucetResult.drips.slice().sort((a, b) => b.blockHeight - a.blockHeight),
+    faucetAddress: FAUCET_ADDRESS,
     tokenDecimals,
     // Small (a dozen-ish entries), so shipped in full rather than
     // pre-joined against every other table — lets the client look up a
@@ -928,6 +1074,8 @@ async function buildNetwork(netKey, net) {
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
     swapActivity: { swaps: swapsResult.swaps, lastHeight: swapsResult.lastHeight },
     bankSendActivity: { addresses: bankSendResult.addresses, lastHeight: bankSendResult.lastHeight },
+    tokenHolders: { balances: tokenHolderBalances, lastHeight: tokenHoldersLastHeight },
+    faucetDripsActivity: { drips: faucetResult.drips, lastHeight: faucetResult.lastHeight },
     stats: {
       tokenCount: tokens.length,
       nftRealmCount: nftRealms.length,
@@ -942,6 +1090,7 @@ async function buildNetwork(netKey, net) {
       whaleWatchCount: whaleWatch.length,
       popularDependencyCount: popularDependencies.length,
       crossRealmEdgeCount: crossRealmEdges.length,
+      faucetDripCount: faucetResult.drips.length,
     },
   };
 

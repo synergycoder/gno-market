@@ -89,6 +89,11 @@
   .site-header {
     display: flex; align-items: center; justify-content: space-between;
     gap: 1rem; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg);
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: -0.9rem; /* keeps the rest of the page's original spacing now that the header carries its own padding */
   }
   .brand { display: flex; align-items: center; gap: 0.75rem; }
   .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
@@ -191,6 +196,31 @@
   .whale-legend-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
   .whale-legend-row .tier-emoji { font-size: 1.1rem; }
   .whale-legend-row .tier-range { color: var(--text-muted); }
+  .snapshot-criteria { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
+  .snapshot-toggle {
+    display: inline-flex; align-items: center; gap: 0.5rem; font-family: inherit;
+    font-size: 0.9rem; padding: 0.55rem 0.9rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-muted);
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .snapshot-toggle:hover { border-color: var(--accent); color: var(--text); }
+  .snapshot-toggle.active {
+    border-color: var(--accent); background: var(--badge-bg); color: var(--accent-strong); font-weight: 600;
+  }
+  .snapshot-toggle-count {
+    font-size: 0.78rem; padding: 0.1rem 0.45rem; border-radius: 999px;
+    background: var(--border-soft); color: var(--text-muted);
+  }
+  .snapshot-toggle.active .snapshot-toggle-count { background: rgba(255,255,255,0.15); color: inherit; }
+  .snapshot-summary {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.8rem; margin: 1rem 0;
+    padding: 0.8rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .snapshot-action-btn {
+    font-family: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 6px;
+    border: 1px solid var(--border); background: none; color: var(--text); cursor: pointer;
+  }
+  .snapshot-action-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover { background: var(--border-soft); }
   .preview-row td { padding: 0; border-bottom: none; }
@@ -383,6 +413,8 @@
   <button class="tab" data-tab="defi" role="tab"><span class="tab-icon">🔄</span>DeFi (Gnoswap)</button>
   <button class="tab" data-tab="whales" role="tab"><span class="tab-icon">🐋</span>Whale Watch</button>
   <button class="tab" data-tab="deps" role="tab"><span class="tab-icon">🕸️</span>Dependencies</button>
+  <button class="tab" data-tab="faucet" role="tab"><span class="tab-icon">🚰</span>Faucet Drips</button>
+  <button class="tab" data-tab="snapshots" role="tab"><span class="tab-icon">📸</span>Wallet Snapshots</button>
   <button class="tab" data-tab="links" role="tab"><span class="tab-icon">🔗</span>Links</button>
 </div>
 
@@ -410,10 +442,16 @@
   <h2>🪙 Fungible Tokens (GRC20)</h2>
   <p class="status">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
     tokens are already included, since registration happens in each token's <code>init()</code> regardless
-    of how it was deployed.</p>
+    of how it was deployed. Decimals and logos come from the same community-curated registry GnoScan's own
+    token page reads (<code>onbloc/gno-token-resource</code> on GitHub). Holder counts are derived by
+    replaying every <code>Transfer</code> event chain-wide (not just calls to the token's own realm — a
+    swap through Gnoswap's router, for example, emits Transfer events for the traded tokens too) and
+    counting addresses with a positive balance — close to GnoScan's own numbers but not always exact:
+    a balance assigned directly in a realm's <code>init()</code> rather than minted via a
+    <code>Transfer</code> event wouldn't be reflected here.</p>
   <p id="tokenStatus" class="status">Loading…</p>
   <table id="tokenTable" style="display:none">
-    <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Realm</th><th>Decimals</th><th>Total supply</th></tr></thead>
+    <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Realm</th><th>Decimals</th><th>Total supply</th><th>Holders</th></tr></thead>
     <tbody id="tokenBody"></tbody>
   </table>
   <p class="status">Click any row to preview its on-chain Render() output.</p>
@@ -654,6 +692,46 @@
   </div>
 </div>
 
+<div class="tab-panel" id="panel-faucet" hidden>
+  <h2>🚰 Faucet Drips</h2>
+  <p class="status">Every native GNOT transfer out of <code id="faucetAddressLabel">the known faucet wallet</code>
+    — read the same way as Whale Watch's bank-send discovery (a plain <code>BankMsgSend</code>, no
+    contract call involved), just scoped to one specific sender. Recipients here are also folded into
+    Whale Watch's known-address list, so a wallet that's only ever received a faucet drip still shows up
+    there.</p>
+  <p id="faucetStatus" class="status">Loading…</p>
+  <table id="faucetTable" style="display:none">
+    <thead><tr>
+      <th class="sortable" data-sort="blockTime">Time</th>
+      <th>Recipient</th>
+      <th class="sortable" data-sort="amount">Amount (GNOT)</th>
+      <th>Tx</th>
+    </tr></thead>
+    <tbody id="faucetBody"></tbody>
+  </table>
+</div>
+
+<div class="tab-panel" id="panel-snapshots" hidden>
+  <h2>📸 Wallet Snapshots</h2>
+  <p class="status">Build a custom wallet list for an airdrop, whitelist, or any other targeting need.
+    Toggle any combination of criteria below — matching wallets are added to the list, automatically
+    deduplicated; toggle a criterion back off to remove exactly the wallets it contributed (a wallet
+    stays listed if another still-active criterion also matches it). Counts on each button are that
+    criterion's own unique wallet count, on its own.</p>
+  <div id="snapshotCriteria" class="snapshot-criteria"></div>
+  <div class="snapshot-summary">
+    <span><strong id="snapshotCount">0</strong> unique wallet<span id="snapshotCountPlural">s</span> selected</span>
+    <button id="snapshotClearBtn" type="button" class="snapshot-action-btn">Clear all</button>
+    <button id="snapshotCopyBtn" type="button" class="snapshot-action-btn">Copy list</button>
+    <button id="snapshotCsvBtn" type="button" class="snapshot-action-btn">Download CSV</button>
+  </div>
+  <p id="snapshotCopyStatus" class="status"></p>
+  <table id="snapshotTable" style="display:none">
+    <thead><tr><th>#</th><th>Address</th><th>Matched criteria</th></tr></thead>
+    <tbody id="snapshotBody"></tbody>
+  </table>
+</div>
+
 <div class="tab-panel" id="panel-links" hidden>
   <h2>🔗 Links</h2>
   <p class="status">The official gno.land project's own sites and community channels — sourced directly
@@ -877,7 +955,7 @@ function clearAllTabData() {
   currentNfts = [];
   collapsePreview();
 
-  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "depsPopularTable", "depsGraphTable", "dashboardStats", "dashboardCharts"]) {
+  for (const id of ["tokenTable", "nftTable", "newTable", "trendingTable", "governanceTable", "socialTable", "defiTable", "swapsTable", "whalesTable", "faucetTable", "depsPopularTable", "depsGraphTable", "dashboardStats", "dashboardCharts"]) {
     document.getElementById(id).style.display = "none";
   }
   for (const id of ["tokenStatus", "nftStatus", "newStatus", "trendingStatus", "governanceStatus", "socialStatus", "defiStatus", "swapsStatus", "whalesStatus", "dashboardStatus"]) {
@@ -1124,6 +1202,7 @@ function renderTokenRows(rows) {
       <td>${escapeHtml(r.path)}</td>
       <td>${decimals ?? "—"}</td>
       <td>${r.totalSupply != null ? formatTokenAmount(r.totalSupply, decimals) : "—"}</td>
+      <td>${r.holderCount != null ? r.holderCount.toLocaleString() : "—"}</td>
     </tr>`;
   }).join("");
   document.getElementById("tokenTable").style.display = rows.length ? "table" : "none";
@@ -2730,6 +2809,202 @@ async function loadWhaleWatch(netKey) {
   }
 }
 
+// ---------- Faucet Drips ----------
+
+let faucetRows = [];
+let faucetSort = { key: "blockTime", dir: -1 };
+
+function sortedFaucetRows() {
+  const { key, dir } = faucetSort;
+  return faucetRows.slice().sort((a, b) => {
+    if (key === "blockTime") return dir * (Date.parse(a.blockTime || 0) - Date.parse(b.blockTime || 0));
+    return dir * ((a[key] ?? 0) - (b[key] ?? 0));
+  });
+}
+
+function renderFaucetDrips() {
+  const rows = sortedFaucetRows();
+  document.getElementById("faucetBody").innerHTML = rows.map(r => `
+    <tr>
+      <td>${formatDate(r.blockTime)}</td>
+      <td><a href="${gnoscanAccountUrl(r.to)}" target="_blank" rel="noopener">${truncateAddress(r.to)}</a></td>
+      <td>${r.amount != null ? formatGnot(r.amount) : "—"}</td>
+      <td><a href="${gnoscanTxUrl(r.hash)}" target="_blank" rel="noopener">view ↗</a></td>
+    </tr>
+  `).join("");
+  document.getElementById("faucetTable").style.display = rows.length ? "table" : "none";
+
+  document.querySelectorAll("#faucetTable th.sortable").forEach(th => {
+    const active = th.dataset.sort === faucetSort.key;
+    th.classList.toggle("sort-active", active);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.remove();
+    const span = document.createElement("span");
+    span.className = "sort-arrow";
+    span.textContent = active ? (faucetSort.dir === -1 ? "▼" : "▲") : "▲▼";
+    th.appendChild(span);
+  });
+}
+
+document.querySelectorAll("#faucetTable th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    faucetSort = faucetSort.key === key ? { key, dir: faucetSort.dir * -1 } : { key, dir: -1 };
+    renderFaucetDrips();
+  });
+});
+
+async function loadFaucetDrips(netKey) {
+  const statusEl = document.getElementById("faucetStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const cached = await getCachedData(netKey);
+    if (!cached || !cached.faucetDrips) {
+      faucetRows = [];
+      document.getElementById("faucetTable").style.display = "none";
+      statusEl.textContent = "Not available yet — waiting for the next scheduled cache refresh.";
+      return;
+    }
+    if (cached.faucetAddress) {
+      document.getElementById("faucetAddressLabel").innerHTML = truncateAddress(cached.faucetAddress);
+    }
+    faucetRows = cached.faucetDrips;
+    renderFaucetDrips();
+    statusEl.textContent = `${faucetRows.length} drip${faucetRows.length === 1 ? "" : "s"} found. ` +
+      cacheAgeNote(cached.generatedAt);
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  }
+}
+
+// ---------- Wallet Snapshots: compose a custom wallet list from criteria
+// this site already tracks — entirely client-side, no extra queries, since
+// every criterion below is just a different view over data already
+// shipped in the cached JSON for other tabs. ----------
+
+let snapshotCriteria = [];
+let snapshotActiveKeys = new Set();
+
+// Every criterion here is a straight read of an array/map already present
+// in the cached payload (see build-cache.mjs's output object) — nothing
+// new is fetched. "Called an NFT/governance/social realm" uses call
+// activity's own caller list filtered to realms already tagged by this
+// site's own detection heuristics on those other tabs, rather than a
+// fresh per-collection Mint-event replay (which Scan Wallet already does
+// per-wallet, but doing it chain-wide for every collection would be a
+// much heavier scan than reusing what's already computed).
+function buildSnapshotCriteria(cached) {
+  function callersOfRealms(realmList) {
+    const paths = new Set((realmList || []).map(r => r.path));
+    const out = [];
+    for (const [path, agg] of Object.entries(cached.callActivity?.byPath || {})) {
+      if (paths.has(path)) out.push(...(agg.callers || []));
+    }
+    return out;
+  }
+
+  const defs = [
+    { key: "genesis", label: "🎁 Genesis-funded wallet", addresses: (cached.whaleWatch || []).filter(w => w.genesis).map(w => w.address) },
+    { key: "faucet", label: "🚰 Received a faucet drip", addresses: (cached.faucetDrips || []).map(d => d.to) },
+    { key: "deployer", label: "📦 Deployed a realm/package", addresses: Object.values(cached.txPackages || {}).map(p => p.creator).filter(Boolean) },
+    { key: "swap", label: "🔄 Executed a Gnoswap swap", addresses: (cached.gnoswapSwaps || []).map(s => s.caller).filter(Boolean) },
+    { key: "banksend", label: "💸 Sent/received a native GNOT transfer", addresses: cached.bankSendActivity?.addresses || [] },
+    { key: "nft", label: "🖼️ Called an NFT-collection realm", addresses: callersOfRealms(cached.nftRealms) },
+    { key: "governance", label: "🏛️ Called a DAO governance realm", addresses: callersOfRealms(cached.governanceRealms) },
+    { key: "social", label: "💬 Called a social realm", addresses: callersOfRealms(cached.socialRealms) },
+    { key: "any", label: "🌐 Any known active wallet", addresses: (cached.whaleWatch || []).map(w => w.address) },
+  ];
+  return defs.map(d => ({ ...d, uniqueAddresses: [...new Set(d.addresses)] }));
+}
+
+function computeSnapshotUnion() {
+  const matchMap = new Map(); // address -> Set(labels)
+  for (const c of snapshotCriteria) {
+    if (!snapshotActiveKeys.has(c.key)) continue;
+    for (const addr of c.uniqueAddresses) {
+      if (!matchMap.has(addr)) matchMap.set(addr, new Set());
+      matchMap.get(addr).add(c.label);
+    }
+  }
+  return matchMap;
+}
+
+function renderSnapshotCriteria() {
+  document.getElementById("snapshotCriteria").innerHTML = snapshotCriteria.map(c => `
+    <button type="button" class="snapshot-toggle ${snapshotActiveKeys.has(c.key) ? "active" : ""}" data-key="${c.key}">
+      ${c.label} <span class="snapshot-toggle-count">${c.uniqueAddresses.length.toLocaleString()}</span>
+    </button>
+  `).join("");
+}
+
+function renderSnapshotResult() {
+  const matchMap = computeSnapshotUnion();
+  const addrs = [...matchMap.keys()];
+  document.getElementById("snapshotCount").textContent = addrs.length.toLocaleString();
+  document.getElementById("snapshotCountPlural").textContent = addrs.length === 1 ? "" : "s";
+  document.getElementById("snapshotBody").innerHTML = addrs.map((addr, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><a href="${gnoscanAccountUrl(addr)}" target="_blank" rel="noopener">${truncateAddress(addr)}</a></td>
+      <td>${[...matchMap.get(addr)].join(", ")}</td>
+    </tr>
+  `).join("");
+  document.getElementById("snapshotTable").style.display = addrs.length ? "table" : "none";
+  document.getElementById("snapshotCopyStatus").textContent = "";
+}
+
+document.getElementById("snapshotCriteria").addEventListener("click", (e) => {
+  const btn = e.target.closest(".snapshot-toggle");
+  if (!btn) return;
+  const key = btn.dataset.key;
+  if (snapshotActiveKeys.has(key)) snapshotActiveKeys.delete(key);
+  else snapshotActiveKeys.add(key);
+  renderSnapshotCriteria();
+  renderSnapshotResult();
+});
+
+document.getElementById("snapshotClearBtn").addEventListener("click", () => {
+  snapshotActiveKeys.clear();
+  renderSnapshotCriteria();
+  renderSnapshotResult();
+});
+
+document.getElementById("snapshotCopyBtn").addEventListener("click", () => {
+  const addrs = [...computeSnapshotUnion().keys()];
+  const statusEl = document.getElementById("snapshotCopyStatus");
+  if (!addrs.length) { statusEl.textContent = "Nothing selected yet."; return; }
+  navigator.clipboard.writeText(addrs.join("\n"))
+    .then(() => { statusEl.textContent = `Copied ${addrs.length} address${addrs.length === 1 ? "" : "es"} to the clipboard.`; })
+    .catch(() => { statusEl.textContent = "Couldn't copy — your browser may be blocking clipboard access."; });
+});
+
+document.getElementById("snapshotCsvBtn").addEventListener("click", () => {
+  const matchMap = computeSnapshotUnion();
+  if (!matchMap.size) {
+    document.getElementById("snapshotCopyStatus").textContent = "Nothing selected yet.";
+    return;
+  }
+  const rows = [["address", "matched_criteria"], ...[...matchMap.entries()].map(([addr, labels]) => [addr, [...labels].join(" | ")])];
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `gno-observer-snapshot-${currentKey}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+async function loadSnapshotBuilder(netKey) {
+  const cached = await getCachedData(netKey);
+  snapshotCriteria = cached ? buildSnapshotCriteria(cached) : [];
+  snapshotActiveKeys = new Set(); // a mixed testnet+betanet selection wouldn't be meaningful, so reset on every (re)load
+  renderSnapshotCriteria();
+  renderSnapshotResult();
+}
+
 // ---------- Dependencies: popular packages/realms + cross-realm graph ----------
 
 let depsPopularRows = [];
@@ -3054,6 +3329,8 @@ function loadAll(key) {
   loadNfts(net, key);
   loadAllActivityTabs(key);
   loadWhaleWatch(key);
+  loadFaucetDrips(key);
+  loadSnapshotBuilder(key);
   loadDependencies(key);
   loadDashboard(key);
   // Swaps is lazy-loaded on first open (see the subtab click handler) —

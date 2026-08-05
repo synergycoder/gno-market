@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-05T20:23:31.993Z",
+  "generatedAt": "2026-08-05T21:34:07.533Z",
   "lastHeight": 3142566,
   "tokens": [
     {
@@ -9,7 +9,8 @@
       "symbol": "—",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt ultricies.",
-      "totalSupply": 0
+      "totalSupply": 0,
+      "holderCount": 0
     }
   ],
   "nftRealms": [
@@ -9162,6 +9163,8 @@
       "genesis": false
     }
   ],
+  "faucetDrips": [],
+  "faucetAddress": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
   "tokenDecimals": {
     "gno.land/r/gnoland/wugnot": 6
   },
@@ -11959,6 +11962,16 @@
     ],
     "lastHeight": 364277
   },
+  "tokenHolders": {
+    "balances": {
+      "gno.land/r/gnoland/wugnot|—": {}
+    },
+    "lastHeight": 3144702
+  },
+  "faucetDripsActivity": {
+    "drips": [],
+    "lastHeight": 0
+  },
   "stats": {
     "tokenCount": 1,
     "nftRealmCount": 2,
@@ -11972,6 +11985,7 @@
     "gnoswapSwapCount": 0,
     "whaleWatchCount": 1784,
     "popularDependencyCount": 48,
-    "crossRealmEdgeCount": 30
+    "crossRealmEdgeCount": 30,
+    "faucetDripCount": 0
   }
 }
