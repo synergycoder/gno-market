@@ -768,6 +768,25 @@ async function graphqlQuery(net, query, timeoutMs = 20000) {
     });
   } catch (err) {
     if (err.name === "AbortError") throw new Error(`Indexer query timed out after ${timeoutMs / 1000}s`);
+    // A bare "Failed to fetch" is the browser's generic (and unhelpfully
+    // vague) message for a request that never got a response at all — most
+    // often CORS. Confirmed directly (OPTIONS preflight, curl): betanet's
+    // indexer (indexer.gno.land) sends no access-control-allow-origin
+    // header at all, unlike testnet's (which sends "*") — so any
+    // browser-side call to it is blocked before it ever reaches the
+    // network tab as a real HTTP response. This isn't fixable from this
+    // page; it's the indexer's own server config. Only affects live
+    // browser calls (force-refresh, or the live-scan fallback when the
+    // shared cache is unavailable) — the precomputed cache still works
+    // fine since that's built server-side (Node, not a browser, so CORS
+    // never applies) and just fetched as a static JSON file.
+    if (err instanceof TypeError && /fetch/i.test(err.message)) {
+      throw new Error(
+        net.indexerUrl.includes("indexer.gno.land")
+          ? "Couldn't reach betanet's indexer directly from the browser — it doesn't allow cross-origin requests (no CORS headers), unlike testnet's. This only affects live/force-refresh; the precomputed cache for this tab still works normally."
+          : "Couldn't reach the indexer (network error or CORS) — this only affects live/force-refresh; the precomputed cache for this tab still works normally."
+      );
+    }
     throw err;
   } finally {
     clearTimeout(timer);
