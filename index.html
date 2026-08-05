@@ -86,6 +86,12 @@
   .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
   .brand h1 { margin: 0; font-size: 1.5rem; }
   .header-controls { display: flex; align-items: center; gap: 0.5rem; }
+  .tab-link {
+    background: none; border: 1px dashed var(--border); color: var(--text-muted); cursor: pointer;
+    border-radius: 6px; padding: 0.45rem 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 600;
+  }
+  .tab-link:hover { color: var(--text); border-color: var(--accent-2); background: var(--border-soft); }
+  .tab-link.active { color: var(--accent-strong); border-style: solid; border-color: var(--accent); }
 
   select {
     background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border);
@@ -185,6 +191,39 @@
     background: none; color: var(--success); border-style: solid; border-color: var(--success); font-weight: 600;
   }
   .wallet-form button.btn-secondary.connected:hover { background: var(--border-soft); }
+  .suggest-form textarea {
+    width: 100%; box-sizing: border-box; padding: 0.6rem 0.7rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text);
+    font-family: inherit; font-size: 0.9rem; resize: vertical;
+  }
+  .suggest-form textarea::placeholder { color: var(--text-muted); }
+  .suggest-form-row {
+    display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem;
+  }
+  .suggest-form-row button {
+    padding: 0.55rem 1.2rem; border-radius: 6px; border: 1px solid var(--accent);
+    background: var(--accent); color: #1a1108; cursor: pointer; font-family: inherit;
+    font-size: 0.9rem; font-weight: 600;
+  }
+  .suggest-form-row button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .suggest-form-row button:disabled { opacity: 0.5; cursor: default; }
+
+  .suggestion-card {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    padding: 0.9rem 1rem; margin: 0.6rem 0; border-radius: 8px;
+    background: var(--bg-elevated); border: 1px solid var(--border-soft);
+  }
+  .suggestion-text { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .suggestion-meta { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem; }
+  .suggestion-vote {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+    padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--accent-2);
+    background: none; color: var(--accent-2); cursor: pointer; font-family: inherit; font-weight: 700;
+  }
+  .suggestion-vote:hover { background: var(--border-soft); }
+  .suggestion-vote:disabled { opacity: 0.5; cursor: default; }
+  .suggestion-vote .count { font-size: 1.1rem; }
+
   .spinner {
     display: inline-block; width: 0.85em; height: 0.85em; margin-right: 0.45em;
     border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
@@ -201,6 +240,7 @@
     <h1>Gno.Observer</h1>
   </div>
   <div class="header-controls">
+    <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
     <select id="networkSelect"></select>
     <button id="forceRefreshBtn" class="icon-btn" type="button" aria-label="Force refresh"
       title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">⟳</button>
@@ -312,6 +352,27 @@
   <p class="status">Click any result row to preview that realm's Render() output.</p>
 </div>
 
+<div class="tab-panel" id="panel-suggestions" hidden>
+  <h2>Suggestions</h2>
+  <p class="status">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
+    dedicated collector address, submitted through your own Adena wallet on <strong>testnet only</strong>
+    (regardless of which network is selected above). Nothing is stored on this site or its cache — the
+    list below is read directly from chain history every time this page loads.</p>
+
+  <div class="suggest-form">
+    <textarea id="suggestionInput" placeholder="Suggest a feature or change…" maxlength="200" rows="3"></textarea>
+    <div class="suggest-form-row">
+      <span id="suggestionCharCount" class="status">0 / 200</span>
+      <button id="sendSuggestionBtn">Send suggestion</button>
+    </div>
+  </div>
+  <p id="suggestionSendStatus" class="status"></p>
+
+  <h3>Existing suggestions</h3>
+  <p id="suggestionsStatus" class="status">Loading…</p>
+  <div id="suggestionsList"></div>
+</div>
+
 <script>
 // ---------- theme toggle ----------
 
@@ -353,6 +414,19 @@ const NETWORKS = {
     indexerUrl: "https://indexer.gno.land/graphql/query",
   },
 };
+
+// Suggestions/voting constants + in-flight flags, declared here (rather than
+// alongside the functions that use them, near the bottom of the script) so
+// they're already initialized by the time the tab-restoration code below can
+// call loadSuggestions() — a `let`/`const` isn't usable before its own
+// declaration line runs, even inside an already-hoisted function.
+const SUGGESTIONS_ADDRESS = "g1g447kvkvzrdp2gfduwa3clj3auprrdwdyg5jyg";
+const SUGGEST_MEMO_PREFIX = "gnobs:suggest:";
+const VOTE_MEMO_PREFIX = "gnobs:vote:";
+const SUGGESTION_SEND_AMOUNT = "1ugnot"; // dust — the memo is the actual payload, not the transfer
+let suggestionSendInFlight = false;
+let voteSendInFlight = false;
+let suggestionsInFlight = false;
 
 const select = document.getElementById("networkSelect");
 for (const [key, net] of Object.entries(NETWORKS)) {
@@ -435,12 +509,13 @@ select.addEventListener("change", () => {
 const TAB_STORAGE_KEY = "gnoObserver:activeTab";
 
 function activateTab(tabName) {
-  const btn = document.querySelector(`.tab[data-tab="${tabName}"]`);
-  if (!btn) return;
-  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  const panel = document.getElementById("panel-" + tabName);
+  if (!panel) return;
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
   document.querySelectorAll(".tab-panel").forEach(p => { p.hidden = true; });
-  btn.classList.add("active");
-  document.getElementById("panel-" + tabName).hidden = false;
+  document.getElementById("suggestionsLink").classList.toggle("active", tabName === "suggestions");
+  panel.hidden = false;
+  if (tabName === "suggestions") loadSuggestions();
 }
 
 document.querySelectorAll(".tab").forEach(btn => {
@@ -448,6 +523,11 @@ document.querySelectorAll(".tab").forEach(btn => {
     activateTab(btn.dataset.tab);
     try { localStorage.setItem(TAB_STORAGE_KEY, btn.dataset.tab); } catch {}
   });
+});
+
+document.getElementById("suggestionsLink").addEventListener("click", () => {
+  activateTab("suggestions");
+  try { localStorage.setItem(TAB_STORAGE_KEY, "suggestions"); } catch {}
 });
 
 try {
@@ -1179,6 +1259,183 @@ async function connectAdena() {
 }
 
 document.getElementById("adenaConnectBtn").addEventListener("click", connectAdena);
+
+// ---------- Suggestions: on-chain feature requests + voting, testnet only ----------
+// (constants + in-flight flags live earlier in the script, right after
+// NETWORKS — activateTab()'s tab-restoration on page load can call
+// loadSuggestions() before this point runs, and referencing a `let`/`const`
+// before its own declaration line throws, even though the function
+// declarations themselves are hoisted.)
+
+async function ensureAdenaConnected() {
+  if (typeof window.adena === "undefined") {
+    throw new Error("Adena not detected — install it from adena.app, then reload this page.");
+  }
+  const establishRes = await window.adena.AddEstablish(ADENA_APP_NAME);
+  const alreadyConnected = /already connected/i.test(establishRes.message || "");
+  if (establishRes.status !== "success" && !alreadyConnected) {
+    throw new Error(establishRes.message || "Connection request was not approved.");
+  }
+  const accountRes = await window.adena.GetAccount();
+  if (accountRes.status !== "success" || !accountRes.data || !accountRes.data.address) {
+    throw new Error(accountRes.message || "Could not read the connected account.");
+  }
+  return accountRes.data.address;
+}
+
+async function signMemoTx(fromAddress, memo) {
+  const res = await window.adena.DoContract({
+    messages: [{
+      type: "/bank.MsgSend",
+      value: { from_address: fromAddress, to_address: SUGGESTIONS_ADDRESS, amount: SUGGESTION_SEND_AMOUNT },
+    }],
+    memo,
+  });
+  if (res.status !== "success") throw new Error(res.message || "Transaction was not approved.");
+  return res;
+}
+
+async function sendSuggestion() {
+  if (suggestionSendInFlight) return;
+  const textEl = document.getElementById("suggestionInput");
+  const text = textEl.value.trim();
+  const statusEl = document.getElementById("suggestionSendStatus");
+  const btn = document.getElementById("sendSuggestionBtn");
+  if (!text) {
+    statusEl.textContent = "Write a suggestion first.";
+    return;
+  }
+
+  suggestionSendInFlight = true;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Waiting for Adena…';
+  statusEl.textContent = "Connecting to Adena and requesting your signature…";
+  try {
+    const address = await ensureAdenaConnected();
+    await signMemoTx(address, SUGGEST_MEMO_PREFIX + text);
+    statusEl.textContent = "Submitted! It can take a few seconds to be indexed — the list below will " +
+      "refresh shortly, or switch tabs and back to refresh it yourself.";
+    textEl.value = "";
+    document.getElementById("suggestionCharCount").textContent = "0 / 200";
+    setTimeout(loadSuggestions, 4000);
+  } catch (err) {
+    statusEl.textContent = "Failed: " + err.message;
+  } finally {
+    suggestionSendInFlight = false;
+    btn.disabled = false;
+    btn.textContent = "Send suggestion";
+  }
+}
+
+async function sendVote(hash, btn) {
+  if (voteSendInFlight) return;
+  voteSendInFlight = true;
+  const originalHTML = btn.innerHTML;
+  const statusEl = document.getElementById("suggestionsStatus");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const address = await ensureAdenaConnected();
+    await signMemoTx(address, VOTE_MEMO_PREFIX + hash);
+    statusEl.textContent = "Vote submitted! Refreshing…";
+    setTimeout(loadSuggestions, 4000);
+  } catch (err) {
+    statusEl.textContent = "Vote failed: " + err.message;
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  } finally {
+    voteSendInFlight = false;
+  }
+}
+
+async function loadSuggestions() {
+  if (suggestionsInFlight) return;
+  suggestionsInFlight = true;
+  const statusEl = document.getElementById("suggestionsStatus");
+  statusEl.textContent = "Loading…";
+  try {
+    const net = NETWORKS.testnet; // suggestions always live on testnet
+    const query = `query {
+      getTransactions(where: {
+        success: { eq: true },
+        messages: { value: { BankMsgSend: { to_address: { eq: "${SUGGESTIONS_ADDRESS}" } } } }
+      }) {
+        hash
+        block_height
+        memo
+        messages { value { ... on BankMsgSend { from_address to_address } } }
+      }
+    }`;
+    const data = await graphqlQuery(net, query);
+    const txs = data.getTransactions || [];
+
+    // `like` filtering isn't reliable on this indexer, so we fetch every
+    // send to the collector address and split suggestions vs. votes by
+    // memo prefix client-side instead of in the query.
+    const suggestions = new Map(); // hash -> {hash, text, from, blockHeight, voters: Set}
+    const pendingVotes = [];
+    for (const tx of txs) {
+      const memo = tx.memo || "";
+      const msg = (tx.messages || [])[0];
+      const from = msg && msg.value && msg.value.from_address;
+      if (!from) continue;
+      if (memo.startsWith(SUGGEST_MEMO_PREFIX)) {
+        const text = memo.slice(SUGGEST_MEMO_PREFIX.length).trim();
+        if (text) suggestions.set(tx.hash, { hash: tx.hash, text, from, blockHeight: tx.block_height, voters: new Set() });
+      } else if (memo.startsWith(VOTE_MEMO_PREFIX)) {
+        pendingVotes.push({ target: memo.slice(VOTE_MEMO_PREFIX.length).trim(), from });
+      }
+    }
+    // a Set per suggestion means repeat votes from the same address (double
+    // clicks, or someone voting again later) only count once.
+    for (const v of pendingVotes) {
+      const s = suggestions.get(v.target);
+      if (s) s.voters.add(v.from);
+    }
+
+    const rows = [...suggestions.values()].sort((a, b) =>
+      b.voters.size - a.voters.size || b.blockHeight - a.blockHeight
+    );
+
+    const heights = [...new Set(rows.map(r => r.blockHeight))];
+    const blockTimes = heights.length ? await fetchBlockTimes(net, heights) : new Map();
+    for (const r of rows) r.blockTime = blockTimes.get(r.blockHeight) || null;
+
+    renderSuggestions(rows);
+    statusEl.textContent = rows.length
+      ? `${rows.length} suggestion${rows.length === 1 ? "" : "s"}.`
+      : "No suggestions yet — be the first.";
+  } catch (err) {
+    statusEl.textContent = "Failed to load: " + err.message;
+  } finally {
+    suggestionsInFlight = false;
+  }
+}
+
+function renderSuggestions(rows) {
+  document.getElementById("suggestionsList").innerHTML = rows.map(r => `
+    <div class="suggestion-card">
+      <div class="suggestion-text">
+        ${escapeHtml(r.text)}
+        <div class="suggestion-meta">by ${truncateMiddle(r.from)} · ${formatDate(r.blockTime)}</div>
+      </div>
+      <button class="suggestion-vote" data-hash="${escapeHtml(r.hash)}"
+        title="Vote for this suggestion — signs a small on-chain transaction via Adena">
+        <span class="count">${r.voters.size}</span>
+        <span>+1</span>
+      </button>
+    </div>
+  `).join("");
+}
+
+document.getElementById("suggestionInput").addEventListener("input", (e) => {
+  document.getElementById("suggestionCharCount").textContent = `${e.target.value.length} / 200`;
+});
+document.getElementById("sendSuggestionBtn").addEventListener("click", sendSuggestion);
+document.getElementById("suggestionsList").addEventListener("click", (e) => {
+  const btn = e.target.closest(".suggestion-vote");
+  if (btn) sendVote(btn.dataset.hash, btn);
+});
 
 // ---------- click-to-expand Render() preview ----------
 
