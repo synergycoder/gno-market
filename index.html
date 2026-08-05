@@ -5,6 +5,11 @@
 <title>Gno.Observer</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<!-- Some extensions (Adena's wallet-connect dialog included — see its own
+     "Displaying Your App" docs) fetch /favicon.ico at the site root
+     directly instead of parsing these <link rel="icon"> tags, so both
+     need to exist and agree. -->
+<link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 <!-- See adena-compat.js: works around a real bug in Adena's (and likely other
      wallet extensions') content-script injection on pages with no external
