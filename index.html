@@ -318,6 +318,7 @@
       <th class="sortable" data-sort="kind">Kind</th>
       <th>Path</th>
       <th class="sortable" data-sort="creator">Deployer</th>
+      <th>Tx</th>
     </tr></thead>
     <tbody id="newBody"></tbody>
   </table>
@@ -357,9 +358,9 @@
   <h2>Scan Wallet</h2>
   <p class="status">Checks the address below (read-only — no keys, no signing) for: native GNOT balance,
     plus every fungible token and detected NFT collection from the other two tabs. Token/NFT coverage is
-    limited to whatever those tabs found, so their caveats apply here too. GNOT is shown as a real
-    human-scale amount (its decimals are fixed and known); GRC20 token balances are shown in raw
-    on-chain units instead, since their decimals aren't fetched per-token.</p>
+    limited to whatever those tabs found, so their caveats apply here too. Amounts are shown human-scale
+    wherever a token's decimals could be determined on-chain; GRC20 doesn't reliably expose this, so a
+    token that doesn't will show its raw on-chain units instead, labeled as such.</p>
   <div class="wallet-form">
     <input type="text" id="walletInput" placeholder="g1... wallet address" autocomplete="off" spellcheck="false">
     <button id="walletScanBtn">Scan</button>
@@ -508,10 +509,11 @@
 <div class="tab-panel" id="panel-whales" hidden>
   <h2>Whale Watch</h2>
   <p class="status">Native GNOT balance for every address this site has seen deploy a package, call a
-    realm, or execute a Gnoswap swap — ranked richest first. The indexer has no accounts/balances query
-    at all, so each balance is a real, exact RPC read, not an estimate — but this can only rank addresses
-    this site has actually observed being active, not literally every address that has ever existed on
-    the chain.</p>
+    realm, execute a Gnoswap swap, or hold a genesis balance allocation — ranked richest first. The
+    indexer has no accounts/balances query at all, and the chain's own auth module exposes no
+    "list all accounts" query either (checked directly against the tm2/gno.land source), so each balance
+    is a real, exact RPC read, not an estimate — but this can only rank addresses this site has actually
+    observed, not literally every address that has ever existed on the chain.</p>
   <p id="whalesStatus" class="status">Loading…</p>
   <table id="whalesTable" style="display:none">
     <thead><tr>
@@ -635,6 +637,7 @@ try {
 
 let currentKey = select.value;
 let currentTokens = []; // [{name, symbol, path}] from the last successful loadTokens
+let currentTokenDecimals = {}; // path -> decimals|null, from the same cache payload as currentTokens
 let currentNfts = [];   // [{path, std}] from the last successful loadNfts
 const genesisFileCache = new Map(); // netKey -> Map(realmPath -> files[])
 
@@ -671,6 +674,7 @@ function clearAllTabData() {
   // other's. Every table/status gets reset to a clean "Loading…" state
   // before any new fetch starts, consistently across every tab.
   currentTokens = [];
+  currentTokenDecimals = {};
   currentNfts = [];
   collapsePreview();
 
@@ -879,6 +883,7 @@ async function loadTokens(net, netKey, forceLive = false) {
     const cached = forceLive ? null : await getCachedData(netKey);
     if (cached && cached.tokens) {
       renderTokenRows(cached.tokens);
+      currentTokenDecimals = cached.tokenDecimals || {};
       statusEl.textContent =
         `${cached.tokens.length} token${cached.tokens.length === 1 ? "" : "s"} registered. ` +
         cacheAgeNote(cached.generatedAt);
@@ -898,6 +903,7 @@ async function loadTokens(net, netKey, forceLive = false) {
       rows.push({ name: m[1], path: m[2], symbol: m[3] || "—" });
     }
     renderTokenRows(rows);
+    currentTokenDecimals = {}; // not fetched on this live-scan fallback path — amounts show as raw units
     statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.` +
       (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
@@ -994,6 +1000,7 @@ async function fetchAllDeployedPackagesUncached(net, netKey) {
         block_height: { gt: ${cache.lastHeight} },
         messages: { route: { eq: "vm" }, typeUrl: { eq: "add_package" } }
       }) {
+        hash
         block_height
         messages { value { ... on MsgAddPackage { creator package { path files { name body } } } } }
       }
@@ -1018,6 +1025,7 @@ async function fetchAllDeployedPackagesUncached(net, netKey) {
         path: pkg.path,
         blockHeight: tx.block_height,
         blockTime: (cache.packages[pkg.path] && cache.packages[pkg.path].blockTime) || null,
+        hash: tx.hash,
         creator: v.creator,
         standard: isRealm ? detectStandard(nonTestGnoFiles(pkg.files)) : null,
       };
@@ -1180,7 +1188,8 @@ function renderNewFeedRows() {
         <td>${formatDate(p.blockTime)}</td>
         <td><span class="badge">${p.kind}</span></td>
         <td>${truncateMiddle(p.path)}</td>
-        <td>${p.creator ? truncateMiddle(p.creator) : "—"}</td>
+        <td>${p.creator ? truncateAddress(p.creator) : "—"}</td>
+        <td>${p.hash ? `<a href="${gnoscanTxUrl(p.hash)}" target="_blank" rel="noopener">view ↗</a>` : "—"}</td>
       </tr>
     `;
   }).join("");
@@ -1277,10 +1286,33 @@ async function fetchNativeBalance(net, address) {
 }
 
 function formatGnot(ugnot) {
-  // Fixed at 6 decimals for the native token specifically (unlike arbitrary
-  // GRC20 tokens elsewhere on this page, whose decimals aren't fetched) —
-  // safe to show as a real human-scale amount here.
-  return (ugnot / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 });
+  // GNOT's on-chain precision is 6 decimals, but every GNOT balance shown
+  // on this page is rounded to 2 for readability — a wallet or whale's
+  // exact 6th-decimal ugnot dust isn't meaningful to a human reader here.
+  return (ugnot / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// Swap/Transfer events encode a token as "<realm path>.<SYMBOL>" (e.g.
+// "gno.land/r/gnoswap/gns.GNS"), not a bare realm path — looking that
+// compound form up directly in tokenDecimals (keyed by bare path, see
+// build-cache.mjs) would always miss. Strips the appended symbol. Kept in
+// sync with the identical helper in scripts/build-cache.mjs (no shared
+// module between the Node build script and the browser).
+function realmPathOnly(id) {
+  const lastSlash = id.lastIndexOf("/");
+  const dotAfterSlash = id.indexOf(".", lastSlash);
+  return dotAfterSlash === -1 ? id : id.slice(0, dotAfterSlash);
+}
+
+// Converts a raw on-chain token amount to its human-scale form using a
+// known decimals count, rounded to 2 places — or, when decimals genuinely
+// aren't known for that token (common; GRC20 doesn't reliably expose
+// this), falls back to the raw units with an explicit label rather than
+// guessing a decimals count and silently showing a wrong number.
+function formatTokenAmount(raw, decimals) {
+  if (decimals == null) return `${escapeHtml(raw)} (raw units)`;
+  const num = Number(raw) / Math.pow(10, decimals);
+  return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
 async function fetchOwnedTokenIds(net, collectionPath, ownerAddress) {
@@ -1407,7 +1439,7 @@ async function scanWallet() {
       <tr class="clickable" data-path="${escapeHtml(t.path)}">
         <td>${escapeHtml(t.name)}</td>
         <td>${escapeHtml(t.symbol)}</td>
-        <td>${t.balance}</td>
+        <td>${formatTokenAmount(t.balance, currentTokenDecimals[t.path])}</td>
         <td>${escapeHtml(t.path)}</td>
       </tr>
     `).join("");
@@ -1511,7 +1543,7 @@ function applyAdenaConnectedUI(address) {
   const statusEl = document.getElementById("adenaStatus");
   const btn = document.getElementById("adenaConnectBtn");
   document.getElementById("walletInput").value = address;
-  statusEl.textContent = `Connected: ${address}`;
+  statusEl.innerHTML = `Connected: ${truncateAddress(address)}`;
   btn.textContent = "✓ Connected";
   btn.classList.add("connected");
   btn.title = "Click to disconnect";
@@ -1526,7 +1558,7 @@ function applyAdenaConnectedUI(address) {
       if (!newAddress) return;
       if (!document.getElementById("adenaConnectBtn").classList.contains("connected")) return;
       document.getElementById("walletInput").value = newAddress;
-      statusEl.textContent = `Connected: ${newAddress}`;
+      statusEl.innerHTML = `Connected: ${truncateAddress(newAddress)}`;
       scanWallet();
     });
     adenaListenerRegistered = true;
@@ -1818,7 +1850,8 @@ function renderSuggestions(rows) {
     <div class="suggestion-card">
       <div class="suggestion-text">
         ${escapeHtml(r.text)}
-        <div class="suggestion-meta">by ${truncateMiddle(r.from)} · ${formatDate(r.blockTime)}</div>
+        <div class="suggestion-meta">by ${truncateAddress(r.from)} · ${formatDate(r.blockTime)} ·
+          <a href="${gnoscanTxUrl(r.hash)}" target="_blank" rel="noopener">view tx ↗</a></div>
       </div>
       <button class="suggestion-vote" data-hash="${escapeHtml(r.hash)}"
         title="Vote for this suggestion — signs a small on-chain transaction via Adena">
@@ -1906,6 +1939,14 @@ function truncateMiddle(str, keep = 14) {
   const s = String(str || "");
   if (s.length <= keep * 2 + 1) return escapeHtml(s);
   return `<span title="${escapeHtml(s)}">${escapeHtml(s.slice(0, keep))}…${escapeHtml(s.slice(-keep))}</span>`;
+}
+
+// Standard format for every wallet address shown anywhere on the page —
+// first 6 + last 6 characters, full address in a hover tooltip. Distinct
+// from truncateMiddle (which stays wider/per-call for realm/package
+// paths, a different kind of string where 6+6 would be nearly useless).
+function truncateAddress(addr) {
+  return truncateMiddle(addr, 6);
 }
 
 function safeUrl(url) {
@@ -2118,6 +2159,7 @@ function gnoscanTxUrl(hash) {
 
 const SWAPS_DISPLAY_LIMIT = 300;
 let swapRows = [];
+let swapTokenDecimals = {};
 let swapSort = { key: "blockTime", dir: -1 };
 let swapTokenFilterValue = "";
 
@@ -2141,10 +2183,10 @@ function renderSwaps() {
     <tr>
       <td>${formatDate(s.blockTime)}</td>
       <td title="${escapeHtml(s.tokenIn)}">${escapeHtml(tokenSymbol(s.tokenIn))}</td>
-      <td>${escapeHtml(s.amountIn)}</td>
+      <td>${formatTokenAmount(s.amountIn, swapTokenDecimals[realmPathOnly(s.tokenIn)])}</td>
       <td title="${escapeHtml(s.tokenOut)}">${escapeHtml(tokenSymbol(s.tokenOut))}</td>
-      <td>${escapeHtml(s.amountOut)}</td>
-      <td>${truncateMiddle(s.caller)}</td>
+      <td>${formatTokenAmount(s.amountOut, swapTokenDecimals[realmPathOnly(s.tokenOut)])}</td>
+      <td>${truncateAddress(s.caller)}</td>
       <td><a href="${gnoscanTxUrl(s.hash)}" target="_blank" rel="noopener">view ↗</a></td>
     </tr>
   `).join("");
@@ -2192,6 +2234,7 @@ async function loadSwaps(netKey) {
       return;
     }
     swapRows = cached.gnoswapSwaps;
+    swapTokenDecimals = cached.tokenDecimals || {};
 
     // Populate the token filter from the real token set in this network's
     // data (not a hardcoded list, which would go stale as Gnoswap adds
@@ -2225,7 +2268,7 @@ function renderWhaleWatch() {
   document.getElementById("whalesBody").innerHTML = rows.map((r, i) => `
     <tr>
       <td>${i + 1}</td>
-      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateMiddle(r.address)}</a></td>
+      <td><a href="https://gnoscan.io/account/${encodeURIComponent(r.address)}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a></td>
       <td>${formatGnot(r.balance)}</td>
     </tr>
   `).join("");

@@ -109,6 +109,59 @@ async function fetchTokens(net) {
   return rows;
 }
 
+// Swap/Transfer events encode a token as "<realm path>.<SYMBOL>" (e.g.
+// "gno.land/r/gnoswap/gns.GNS"), not a bare realm path — calling
+// Decimals() (or anything else) against the compound form is a malformed
+// vm/qeval expression and silently fails. Strips the appended symbol,
+// leaving a real callable path. Duplicated in index.html (no shared
+// module between the Node build script and the browser) — keep both in
+// sync if this ever changes.
+function realmPathOnly(id) {
+  const lastSlash = id.lastIndexOf("/");
+  const dotAfterSlash = id.indexOf(".", lastSlash);
+  return dotAfterSlash === -1 ? id : id.slice(0, dotAfterSlash);
+}
+
+// ---------- token decimals ----------
+// GRC20 decimals aren't reliably exposed — some implementations expose
+// Decimals(), some GetDecimals(), some neither (confirmed directly against
+// bare realm paths: GNS responds to Decimals() -> 6, but neither wugnot
+// nor the gnoswap test_usdc token responds to either convention).
+// Resolved once per token path and cached forever afterward via the
+// incremental prevState merge, since a token's decimals never change once
+// deployed — never re-fetched for a path that already has an answer (even
+// a null one, meaning "confirmed not exposed," not "not checked yet").
+// wugnot doesn't expose Decimals()/GetDecimals(), but its decimals are a
+// verified fact, not a guess: read directly from source
+// (gno.land/r/gnoland/wugnot/wugnot.gno) — Deposit() takes
+// `sent.AmountOf("ugnot")` and mints that exact raw amount 1:1
+// (`adm.Mint(caller, int64(amount))`, no scaling), so wugnot's subunit is
+// identical to native ugnot's — 6 decimals, same as GNOT itself.
+const KNOWN_DECIMALS = {
+  "gno.land/r/gnoland/wugnot": 6,
+};
+
+async function fetchTokenDecimals(net, tokenPaths, prevDecimals) {
+  const known = { ...(prevDecimals || {}) };
+  const toFetch = tokenPaths.filter(p => !(p in known) && !(p in KNOWN_DECIMALS));
+  for (const [path, decimals] of Object.entries(KNOWN_DECIMALS)) {
+    if (tokenPaths.includes(path)) known[path] = decimals;
+  }
+  await mapLimit(toFetch, 8, async (path) => {
+    for (const fn of ["Decimals()", "GetDecimals()"]) {
+      try {
+        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.${fn}`);
+        const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
+        if (m) { known[path] = Number(m[1]); return; }
+      } catch {
+        // try the next convention
+      }
+    }
+    known[path] = null; // neither convention answered — callers fall back to raw units
+  });
+  return known;
+}
+
 // ---------- NFT standard detection: identical rules to index.html ----------
 
 const STANDARD_MARKERS = [
@@ -189,6 +242,7 @@ async function fetchDeployedPackages(net, prevState) {
         block_height: { gt: ${lastHeight} },
         messages: { route: { eq: "vm" }, typeUrl: { eq: "add_package" } }
       }) {
+        hash
         block_height
         messages { value { ... on MsgAddPackage { creator package { path files { name body } } } } }
       }
@@ -209,6 +263,7 @@ async function fetchDeployedPackages(net, prevState) {
       packages[pkg.path] = {
         path: pkg.path,
         blockHeight: tx.block_height,
+        hash: tx.hash,
         creator: v.creator,
         standard: isRealm ? detectStandard(files) : null,
         governance: isRealm ? matchesAnyMarker(files, GOVERNANCE_MARKERS) : false,
@@ -432,6 +487,48 @@ async function fetchGnoswapSwaps(net, prevState) {
   return { swaps, lastHeight: newHeight, newCount };
 }
 
+// ---------- genesis-funded addresses ----------
+// Checked deeply (per an explicit ask) for any way to enumerate every
+// address with a balance, beyond just ones already seen in transaction
+// history. Confirmed by reading the actual tm2/gno.land source
+// (tm2/pkg/sdk/auth/handler.go): the auth module's ABCI query surface
+// exposes exactly two paths, "accounts" (single-address lookup) and
+// "gasprice" — no "list all accounts" query exists, unlike some newer
+// Cosmos SDK chains' gRPC-gateway bank queries (gno.land's tm2 stack is a
+// from-scratch reimplementation, not literally cosmos-sdk, and doesn't
+// have that gateway). The underlying keeper DOES support full iteration
+// (IterateAccounts exists in tm2/pkg/sdk/auth/keeper.go) — the capability
+// exists in the node's own state, it's just not exposed to a remote RPC
+// client at all.
+//
+// One real, usable source WAS found: the standard Tendermint2 `/genesis`
+// RPC endpoint returns the full genesis doc, including
+// `app_state.balances` — the chain's initial funding allocations. For
+// topaz-1 this is small (19 addresses, confirmed directly), not a general
+// "every holder" list, but it's a real, free expansion of the known-set:
+// checked against this project's existing known-active addresses, 18 of
+// the 19 weren't already covered, several with genesis allocations in
+// the trillions of GNOT. (GnoScan's own homepage shows "622,759 Airdrop
+// Holders" — that number is NOT in genesis.json's balances array, so it's
+// almost certainly a separate claim-based airdrop realm's own internal
+// ledger, not raw genesis state. Enumerating that would need finding and
+// querying that specific realm's claim records — a bigger, separate
+// research task, not done here.)
+async function fetchGenesisBalanceAddresses(net) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+  try {
+    const res = await fetch(`${net.rpcUrl}/genesis`, { signal: controller.signal });
+    const json = await res.json();
+    const balances = json?.result?.genesis?.app_state?.balances || [];
+    return balances.map(b => b.split("=")[0]).filter(Boolean);
+  } catch {
+    return []; // non-critical enrichment — a failure here shouldn't fail the whole build
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ---------- whale watch: native GNOT balance of every known-active address ----------
 // The indexer exposes no accounts/balances query at all (confirmed via
 // schema introspection — only latestBlockHeight/getBlocks/getTransactions
@@ -439,14 +536,14 @@ async function fetchGnoswapSwaps(net, prevState) {
 // would be unreliable anyway (gas fees, genesis airdrops, and internal
 // contract-to-contract sends don't surface as any indexed event/message,
 // unlike GRC20 transfers which are fully event-driven by the standard).
-// Instead: query the REAL, current balance via RPC for every address this
-// build has already seen be a deployer, caller, or swap participant — a
-// "known active wallets" ranking, not a true global top-N (there's no way
-// to enumerate literally every address that has ever existed on the
-// chain), but every number shown is exact, not estimated. Re-fetched in
-// full every run rather than cached incrementally — unlike a monotonic
-// counter, a balance can go down, so a "only fetch what's missing" cache
-// would go stale.
+// Instead: query the REAL, current balance via RPC for every known
+// address (transaction-observed, per fetchWhaleWatch's caller, plus
+// genesis-funded, per fetchGenesisBalanceAddresses above) — a "known"
+// ranking, not a true global top-N (there's no way to enumerate literally
+// every address that has ever existed on the chain), but every number
+// shown is exact, not estimated. Re-fetched in full every run rather than
+// cached incrementally — unlike a monotonic counter, a balance can go
+// down, so a "only fetch what's missing" cache would go stale.
 async function fetchWhaleWatch(net, knownAddresses) {
   const results = await mapLimit([...knownAddresses], 8, async (addr) => {
     try {
@@ -545,17 +642,28 @@ async function buildNetwork(netKey, net) {
       path: p.path,
       blockHeight: p.blockHeight,
       blockTime: p.blockTime || null,
+      hash: p.hash || null,
       creator: p.creator,
       kind: p.path.startsWith("gno.land/r/") ? "Realm" : "Package",
     }))
     .sort((a, b) => b.blockHeight - a.blockHeight);
 
+  const tokenPathsNeedingDecimals = new Set(tokens.map(t => t.path));
+  for (const s of gnoswapSwaps) {
+    if (s.tokenIn) tokenPathsNeedingDecimals.add(realmPathOnly(s.tokenIn));
+    if (s.tokenOut) tokenPathsNeedingDecimals.add(realmPathOnly(s.tokenOut));
+  }
+  const tokenDecimals = await fetchTokenDecimals(net, [...tokenPathsNeedingDecimals], prev?.tokenDecimals);
+  console.log(`token decimals: ${Object.values(tokenDecimals).filter(d => d != null).length}/${Object.keys(tokenDecimals).length} resolved`);
+
   const knownAddresses = new Set();
   for (const p of Object.values(txResult.packages)) if (p.creator) knownAddresses.add(p.creator);
   for (const a of Object.values(callActivityResult.byPath)) for (const c of a.callers) knownAddresses.add(c);
   for (const s of Object.values(swapsResult.swaps)) if (s.caller) knownAddresses.add(s.caller);
+  const genesisAddrs = await fetchGenesisBalanceAddresses(net);
+  for (const addr of genesisAddrs) knownAddresses.add(addr);
   const whaleWatch = await fetchWhaleWatch(net, knownAddresses);
-  console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked`);
+  console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked (${genesisAddrs.length} from genesis balances)`);
 
   const output = {
     network: netKey,
@@ -570,6 +678,7 @@ async function buildNetwork(netKey, net) {
     defiRealms,
     gnoswapSwaps,
     whaleWatch,
+    tokenDecimals,
     genesisStandards,
     txPackages: txResult.packages,
     callActivity: { byPath: callActivityResult.byPath, lastHeight: callActivityResult.lastHeight },
