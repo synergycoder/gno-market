@@ -482,7 +482,7 @@
     first visit.</p>
   <p id="nftStatus" class="status">Loading…</p>
   <table id="nftTable" style="display:none">
-    <thead><tr><th>Package</th><th>Standard</th></tr></thead>
+    <thead><tr><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
     <tbody id="nftBody"></tbody>
   </table>
   <p class="status">Click any row to preview its on-chain Render() output.</p>
@@ -1441,11 +1441,14 @@ async function fetchGenesisRealmFiles(net, netKey, paths) {
 
 let nftsInFlight = false;
 function renderNftRows(rows) {
-  // rows: [{path, standard}]
+  // rows: [{path, standard, name?, symbol?, tokenCount?}]
   currentNfts = rows.map(r => ({ path: r.path, std: r.standard }));
   const tbody = document.getElementById("nftBody");
   tbody.innerHTML = rows.map(r => `
     <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td>${r.name ? escapeHtml(r.name) : "—"}</td>
+      <td>${r.symbol ? escapeHtml(r.symbol) : "—"}</td>
+      <td>${r.tokenCount != null ? r.tokenCount.toLocaleString() : "—"}</td>
       <td>${escapeHtml(r.path)}</td>
       <td><span class="badge">${r.standard}</span></td>
     </tr>

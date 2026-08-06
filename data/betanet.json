@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-08-06T19:00:30.697Z",
+  "generatedAt": "2026-08-06T23:44:22.717Z",
   "lastHeight": 3147228,
   "tokens": [
     {
@@ -16,15 +16,24 @@
   "nftRealms": [
     {
       "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft",
-      "standard": "GRC721"
+      "standard": "GRC721",
+      "name": "Lord Ginge Genesis",
+      "symbol": "GINGE",
+      "tokenCount": 1
     },
     {
       "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2",
-      "standard": "GRC721"
+      "standard": "GRC721",
+      "name": "Lord G's - Ginge Gnomie",
+      "symbol": "GNOMIE",
+      "tokenCount": 19
     },
     {
       "path": "gno.land/r/g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc/tardigrades",
-      "standard": "GRC721"
+      "standard": "GRC721",
+      "name": "Tardigrades in Gnoland",
+      "symbol": "TARDIGRADE",
+      "tokenCount": 3
     }
   ],
   "recentDeployed": [
@@ -152,11 +161,11 @@
   "trendingRealms": [
     {
       "path": "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2",
-      "calls": 83,
-      "uniqueCallers": 13,
-      "lastBlockHeight": 3160873,
+      "calls": 89,
+      "uniqueCallers": 19,
+      "lastBlockHeight": 3163938,
       "lastBlockTime": "2026-08-06T18:54:36.853824834Z",
-      "topFunc": "AddArtwork"
+      "topFunc": "Mint"
     },
     {
       "path": "gno.land/r/gnoland/blog",
@@ -172,7 +181,7 @@
       "uniqueCallers": 10,
       "lastBlockHeight": 3147219,
       "lastBlockTime": "2026-08-05T15:34:20.732621497Z",
-      "topFunc": "Sign"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoland/boards2/v1",
@@ -293,6 +302,11 @@
       "genesis": false
     },
     {
+      "address": "g1h92t4e4jtl58rmgcjxwnpks2qhtwx6slq2l9cf",
+      "balance": 3951014281,
+      "genesis": false
+    },
+    {
       "address": "g1279zrl88kuzjz5u8huzmulky9e3akqwaz0dt8e",
       "balance": 3274090305,
       "genesis": false
@@ -300,6 +314,11 @@
     {
       "address": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
       "balance": 2929850240,
+      "genesis": false
+    },
+    {
+      "address": "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd",
+      "balance": 2323910323,
       "genesis": false
     },
     {
@@ -545,6 +564,11 @@
     {
       "address": "g15aq32d6052ydrppp8556sdxr5lda6csrz6ndjt",
       "balance": 25000000,
+      "genesis": false
+    },
+    {
+      "address": "g1g8l8vcslktac2pgdgfrd69da5pd8v25j0a7qsf",
+      "balance": 24340125,
       "genesis": false
     },
     {
@@ -9213,6 +9237,11 @@
       "genesis": false
     },
     {
+      "address": "g1q7tn3yp0aux44z6nqefdv6wx788w8dyyl60aqk",
+      "balance": 6446003,
+      "genesis": false
+    },
+    {
       "address": "g1vta7dwp4guuhkfzksenfcheky4xf9hue8mgne4",
       "balance": 5000000,
       "genesis": false
@@ -9225,6 +9254,16 @@
     {
       "address": "g1x0ytm7qt4l80djl2n05mz9v0u285vwz03rktf9",
       "balance": 4470554,
+      "genesis": false
+    },
+    {
+      "address": "g1mz6n7exysj3554qfh88sf7z0sdem8yeqful4kd",
+      "balance": 3116586,
+      "genesis": false
+    },
+    {
+      "address": "g1dqm5p6l6dp9ynm4hnp4ms3uq64szf2xv9ys2qg",
+      "balance": 2891697,
       "genesis": false
     },
     {
@@ -9705,7 +9744,7 @@
           "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
           "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc"
         ],
-        "topFunc": "Sign",
+        "topFunc": null,
         "firstBlockHeight": 59169,
         "lastBlockHeight": 3147219,
         "lastBlockTime": "2026-08-05T15:34:20.732621497Z"
@@ -9790,7 +9829,7 @@
         "lastBlockTime": "2026-08-05T17:09:25.206992899Z"
       },
       "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2": {
-        "calls": 83,
+        "calls": 89,
         "callers": [
           "g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg",
           "g16jxcfv53vlmu9gh3ty3826x3t966dmps00kx0f",
@@ -9804,15 +9843,21 @@
           "g1v558ermzg67cunnfy28rr27c0deepydyefgacm",
           "g1wh7d7xjmfl5ssnfhca698ufa0vvtgdkfahgdph",
           "g15qnf6turgmunhkvxrx0skvgw3apcwdp86tvnds",
-          "g1fy4cxtyuwh8dzzweawneudhrdqmaaj4xwvcflm"
+          "g1fy4cxtyuwh8dzzweawneudhrdqmaaj4xwvcflm",
+          "g1g8l8vcslktac2pgdgfrd69da5pd8v25j0a7qsf",
+          "g1q7tn3yp0aux44z6nqefdv6wx788w8dyyl60aqk",
+          "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd",
+          "g1mz6n7exysj3554qfh88sf7z0sdem8yeqful4kd",
+          "g1dqm5p6l6dp9ynm4hnp4ms3uq64szf2xv9ys2qg",
+          "g1h92t4e4jtl58rmgcjxwnpks2qhtwx6slq2l9cf"
         ],
-        "topFunc": "AddArtwork",
+        "topFunc": "Mint",
         "firstBlockHeight": 3158874,
-        "lastBlockHeight": 3160873,
+        "lastBlockHeight": 3163938,
         "lastBlockTime": "2026-08-06T18:54:36.853824834Z"
       }
     },
-    "lastHeight": 3160873
+    "lastHeight": 3163938
   },
   "bankSendActivity": {
     "addresses": [
@@ -11596,7 +11641,7 @@
     "balances": {
       "gno.land/r/gnoland/wugnot|—": {}
     },
-    "lastHeight": 3160873
+    "lastHeight": 3163938
   },
   "stats": {
     "tokenCount": 1,
@@ -11609,7 +11654,7 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 1794,
+    "whaleWatchCount": 1800,
     "popularDependencyCount": 48,
     "crossRealmEdgeCount": 30,
     "faucetDripCount": 0

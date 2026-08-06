@@ -179,6 +179,45 @@ function realmPathOnly(id) {
   return dotAfterSlash === -1 ? id : id.slice(0, dotAfterSlash);
 }
 
+// ---------- NFT collection metadata (name/symbol/count) ----------
+// GRC721 has no single canonical implementation (confirmed in
+// ~/gno-land-dev-notes.md — every project vendors its own copy or
+// writes its own), but Name()/Symbol()/TokenCount() are the de-facto
+// convention every real deployed collection checked so far exposes
+// (confirmed live against two independently-built collections:
+// gingernft and tardigrades). Each field is fetched independently with
+// its own try/catch — a collection missing one shouldn't blank out the
+// others. TokenCount() falls back to TotalSupply() (some collections
+// use ERC721Enumerable-style naming instead), same "try convention A
+// then B" pattern already used for GRC20 decimals.
+async function fetchNftCollectionMeta(net, nftRealms) {
+  await mapLimit(nftRealms, 8, async (n) => {
+    try {
+      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.Name()`);
+      const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
+      if (m) n.name = m[1];
+    } catch {
+      // leave n.name unset
+    }
+    try {
+      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.Symbol()`);
+      const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
+      if (m) n.symbol = m[1];
+    } catch {
+      // leave n.symbol unset
+    }
+    for (const fn of ["TokenCount()", "TotalSupply()"]) {
+      try {
+        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.${fn}`);
+        const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
+        if (m) { n.tokenCount = Number(m[1]); break; }
+      } catch {
+        // try the next convention
+      }
+    }
+  });
+}
+
 // ---------- token decimals ----------
 // GRC20 decimals aren't reliably exposed — some implementations expose
 // Decimals(), some GetDecimals(), some neither (confirmed directly against
@@ -1005,6 +1044,9 @@ async function buildNetwork(netKey, net) {
   nftRealms.sort((a, b) => a.path.localeCompare(b.path));
   governanceRealms.sort((a, b) => b.calls - a.calls);
   socialRealms.sort((a, b) => b.calls - a.calls);
+
+  await fetchNftCollectionMeta(net, nftRealms);
+  console.log(`nft collection metadata: ${nftRealms.filter(n => n.name).length}/${nftRealms.length} names resolved`);
 
   // Trending/active realms and DeFi(Gnoswap) both come straight from call
   // activity, unfiltered by any source-based tag — a realm doesn't need to
