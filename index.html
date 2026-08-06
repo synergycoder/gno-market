@@ -99,6 +99,14 @@
   .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
   .brand h1 { margin: 0; font-size: 1.5rem; }
   .header-controls { display: flex; align-items: center; gap: 0.5rem; }
+  .header-wallet-status {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; padding: 0.4rem 0.7rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text);
+    white-space: nowrap;
+  }
+  .header-wallet-status #headerWalletAddr { font-weight: 600; }
+  .header-wallet-status #headerWalletBalance { color: var(--text-muted); }
   .tab-link {
     background: none; border: 1px dashed var(--border); color: var(--text-muted); cursor: pointer;
     border-radius: 6px; padding: 0.45rem 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 600;
@@ -384,6 +392,10 @@
     <h1>Gno.Observer</h1>
   </div>
   <div class="header-controls">
+    <span id="headerWalletStatus" class="header-wallet-status" style="display:none" title="Connected wallet, balance on the currently selected network">
+      <span id="headerWalletAddr"></span>
+      <span id="headerWalletBalance">…</span>
+    </span>
     <span id="donateSlot"></span>
     <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
     <select id="networkSelect"></select>
@@ -979,6 +991,7 @@ select.addEventListener("change", () => {
   try { localStorage.setItem(NETWORK_STORAGE_KEY, currentKey); } catch {}
   clearAllTabData();
   loadAll(currentKey);
+  refreshHeaderWalletBalance();
 });
 
 // ---------- tabs ----------
@@ -1883,6 +1896,43 @@ async function establishAdenaConnection() {
   return accountRes.data.address;
 }
 
+// ---------- Header wallet status: always-visible "which wallet, what
+// balance, on which chain" — independent of whichever tab is open, so
+// switching networks or accounts is never a surprise mid-transaction
+// (see the InvalidPubKeyError/insufficient-fee case this was added for:
+// the connected account had no balance on the network actually being
+// signed against, which wasn't visible anywhere until you already hit
+// "send"). ----------
+let headerWalletAddress = null;
+
+function showHeaderWallet(address) {
+  headerWalletAddress = address;
+  document.getElementById("headerWalletAddr").innerHTML = truncateAddress(address);
+  document.getElementById("headerWalletStatus").style.display = "inline-flex";
+  refreshHeaderWalletBalance();
+}
+
+function hideHeaderWallet() {
+  headerWalletAddress = null;
+  document.getElementById("headerWalletStatus").style.display = "none";
+}
+
+async function refreshHeaderWalletBalance() {
+  if (!headerWalletAddress) return;
+  const balanceEl = document.getElementById("headerWalletBalance");
+  balanceEl.textContent = "…";
+  const address = headerWalletAddress;
+  try {
+    const net = NETWORKS[currentKey];
+    const ugnot = await fetchNativeBalance(net, address);
+    if (headerWalletAddress !== address) return; // stale response — account/network changed mid-fetch
+    balanceEl.textContent = `${formatGnot(ugnot)} GNOT`;
+  } catch {
+    if (headerWalletAddress !== address) return;
+    balanceEl.textContent = "balance unavailable";
+  }
+}
+
 function applyAdenaConnectedUI(address) {
   const statusEl = document.getElementById("adenaStatus");
   const btn = document.getElementById("adenaConnectBtn");
@@ -1891,6 +1941,7 @@ function applyAdenaConnectedUI(address) {
   btn.textContent = "✓ Connected";
   btn.classList.add("connected");
   btn.title = "Click to disconnect";
+  showHeaderWallet(address);
 
   if (!adenaListenerRegistered) {
     // Adena has no "off"/unsubscribe API, so this listener outlives any
@@ -1903,6 +1954,7 @@ function applyAdenaConnectedUI(address) {
       if (!document.getElementById("adenaConnectBtn").classList.contains("connected")) return;
       document.getElementById("walletInput").value = newAddress;
       statusEl.innerHTML = `Connected: ${truncateAddress(newAddress)}`;
+      showHeaderWallet(newAddress);
       scanWallet();
     });
     adenaListenerRegistered = true;
@@ -1930,6 +1982,7 @@ function disconnectAdena() {
   document.getElementById("walletTokenSection").style.display = "none";
   document.getElementById("walletNftSection").style.display = "none";
   try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
+  hideHeaderWallet();
 }
 
 async function connectAdena() {
