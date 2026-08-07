@@ -97,7 +97,14 @@
     background: var(--bg);
     padding-block: 0.9rem;
     border-bottom: 1px solid var(--border);
-    margin-bottom: -0.9rem; /* keeps the rest of the page's original spacing now that the header carries its own padding */
+    /* No negative margin-bottom here (removed) — it used to compensate
+       for the header's own padding back when the layout below it was
+       different, but a sticky element's negative margin pulls the NEXT
+       content up underneath its own box permanently, not just to save
+       whitespace once. Harmless while the header sits in normal flow,
+       but once sticky engages during scroll the header is an opaque
+       fixed overlay sitting on top of that pulled-up content — visible,
+       confirmed overlap of the "Live view of gno.land..." line. */
   }
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 0.75rem; }
@@ -516,14 +523,18 @@
      reusing their scroll-triggered show/hide JS, which isn't needed
      since this page is far shorter. */
   .scroll-top-btn {
-    /* Same trick as .site-footer's own padding calc: right: 1.2rem alone
-       anchors to the viewport edge, which drifts far from the actual
-       900px-capped content column on wide screens (out in the empty
-       margin, away from everything else on the page). This instead
-       tracks the content column's own right edge once the viewport
-       exceeds 900px, falling back to the plain viewport-edge offset
-       below that width (content fills the viewport there anyway). */
-    position: fixed; right: max(1.2rem, calc(50vw - 450px + 1.2rem));
+    /* Same trick as .site-footer's own padding calc, but corrected: the
+       previous version (right: 50vw - 450px + 1.2rem) actually pulled
+       the button 1.2rem INSIDE the content column's right edge — the
+       button's own 68px width then extended further left from there,
+       so the whole thing sat on top of table content, not "outside" it
+       as intended. This version places the button's LEFT edge 1rem past
+       the content column's right edge instead (content-right + gap),
+       expressed as a `right` offset by subtracting both the gap and the
+       button's own width. Falls back to a plain viewport-edge offset
+       once the viewport is too narrow to fit anything beside the
+       content at all (content fills the viewport there anyway). */
+    position: fixed; right: max(0.8rem, calc(50vw - 450px - 1rem - 68px));
     bottom: calc(var(--footer-height) + 0.8rem); z-index: 450;
     width: 68px; height: 68px; padding: 0; border: none; border-radius: 50%;
     background: var(--bg-elevated); box-shadow: var(--shadow); cursor: pointer;
