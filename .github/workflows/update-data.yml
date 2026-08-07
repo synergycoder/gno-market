@@ -22,13 +22,16 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # Real runs (both networks, every RPC/indexer call already has its own
-    # 15-30s timeout) finish in 1-2 minutes even on a slow day — this is
-    # a hard ceiling for whatever caused real hangs to run for hours
-    # (exact cause unconfirmed; every individual network call already has
-    # a bounded timeout, so it wasn't a single unbounded await inside the
-    # script itself — this bounds the blast radius either way).
-    timeout-minutes: 10
+    # Real runs typically finish in 1-2 minutes, but fetchWhaleWatch (the
+    # last step per network) has its own internal 8-minute soft deadline
+    # now (see build-cache.mjs) rather than being genuinely unbounded —
+    # worst case is both networks' whale-watch each hitting that deadline
+    # back to back (~17 min) plus everything else, so this needs real
+    # headroom above the old 10-minute cap, which was tight enough to
+    # get hit by legitimate (if slow) work on the very next run after
+    # it shipped. Still a massive bound down from the previous default
+    # (GitHub's own 6-hour job ceiling, hit for real more than once).
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 

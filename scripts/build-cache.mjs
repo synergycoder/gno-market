@@ -1045,7 +1045,26 @@ async function fetchGenesisBalanceAddresses(net) {
 // cached incrementally — unlike a monotonic counter, a balance can go
 // down, so a "only fetch what's missing" cache would go stale.
 async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
+  // This step runs LAST in each network's build, checks every known
+  // address's balance individually (no caching — see the comment at this
+  // function's call site), and has been observed live to occasionally
+  // stall for 7+ minutes against a growing known-address list (1773
+  // addresses on betanet, still climbing) even though every individual
+  // abciQuery call already has its own 15s timeout and a sample batch
+  // tested clean from outside CI — the exact trigger looks environment/
+  // volume-specific (this RPC endpoint's own comment elsewhere already
+  // notes it has "genuinely hung mid-query before"), not reproducible on
+  // demand. Rather than chase that further, this step now can't
+  // single-handedly blow the whole job's time budget (see the workflow's
+  // timeout-minutes): once the soft deadline passes, no NEW address
+  // checks start — already-in-flight ones still finish (bounded by their
+  // own abciQuery timeout) — and whatever's resolved by then still gets
+  // returned, so the rest of the build (and the commit/push step after
+  // it) isn't held hostage by a slow tail of this one list.
+  const deadline = Date.now() + 8 * 60 * 1000;
+  let skipped = 0;
   const results = await mapLimit([...knownAddresses], 8, async (addr) => {
+    if (Date.now() > deadline) { skipped++; return null; }
     const genesis = genesisAddresses.has(addr);
     // One retry on failure before giving up on this address. This pass
     // runs LAST in the build (after every other, now-heavier scan), so by
@@ -1067,6 +1086,7 @@ async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
       }
     }
   });
+  if (skipped > 0) console.log(`whale watch: hit the time budget, skipped ${skipped} addresses this run (will retry next run)`);
   return results.filter(Boolean).sort((a, b) => b.balance - a.balance);
 }
 
