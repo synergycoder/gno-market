@@ -40,6 +40,10 @@ const NETWORKS = {
 // see fetchFaucetDrips's own comment for the live confirmation.
 const FAUCET_ADDRESS = "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp";
 
+// See fetchGenesisBalanceAddresses's own comment — this bounds how many
+// genesis-funded addresses get individually RPC-checked for whale watch.
+const GENESIS_ADDRESS_LIMIT = 500;
+
 // Onbloc (the team behind GnoScan and Adena) publishes a curated GRC20
 // metadata registry, one JSON file per chain-id, that GnoScan's own token
 // page reads directly (confirmed by inspecting gnoscan.io/tokens' actual
@@ -1021,7 +1025,35 @@ async function fetchGenesisBalanceAddresses(net) {
     const res = await fetch(`${net.rpcUrl}/genesis`, { signal: controller.signal });
     const json = await res.json();
     const balances = json?.result?.genesis?.app_state?.balances || [];
-    return balances.map(b => b.split("=")[0]).filter(Boolean);
+    // The comment above this function was written against testnet's own
+    // genesis (19 addresses, confirmed directly) — betanet's turned out
+    // to hold 3.26 MILLION balance entries instead (confirmed live: even
+    // downloading the raw /genesis response timed out well past 200s at
+    // 80MB+ and still wasn't done). RPC-checking every single one of
+    // those individually, every 30-minute cycle, was the actual cause of
+    // the multi-hour whale-watch hangs (see fetchWhaleWatch's own
+    // comment) — millions of addresses at even a few hundred ms each is
+    // hours of work, not minutes, no matter how much concurrency or
+    // retry tuning happens downstream.
+    //
+    // Capped to the richest GENESIS_ADDRESS_LIMIT by their genesis-
+    // allocated amount — parsed straight out of this same response, no
+    // extra RPC call needed to rank them — since those are the only ones
+    // remotely plausible as an actual "whale" anyway; a mass-airdrop's
+    // long tail is almost certainly small, similarly-sized dust. Each
+    // surviving address still gets a real, live RPC balance check
+    // downstream in fetchWhaleWatch, same as every other known address —
+    // this only bounds how many are ever considered, not how accurately
+    // the survivors are reported.
+    const parsed = balances
+      .map(b => {
+        const [addr, amountStr] = b.split("=");
+        const m = /^(\d+)ugnot$/.exec(amountStr || "");
+        return addr && m ? { addr, amount: Number(m[1]) } : null;
+      })
+      .filter(Boolean);
+    parsed.sort((a, b) => b.amount - a.amount);
+    return parsed.slice(0, GENESIS_ADDRESS_LIMIT).map(p => p.addr);
   } catch {
     return []; // non-critical enrichment — a failure here shouldn't fail the whole build
   } finally {
