@@ -197,6 +197,7 @@
   .token-inline { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
   .wallet-token-logo { width: 28px; height: 28px; }
   .wallet-balance-value { font-size: 1.15rem; font-weight: 600; }
+  .wallet-native-balance { font-size: 1.6rem; font-weight: 700; }
   .nft-gallery-collection { margin-top: 1.4rem; }
   .nft-gallery-collection h4 { margin: 0 0 0.5rem; }
   .nft-card-grid {
@@ -276,11 +277,14 @@
     padding: 1rem 1.2rem; background: var(--border-soft); border-radius: 6px;
     margin: 0.5rem; font-size: 0.92rem;
     overflow-x: auto;
-    /* max-width anchors to the viewport, not the parent <td> — a table
-       cell's width is content-driven, so capping against it is circular.
-       Combined with white-space: nowrap below, this makes the box (not
-       the page) scroll once content runs wider than it. */
-    max-width: calc(100vw - 4rem);
+    /* max-width anchors to the page's own reading column (body's 900px
+       cap, line 81 — kept in sync manually), not the parent <td> — a
+       table cell's width is content-driven, so capping against it is
+       circular, and capping against 100vw overshoots on any screen wider
+       than the page itself. Combined with white-space: nowrap below,
+       this makes the box (not the page) scroll once content runs wider
+       than the page's own content column, without ever bleeding past it. */
+    max-width: min(calc(900px - 4rem), calc(100vw - 4rem));
     box-sizing: border-box;
   }
   .preview h3, .preview h4, .preview h5, .preview p, .preview li { white-space: nowrap; }
@@ -314,6 +318,18 @@
   .subtab:hover { color: var(--text); }
   .subtab.active { color: var(--accent-2); border-bottom-color: var(--accent-2); font-weight: 600; }
   .subtab-panel { padding-top: 1rem; }
+  .history-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.8rem 0; }
+  .history-filter-pill {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--text);
+    cursor: pointer; font-size: 0.85rem; user-select: none;
+  }
+  .history-filter-pill input { margin: 0; accent-color: var(--accent-2); }
+  .history-filter-pill.active { border-color: var(--accent-2); color: var(--accent-2); }
+  .history-type-badge {
+    display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.78rem;
+    background: var(--border-soft); white-space: nowrap;
+  }
 
   .stat-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -555,30 +571,54 @@
   <p id="adenaStatus" class="status"></p>
   <p id="walletStatus" class="status"></p>
 
-  <div id="walletNativeSection" style="display:none">
-    <h3>Native balance</h3>
-    <p class="status">GNOT is the chain's native token (like ETH or ATOM) — held directly on the
-      account, not through a GRC20 realm, so it's checked separately from everything below.</p>
-    <p id="walletNativeAmount"></p>
+  <div class="subtabs" role="tablist">
+    <button class="subtab active" data-subtab="wallet-holdings" role="tab">Current Holdings</button>
+    <button class="subtab" data-subtab="wallet-history" role="tab">History</button>
   </div>
 
-  <div id="walletTokenSection" style="display:none">
-    <h3>Fungible token holdings</h3>
-    <table id="walletTokenTable">
-      <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Balance</th><th>Realm</th></tr></thead>
-      <tbody id="walletTokenBody"></tbody>
-    </table>
+  <div class="subtab-panel" id="subpanel-wallet-holdings">
+    <div id="walletNativeSection" style="display:none">
+      <h3>Native balance</h3>
+      <p class="status">GNOT is the chain's native token (like ETH or ATOM) — held directly on the
+        account, not through a GRC20 realm, so it's checked separately from everything below.</p>
+      <p id="walletNativeAmount"></p>
+    </div>
+
+    <div id="walletTokenSection" style="display:none">
+      <h3>Fungible token holdings</h3>
+      <table id="walletTokenTable">
+        <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Balance</th><th>Realm</th></tr></thead>
+        <tbody id="walletTokenBody"></tbody>
+      </table>
+    </div>
+
+    <div id="walletNftSection" style="display:none">
+      <h3>NFT holdings</h3>
+      <table id="walletNftTable">
+        <thead><tr><th>Collection</th><th>Standard</th><th>Count</th><th>Token IDs</th></tr></thead>
+        <tbody id="walletNftBody"></tbody>
+      </table>
+      <div id="walletNftGallery"></div>
+    </div>
+    <p class="status">Click any result row to preview that realm's Render() output.</p>
   </div>
 
-  <div id="walletNftSection" style="display:none">
-    <h3>NFT holdings</h3>
-    <table id="walletNftTable">
-      <thead><tr><th>Collection</th><th>Standard</th><th>Count</th><th>Token IDs</th></tr></thead>
-      <tbody id="walletNftBody"></tbody>
+  <div class="subtab-panel" id="subpanel-wallet-history" hidden>
+    <p class="status">Every on-chain transaction involving the address above — sent, received, or
+      triggered by it — read live from the indexer (not precomputed, since this is specific to
+      whatever address you enter). Betanet's indexer doesn't allow direct browser requests (no
+      CORS headers, unlike testnet's), so this only works live on testnet; betanet will show an
+      explanation instead of results.</p>
+    <div class="wallet-form">
+      <button id="walletHistoryLoadBtn">Load history</button>
+    </div>
+    <div id="walletHistoryFilters" class="history-filters" style="display:none"></div>
+    <p id="walletHistoryStatus" class="status"></p>
+    <table id="walletHistoryTable" style="display:none">
+      <thead><tr><th>Time</th><th>Type</th><th>Details</th><th>Tx</th></tr></thead>
+      <tbody id="walletHistoryBody"></tbody>
     </table>
-    <div id="walletNftGallery"></div>
   </div>
-  <p class="status">Click any result row to preview that realm's Render() output.</p>
 </div>
 
 <div class="tab-panel" id="panel-trending" hidden>
@@ -2007,8 +2047,9 @@ async function scanWallet() {
 
     const nativeSection = document.getElementById("walletNativeSection");
     if (nativeResult != null) {
-      document.getElementById("walletNativeAmount").textContent =
-        `${formatGnot(nativeResult)} GNOT (${nativeResult.toLocaleString()} ugnot)`;
+      document.getElementById("walletNativeAmount").innerHTML =
+        `<span class="wallet-native-balance">${formatGnot(nativeResult)} GNOT</span> ` +
+        `<span class="status">(${nativeResult.toLocaleString()} ugnot)</span>`;
       nativeSection.style.display = "block";
     }
 
@@ -2094,6 +2135,15 @@ document.getElementById("walletTokenBody").addEventListener("click", (e) => {
 document.getElementById("walletNftBody").addEventListener("click", (e) => {
   const row = e.target.closest("tr.clickable");
   if (row) togglePreview(row);
+});
+
+document.querySelectorAll("#panel-wallet .subtab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#panel-wallet .subtab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#panel-wallet .subtab-panel").forEach(p => { p.hidden = true; });
+    btn.classList.add("active");
+    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
+  });
 });
 
 // ---------- Adena wallet connect ----------
