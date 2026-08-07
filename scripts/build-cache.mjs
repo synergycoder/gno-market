@@ -409,6 +409,20 @@ async function fetchTokenDecimals(net, tokenPaths, prevDecimals, registryDecimal
 
 // ---------- NFT standard detection: identical rules to index.html ----------
 
+// Bump this whenever STANDARD_MARKERS/GOVERNANCE_MARKERS/SOCIAL_MARKERS'
+// matching LOGIC changes (not just their cache's shape) — both
+// fetchDeployedPackages and fetchGenesisStandards re-fetch and re-classify
+// any already-known realm whose stored detectionVersion doesn't match this,
+// one time, rather than only ever classifying a realm once at first
+// discovery and carrying that verdict forward forever. Confirmed live: a
+// widened Social heuristic (matching gnochat's Create+Post-shaped functions
+// instead of a fixed name list) had zero effect on gnochat specifically
+// after shipping, because it had already been classified under the old
+// logic — the genesis-realm path's own existing "self-healing" check only
+// re-triggers on a cache SHAPE change (old bare-string vs new object), and
+// the tx-deployed path had no re-classification mechanism at all.
+const DETECTION_VERSION = 2;
+
 const STANDARD_MARKERS = [
   { std: "GRC721", mentionRe: /grc721/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(Mint|OwnerOf|TokenURI|SafeTransferFrom)\s*\(/ },
   { std: "GRC1155", mentionRe: /grc1155/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(Mint|BalanceOf|URI|SafeTransferFrom|SafeBatchTransferFrom)\s*\(/ },
@@ -531,9 +545,42 @@ async function fetchDeployedPackages(net, prevState) {
         standard: isRealm ? detectStandard(files) : null,
         governance: isRealm ? matchesAnyMarker(files, GOVERNANCE_MARKERS) : false,
         social: isRealm ? matchesAnyMarker(files, SOCIAL_MARKERS) : false,
+        detectionVersion: DETECTION_VERSION,
       };
       if (tx.block_height > newHeight) newHeight = tx.block_height;
     }
+  }
+
+  // Re-classify any already-known realm left behind by an older
+  // DETECTION_VERSION (see that constant's own comment) — the source
+  // files aren't sitting in memory from whenever this package was
+  // originally discovered, so this re-fetches them via vm/qfile, same as
+  // the genesis-only path's own equivalent backfill just below.
+  const toReclassify = Object.values(packages).filter(p =>
+    p.path.startsWith("gno.land/r/") && p.detectionVersion !== DETECTION_VERSION
+  );
+  if (toReclassify.length > 0) {
+    await mapLimit(toReclassify, 8, async (pkg) => {
+      try {
+        const listing = await abciQuery(net.rpcUrl, "vm/qfile", pkg.path);
+        const filenames = (listing || "").split("\n").map(s => s.trim())
+          .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
+        const files = await mapLimit(filenames, 4, async (name) => {
+          try {
+            return { name, body: (await abciQuery(net.rpcUrl, "vm/qfile", `${pkg.path}/${name}`)) || "" };
+          } catch {
+            return { name, body: "" };
+          }
+        });
+        pkg.standard = detectStandard(files);
+        pkg.governance = matchesAnyMarker(files, GOVERNANCE_MARKERS);
+        pkg.social = matchesAnyMarker(files, SOCIAL_MARKERS);
+        pkg.detectionVersion = DETECTION_VERSION;
+      } catch {
+        // leave this one's classification as-is and try again next run —
+        // don't let one flaky fetch discard an otherwise-valid verdict
+      }
+    });
   }
 
   // Transaction has no timestamp field on this indexer — only Block does —
@@ -816,11 +863,16 @@ async function fetchBankSendAddresses(net, prevState) {
 async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
   const genesisOnly = allRealms.filter(p => !txPaths.has(p));
   const known = { ...(prevGenesis || {}) };
-  // Also re-fetch anything left in the old (pre-governance/social) cache
-  // shape, where a path's value was a bare standard string or null instead
-  // of {standard, governance, social} — a one-time self-healing migration,
-  // cheap since the genesis-only set is small (tens of realms, not hundreds).
-  const toFetch = genesisOnly.filter(p => !(p in known) || known[p] === null || typeof known[p] !== "object");
+  // Re-fetch anything left in the old (pre-governance/social) cache shape
+  // (a bare standard string or null instead of {standard, governance,
+  // social}), OR anything classified under an older DETECTION_VERSION (see
+  // that constant's own comment — this is what actually keeps a realm's
+  // classification current when the matching LOGIC changes, not just its
+  // cache's shape) — cheap either way since the genesis-only set is small
+  // (tens of realms, not hundreds).
+  const toFetch = genesisOnly.filter(p =>
+    !(p in known) || known[p] === null || typeof known[p] !== "object" || known[p].detectionVersion !== DETECTION_VERSION
+  );
 
   if (toFetch.length > 0) {
     await mapLimit(toFetch, 8, async (p) => {
@@ -844,9 +896,10 @@ async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
           standard: detectStandard(files),
           governance: matchesAnyMarker(files, GOVERNANCE_MARKERS),
           social: matchesAnyMarker(files, SOCIAL_MARKERS),
+          detectionVersion: DETECTION_VERSION,
         };
       } catch {
-        known[p] = { standard: null, governance: false, social: false }; // unreadable, treat as no match rather than retry forever
+        known[p] = { standard: null, governance: false, social: false, detectionVersion: DETECTION_VERSION }; // unreadable, treat as no match rather than retry forever
       }
     });
   }
