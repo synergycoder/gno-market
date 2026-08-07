@@ -40,6 +40,7 @@
     --badge-bg: rgba(217,122,82,0.16);
     --badge-text: #eba989;
     --success: #5fae72;
+    --warning: #f0ac3f; --warning-bg: rgba(240,172,63,0.1); --warning-border: rgba(240,172,63,0.4);
     --shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
   @media (prefers-color-scheme: light) {
@@ -51,6 +52,7 @@
       --text: #211d19; --text-muted: #6b6560;
       --badge-bg: rgba(194,90,52,0.12); --badge-text: #a8471f;
       --success: #2f8145;
+      --warning: #9a5b00; --warning-bg: rgba(180,110,0,0.1); --warning-border: rgba(180,110,0,0.45);
       --shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
   }
@@ -62,6 +64,7 @@
     --text: #211d19; --text-muted: #6b6560;
     --badge-bg: rgba(194,90,52,0.12); --badge-text: #a8471f;
     --success: #2f8145;
+    --warning: #9a5b00; --warning-bg: rgba(180,110,0,0.1); --warning-border: rgba(180,110,0,0.45);
     --shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   :root[data-theme="dark"] {
@@ -72,6 +75,7 @@
     --text: #eae7e2; --text-muted: #9c9791;
     --badge-bg: rgba(217,122,82,0.16); --badge-text: #eba989;
     --success: #5fae72;
+    --warning: #f0ac3f; --warning-bg: rgba(240,172,63,0.1); --warning-border: rgba(240,172,63,0.4);
     --shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
 
@@ -152,6 +156,12 @@
   }
   .sub { color: var(--text-muted); margin: 0.2rem 0 0; }
   .status { color: var(--text-muted); font-size: 0.9rem; }
+  .status-alert {
+    display: block; color: var(--warning); background: var(--warning-bg);
+    border: 1px solid var(--warning-border); border-radius: 6px;
+    padding: 0.6rem 0.9rem; font-weight: 500;
+  }
+  .status-alert::before { content: "⚠️ "; }
   a { color: var(--accent-2); }
 
   table {
@@ -1083,9 +1093,26 @@ function clearAllTabData() {
   for (const id of ["walletNativeSection", "walletTokenSection", "walletNftSection"]) {
     document.getElementById(id).style.display = "none";
   }
+  document.getElementById("walletNftGallery").innerHTML = "";
+  clearStatusAlert(document.getElementById("walletStatus"));
   document.getElementById("walletStatus").textContent = "";
   swapRows = [];
   whaleRows = [];
+
+  // The History sub-tab is per-address, live-queried, and didn't exist
+  // when this function was first written — a network switch left its
+  // previous chain's rows on screen indefinitely (nothing else here ever
+  // touched it), same bug this whole function exists to prevent
+  // elsewhere. Reset it the same way as everything above.
+  walletHistoryRows = [];
+  document.getElementById("walletHistoryBody").innerHTML = "";
+  document.getElementById("walletHistoryTable").style.display = "none";
+  document.getElementById("walletHistoryFilters").style.display = "none";
+  document.getElementById("walletHistoryFilters").innerHTML = "";
+  const historyStatusEl = document.getElementById("walletHistoryStatus");
+  historyStatusEl.dataset.baseNote = "";
+  clearStatusAlert(historyStatusEl);
+  historyStatusEl.textContent = "";
 }
 
 select.addEventListener("change", () => {
@@ -1336,6 +1363,7 @@ async function loadTokens(net, netKey, forceLive = false) {
   if (tokensInFlight) return;
   tokensInFlight = true;
   const statusEl = document.getElementById("tokenStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = forceLive ? null : await getCachedData(netKey);
@@ -1365,7 +1393,7 @@ async function loadTokens(net, netKey, forceLive = false) {
     statusEl.textContent = `${rows.length} token${rows.length === 1 ? "" : "s"} registered.` +
       (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   } finally {
     tokensInFlight = false;
   }
@@ -1653,7 +1681,7 @@ async function loadNfts(net, netKey, forceLive = false) {
       `(${txStandards.size} from transaction history${scannedCount > 0 ? `, ${scannedCount} new this visit` : ""}, ` +
       `${genesisOnly.length} from genesis).` + (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   } finally {
     nftsInFlight = false;
   }
@@ -1742,6 +1770,7 @@ async function loadRecentlyDeployed(net, netKey, forceLive = false) {
   if (newFeedInFlight) return;
   newFeedInFlight = true;
   const statusEl = document.getElementById("newStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = forceLive ? null : await getCachedData(netKey);
@@ -1764,7 +1793,7 @@ async function loadRecentlyDeployed(net, netKey, forceLive = false) {
         (newFeedRows.length > shownCount ? ` — showing the most recent ${shownCount}` : "") + "."
       : "No package deployments found in transaction history yet.") + (forceLive ? " (live, just fetched)" : "");
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   } finally {
     newFeedInFlight = false;
   }
@@ -2003,11 +2032,11 @@ async function scanWallet() {
   const nftSection = document.getElementById("walletNftSection");
 
   if (!isPlausibleGnoAddress(address)) {
-    statusEl.textContent = 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).';
+    setStatusAlert(statusEl, 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).');
     return;
   }
   if (currentTokens.length === 0 && currentNfts.length === 0) {
-    statusEl.textContent = "The token/NFT lists haven't finished loading yet — check the other two tabs first, then try again.";
+    setStatusAlert(statusEl, "The token/NFT lists haven't finished loading yet — check the other two tabs first, then try again.");
     return;
   }
 
@@ -2019,6 +2048,7 @@ async function scanWallet() {
   tokenSection.style.display = "none";
   nftSection.style.display = "none";
   document.getElementById("walletNftGallery").innerHTML = "";
+  clearStatusAlert(statusEl);
   statusEl.textContent = `Checking native balance, ${currentTokens.length} tokens, and ${currentNfts.length} NFT collections…`;
 
   const net = NETWORKS[currentKey];
@@ -2109,7 +2139,7 @@ async function scanWallet() {
       // per-token metadata fetch (vm/qeval, RPC) would work fine on its
       // own. Without this, the gallery just silently showed nothing.
       document.getElementById("walletNftGallery").innerHTML =
-        `<p class="status">Individual NFTs held couldn't be listed — betanet's indexer doesn't allow ` +
+        `<p class="status status-alert">Individual NFTs held couldn't be listed — betanet's indexer doesn't allow ` +
         `direct browser requests (no CORS headers), unlike testnet's. The collection-level counts above ` +
         `still work; this only affects per-token detail on betanet.</p>`;
     } else {
@@ -2126,7 +2156,7 @@ async function scanWallet() {
     }
     statusEl.textContent = summary;
   } catch (err) {
-    statusEl.textContent = "Scan failed: " + err.message;
+    setStatusAlert(statusEl, "Scan failed: " + err.message);
   } finally {
     walletScanInFlight = false;
     btn.disabled = false;
@@ -2363,15 +2393,18 @@ function renderWalletHistoryRows() {
   }).join("");
   document.getElementById("walletHistoryTable").style.display = rows.length ? "table" : "none";
   const statusEl = document.getElementById("walletHistoryStatus");
+  let text;
   if (!walletHistoryRows.length) {
-    statusEl.textContent = statusEl.dataset.baseNote || "No transactions found for this address.";
+    text = statusEl.dataset.baseNote || "No transactions found for this address.";
   } else {
-    statusEl.textContent = rows.length
+    text = rows.length
       ? `${rows.length} transaction${rows.length === 1 ? "" : "s"} match the selected filters` +
         (rows.length > shown.length ? ` — showing the most recent ${shown.length}` : "") + "." +
         (statusEl.dataset.baseNote ? ` ${statusEl.dataset.baseNote}` : "")
       : `No transactions match the selected filters.${statusEl.dataset.baseNote ? " " + statusEl.dataset.baseNote : ""}`;
   }
+  if (statusEl.dataset.baseNote) setStatusAlert(statusEl, text);
+  else { clearStatusAlert(statusEl); statusEl.textContent = text; }
 }
 
 async function loadWalletHistory() {
@@ -2380,7 +2413,7 @@ async function loadWalletHistory() {
   const statusEl = document.getElementById("walletHistoryStatus");
   const btn = document.getElementById("walletHistoryLoadBtn");
   if (!isPlausibleGnoAddress(address)) {
-    statusEl.textContent = 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).';
+    setStatusAlert(statusEl, 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).');
     return;
   }
 
@@ -2389,6 +2422,7 @@ async function loadWalletHistory() {
   const originalLabel = btn.textContent;
   btn.innerHTML = '<span class="spinner"></span>Loading…';
   statusEl.dataset.baseNote = "";
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Checking realm deploys and Gnoswap swaps, then querying the indexer for transfers, mints, and native sends…";
   document.getElementById("walletHistoryFilters").style.display = "none";
   document.getElementById("walletHistoryTable").style.display = "none";
@@ -2443,7 +2477,7 @@ async function loadWalletHistory() {
     renderWalletHistoryRows();
   } catch (err) {
     statusEl.dataset.baseNote = "";
-    statusEl.textContent = "Failed to load history: " + err.message;
+    setStatusAlert(statusEl, "Failed to load history: " + err.message);
   } finally {
     walletHistoryInFlight = false;
     btn.disabled = false;
@@ -2626,11 +2660,12 @@ async function connectAdena() {
     btn.classList.remove("connected");
     btn.innerHTML = '<span class="spinner"></span>Connecting…';
   });
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Connecting to Adena…";
   try {
     applyAdenaConnectedUI(await establishAdenaConnection());
   } catch (err) {
-    statusEl.textContent = "Adena connection failed: " + err.message;
+    setStatusAlert(statusEl, "Adena connection failed: " + err.message);
     adenaConnectBtns().forEach(btn => { btn.textContent = "Connect Adena"; btn.classList.remove("connected"); });
     try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
   } finally {
@@ -2760,6 +2795,7 @@ async function sendSuggestion() {
   suggestionSendInFlight = true;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Waiting for Adena…';
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Connecting to Adena and requesting your signature…";
   try {
     const address = await ensureAdenaConnected();
@@ -2770,7 +2806,7 @@ async function sendSuggestion() {
     document.getElementById("suggestionCharCount").textContent = "0 / 200";
     setTimeout(loadSuggestions, 4000);
   } catch (err) {
-    statusEl.textContent = "Failed: " + err.message;
+    setStatusAlert(statusEl, "Failed: " + err.message);
   } finally {
     suggestionSendInFlight = false;
     btn.disabled = false;
@@ -2785,13 +2821,14 @@ async function sendVote(hash, btn) {
   const statusEl = document.getElementById("suggestionsStatus");
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
+  clearStatusAlert(statusEl);
   try {
     const address = await ensureAdenaConnected();
     await signMemoTx(address, VOTE_MEMO_PREFIX + hash);
     statusEl.textContent = "Vote submitted! Refreshing…";
     setTimeout(loadSuggestions, 4000);
   } catch (err) {
-    statusEl.textContent = "Vote failed: " + err.message;
+    setStatusAlert(statusEl, "Vote failed: " + err.message);
     btn.disabled = false;
     btn.innerHTML = originalHTML;
   } finally {
@@ -2803,6 +2840,7 @@ async function loadSuggestions() {
   if (suggestionsInFlight) return;
   suggestionsInFlight = true;
   const statusEl = document.getElementById("suggestionsStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const net = NETWORKS.testnet; // suggestions always live on testnet
@@ -2857,7 +2895,7 @@ async function loadSuggestions() {
       ? `${rows.length} suggestion${rows.length === 1 ? "" : "s"}.`
       : "No suggestions yet — be the first.";
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   } finally {
     suggestionsInFlight = false;
   }
@@ -2921,7 +2959,8 @@ async function togglePreview(row) {
     const markdown = await abciQuery(net, "vm/qrender", path + ":");
     td.querySelector(".preview").innerHTML = mdToHtmlSafe(markdown || "*(empty render)*");
   } catch (err) {
-    td.querySelector(".preview").textContent = "Failed to load render: " + err.message;
+    td.querySelector(".preview").innerHTML =
+      `<p class="status status-alert">Failed to load render: ${escapeHtml(err.message)}</p>`;
   }
 }
 
@@ -2947,6 +2986,19 @@ document.getElementById("newBody").addEventListener("click", (e) => {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// A .status element normally just carries muted informational text —
+// this flags it as something gone wrong (failed load, blocked request)
+// with a visibly distinct warning box instead of text indistinguishable
+// from routine "Loading…" copy. Declared early since function
+// declarations hoist; called from status-update code throughout the file.
+function setStatusAlert(el, message) {
+  el.textContent = message;
+  el.classList.add("status-alert");
+}
+function clearStatusAlert(el) {
+  el.classList.remove("status-alert");
 }
 
 // Long realm paths / bech32 addresses were forcing the What's New table
@@ -3128,6 +3180,7 @@ for (const t of ACTIVITY_TABS) {
 
 async function loadActivityTab(netKey, tabKey, cacheField, label) {
   const statusEl = document.getElementById(`${tabKey}Status`);
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = await getCachedData(netKey);
@@ -3142,7 +3195,7 @@ async function loadActivityTab(netKey, tabKey, cacheField, label) {
     const count = cached[cacheField].length;
     statusEl.textContent = `${count} ${label}${count === 1 ? "" : "s"}. ` + cacheAgeNote(cached.generatedAt);
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   }
 }
 
@@ -3298,6 +3351,7 @@ function setSwapTokenFilter(tokenPath) {
 
 async function loadSwaps(netKey) {
   const statusEl = document.getElementById("swapsStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = await getCachedData(netKey);
@@ -3324,7 +3378,7 @@ async function loadSwaps(netKey) {
 
     renderSwaps();
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   }
 }
 
@@ -3474,6 +3528,7 @@ document.querySelectorAll("#whalesTable th.sortable").forEach(th => {
 
 async function loadWhaleWatch(netKey) {
   const statusEl = document.getElementById("whalesStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = await getCachedData(netKey);
@@ -3488,7 +3543,7 @@ async function loadWhaleWatch(netKey) {
     statusEl.textContent = `${whaleRows.length} known address${whaleRows.length === 1 ? "" : "es"} checked. ` +
       cacheAgeNote(cached.generatedAt);
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   }
 }
 
@@ -3539,6 +3594,7 @@ document.querySelectorAll("#faucetTable th.sortable").forEach(th => {
 
 async function loadFaucetDrips(netKey) {
   const statusEl = document.getElementById("faucetStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const cached = await getCachedData(netKey);
@@ -3556,7 +3612,7 @@ async function loadFaucetDrips(netKey) {
     statusEl.textContent = `${faucetRows.length} drip${faucetRows.length === 1 ? "" : "s"} found. ` +
       cacheAgeNote(cached.generatedAt);
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   }
 }
 
@@ -3682,8 +3738,8 @@ document.getElementById("snapshotCopyBtn").addEventListener("click", () => {
   const statusEl = document.getElementById("snapshotCopyStatus");
   if (!addrs.length) { statusEl.textContent = "Nothing selected yet."; return; }
   navigator.clipboard.writeText(addrs.join("\n"))
-    .then(() => { statusEl.textContent = `Copied ${addrs.length} address${addrs.length === 1 ? "" : "es"} to the clipboard.`; })
-    .catch(() => { statusEl.textContent = "Couldn't copy — your browser may be blocking clipboard access."; });
+    .then(() => { clearStatusAlert(statusEl); statusEl.textContent = `Copied ${addrs.length} address${addrs.length === 1 ? "" : "es"} to the clipboard.`; })
+    .catch(() => { setStatusAlert(statusEl, "Couldn't copy — your browser may be blocking clipboard access."); });
 });
 
 document.getElementById("snapshotCsvBtn").addEventListener("click", () => {
@@ -3776,6 +3832,8 @@ function renderDepsGraph(edges) {
 async function loadDependencies(netKey) {
   const popularStatusEl = document.getElementById("depsPopularStatus");
   const graphStatusEl = document.getElementById("depsGraphStatus");
+  clearStatusAlert(popularStatusEl);
+  clearStatusAlert(graphStatusEl);
   popularStatusEl.textContent = "Loading…";
   graphStatusEl.textContent = "Loading…";
   try {
@@ -3799,8 +3857,8 @@ async function loadDependencies(netKey) {
       ? `${edges.length} realm-to-realm import edge${edges.length === 1 ? "" : "s"} found. ` + cacheAgeNote(cached.generatedAt)
       : "No realm-to-realm imports found (most gno.land code reuse happens via shared p/ packages, not realm-to-realm imports).";
   } catch (err) {
-    popularStatusEl.textContent = "Failed to load: " + err.message;
-    graphStatusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(popularStatusEl, "Failed to load: " + err.message);
+    setStatusAlert(graphStatusEl, "Failed to load: " + err.message);
   }
 }
 
@@ -3975,6 +4033,7 @@ document.getElementById("dashboardStats").addEventListener("keydown", (e) => {
 
 async function loadDashboard(netKey) {
   const statusEl = document.getElementById("dashboardStatus");
+  clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
     const net = NETWORKS[netKey];
@@ -4026,7 +4085,7 @@ async function loadDashboard(netKey) {
 
     statusEl.textContent = cacheAgeNote(cached.generatedAt);
   } catch (err) {
-    statusEl.textContent = "Failed to load: " + err.message;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
   }
 }
 
