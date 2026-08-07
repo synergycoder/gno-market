@@ -816,8 +816,12 @@
   <h2>💬 Social Realm Activity</h2>
   <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Best-effort detection, not a guarantee: a realm is flagged here if its source mentions
     "board"/"blog"/"social" <strong>and</strong> defines a thread/post/reply-style function (e.g.
-    <code>CreateThread</code>, <code>CreatePost</code>, <code>CreateBoard</code>). Misses realms using
-    different naming for the same idea.</span><button class="text-collapsible-toggle" type="button">More</button></p>
+    <code>CreateThread</code>, <code>CreatePost</code>, <code>CreateBoard</code>) — or, independently, if it
+    defines something that creates a discussion space (a channel/board/thread/room/group) together with
+    something that posts content into one (a message/post/comment/reply), regardless of exact naming or
+    whether those specific words appear anywhere (added after a real chat realm using
+    <code>CreateChannel</code>/<code>PostMessage</code> was found slipping through both checks above).
+    Still misses realms using different structural patterns entirely.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="socialStatus" class="status">Loading…</p>
   <table id="socialTable" style="display:none">
     <thead><tr>

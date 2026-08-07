@@ -431,11 +431,29 @@ const GOVERNANCE_MARKERS = [
 ];
 const SOCIAL_MARKERS = [
   { mentionRe: /board|blog|social/i, funcRe: /func\s+(?:\([^)]*\)\s*)?(CreateThread|CreatePost|CreateReply|CreateBoard|Comment|NewPost)\s*\(/ },
+  // Structural fallback, no keyword mention required: confirmed live
+  // against a real chat realm (gno.land/r/.../gnochat) that the marker
+  // above completely misses — its functions are CreateChannel/
+  // PostMessage/JoinChannel, and neither "board", "blog", nor "social"
+  // appears anywhere in its source (checked the full text, not just
+  // signatures). A fixed vocabulary of exact function names will always
+  // be one naming choice behind whatever the next realm calls its own
+  // primitives, so this looks for the SHAPE instead: something that
+  // creates a discussion space (channel/board/thread/room/group)
+  // together with something that adds content into one (post/send/add a
+  // message/post/comment/reply) — both are still function-name
+  // patterns, just permissive ones, not a single fixed list.
+  {
+    funcRe: /func\s+(?:\([^)]*\)\s*)?(Create|New)(Channel|Board|Thread|Room|Group)\s*\(/,
+    funcRe2: /func\s+(?:\([^)]*\)\s*)?(Post|Send|Create|New|Add)(Message|Post|Comment|Reply)\s*\(/,
+  },
 ];
 
 function matchesAnyMarker(files, markers) {
   const combined = files.map(f => f.body).join("\n");
-  return markers.some(m => m.mentionRe.test(combined) && m.funcRe.test(combined));
+  return markers.some(m => m.funcRe2
+    ? m.funcRe.test(combined) && m.funcRe2.test(combined)
+    : m.mentionRe.test(combined) && m.funcRe.test(combined));
 }
 
 // Gno's "filetest" format (single file combining setup + expected output)
