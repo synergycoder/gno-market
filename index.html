@@ -101,7 +101,7 @@
   }
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 0.75rem; }
-  .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
+  .brand .logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
   .brand h1 { margin: 0; font-size: 1.5rem; }
   .header-controls { display: flex; align-items: center; gap: 0.5rem; }
   .header-wallet-status {
@@ -516,8 +516,16 @@
      reusing their scroll-triggered show/hide JS, which isn't needed
      since this page is far shorter. */
   .scroll-top-btn {
-    position: fixed; right: 1.2rem; bottom: calc(var(--footer-height) + 0.8rem); z-index: 450;
-    width: 56px; height: 56px; padding: 0; border: none; border-radius: 50%;
+    /* Same trick as .site-footer's own padding calc: right: 1.2rem alone
+       anchors to the viewport edge, which drifts far from the actual
+       900px-capped content column on wide screens (out in the empty
+       margin, away from everything else on the page). This instead
+       tracks the content column's own right edge once the viewport
+       exceeds 900px, falling back to the plain viewport-edge offset
+       below that width (content fills the viewport there anyway). */
+    position: fixed; right: max(1.2rem, calc(50vw - 450px + 1.2rem));
+    bottom: calc(var(--footer-height) + 0.8rem); z-index: 450;
+    width: 68px; height: 68px; padding: 0; border: none; border-radius: 50%;
     background: var(--bg-elevated); box-shadow: var(--shadow); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transform: translateY(8px);
@@ -527,7 +535,7 @@
   .scroll-top-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
   .scroll-top-btn img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
   @media (max-width: 480px) {
-    .scroll-top-btn { width: 44px; height: 44px; right: 0.8rem; }
+    .scroll-top-btn { width: 52px; height: 52px; right: 0.8rem; }
   }
 </style>
 </head>
