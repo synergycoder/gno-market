@@ -254,13 +254,19 @@
   .preview {
     padding: 1rem 1.2rem; background: var(--border-soft); border-radius: 6px;
     margin: 0.5rem; font-size: 0.92rem;
-    overflow-x: auto; /* wide content (long unbroken strings, code, tables) scrolls within its own box instead of cramping/wrapping or clipping */
+    overflow-x: auto;
+    /* max-width anchors to the viewport, not the parent <td> — a table
+       cell's width is content-driven, so capping against it is circular.
+       Combined with white-space: nowrap below, this makes the box (not
+       the page) scroll once content runs wider than it. */
+    max-width: calc(100vw - 4rem);
+    box-sizing: border-box;
   }
+  .preview h3, .preview h4, .preview h5, .preview p, .preview li { white-space: nowrap; }
   .preview h3, .preview h4, .preview h5 { margin: 0.6rem 0 0.3rem; }
   .preview p { margin: 0.4rem 0; }
   .preview ul { margin: 0.4rem 0; padding-left: 1.2rem; }
-  .preview pre { overflow-x: auto; }
-  .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; white-space: pre; }
+  .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; }
   code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
 
   .tabs {
