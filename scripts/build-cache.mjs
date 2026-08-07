@@ -218,6 +218,99 @@ async function fetchNftCollectionMeta(net, nftRealms) {
   });
 }
 
+// ---------- NFT collection representative image ----------
+// No external image registry exists for NFT collections (unlike GRC20's
+// onbloc/gno-token-resource, whose own directory listing has no grc721
+// equivalent — checked directly). Falls back to the collection's own
+// first-ever-minted token's own image, handled purely as an opaque
+// string end to end: the on-chain metadata's `image` field (itself
+// commonly a data: URI with the image bytes already base64-encoded
+// on-chain — confirmed live against a real deployed collection) is read
+// as text and passed straight through to the client's own <img src>,
+// the same way GRC20 logos are already just URL strings relayed
+// untouched. This script never decodes or inspects the image bytes
+// themselves — Buffer.from(...).toString() below is decoding the OUTER
+// JSON metadata text, not the image payload nested inside it.
+//
+// Written to a SEPARATE file (${netKey}-nft-images.json), not the main
+// data/${netKey}.json — a single collection's image can be 100KB+ (one
+// real example measured at ~126KB), and data/${netKey}.json was just
+// cut roughly in half by moving unrelated build-internal state out of
+// it (see the internal-state-split commit). Bundling images into every
+// visitor's page-load payload would undo that. The client fetches this
+// file lazily, only when the NFT Collections tab is actually opened.
+async function fetchFirstMintedTokenId(net, collectionPath) {
+  const query = `
+    query {
+      getTransactions(where: {
+        success: { eq: true },
+        messages: { value: { MsgCall: { pkg_path: { eq: "${collectionPath}" } } } }
+      }) {
+        block_height
+        response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+      }
+    }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 30000);
+  let earliest = null;
+  for (const tx of data.getTransactions || []) {
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent" || ev.type !== "Mint") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (!attrs.tokenId) continue;
+      if (!earliest || tx.block_height < earliest.blockHeight) {
+        earliest = { blockHeight: tx.block_height, tokenId: attrs.tokenId };
+      }
+    }
+  }
+  return earliest?.tokenId ?? null;
+}
+
+// Extracts just the `image` field's string VALUE from a token metadata
+// URI — never parses or touches the bytes that string points to. Two
+// shapes seen/anticipated: JSON metadata embedded as a data: URI (the
+// confirmed-live case), or a token URI that IS itself directly an image
+// link (no JSON wrapper) for simpler collections.
+function extractImageFromMetadataURI(uri) {
+  if (!uri) return null;
+  const jsonMatch = /^data:application\/json;base64,(.+)$/.exec(uri);
+  if (jsonMatch) {
+    try {
+      const metadata = JSON.parse(Buffer.from(jsonMatch[1], "base64").toString("utf-8"));
+      return typeof metadata.image === "string" ? metadata.image : null;
+    } catch {
+      return null;
+    }
+  }
+  if (/^data:image\//.test(uri) || /^https?:\/\//.test(uri)) return uri;
+  if (/^ipfs:\/\//.test(uri)) return uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+  return null;
+}
+
+async function fetchNftCollectionImages(net, nftRealms) {
+  const images = {};
+  await mapLimit(nftRealms, 4, async (n) => {
+    try {
+      const tokenId = await fetchFirstMintedTokenId(net, n.path);
+      if (!tokenId) return;
+      let uri = null;
+      for (const fn of ["GetTokenURI", "TokenURI"]) {
+        try {
+          const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.${fn}("${tokenId}")`);
+          const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
+          if (m) { uri = m[1]; break; }
+        } catch {
+          // try the next convention
+        }
+      }
+      const image = extractImageFromMetadataURI(uri);
+      if (image) images[n.path] = image;
+    } catch {
+      // best-effort — not every collection will resolve, leave it out
+    }
+  });
+  return images;
+}
+
 // ---------- token decimals ----------
 // GRC20 decimals aren't reliably exposed — some implementations expose
 // Decimals(), some GetDecimals(), some neither (confirmed directly against
@@ -943,6 +1036,7 @@ async function buildNetwork(netKey, net) {
   console.log(`\n=== ${netKey} (${net.label}) ===`);
   const outPath = path.join(DATA_DIR, `${netKey}.json`);
   const internalPath = path.join(DATA_DIR, `${netKey}.internal.json`);
+  const nftImagesPath = path.join(DATA_DIR, `${netKey}-nft-images.json`);
   // Two files: outPath is what every visitor downloads (client-shipped
   // fields only); internalPath holds incremental-cache state the client
   // never reads (raw per-realm import lists, the full swap/faucet-drip
@@ -1047,6 +1141,9 @@ async function buildNetwork(netKey, net) {
 
   await fetchNftCollectionMeta(net, nftRealms);
   console.log(`nft collection metadata: ${nftRealms.filter(n => n.name).length}/${nftRealms.length} names resolved`);
+
+  const nftImages = await fetchNftCollectionImages(net, nftRealms);
+  console.log(`nft collection images: ${Object.keys(nftImages).length}/${nftRealms.length} resolved`);
 
   // Trending/active realms and DeFi(Gnoswap) both come straight from call
   // activity, unfiltered by any source-based tag — a realm doesn't need to
@@ -1172,8 +1269,10 @@ async function buildNetwork(netKey, net) {
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(outPath, JSON.stringify(output, null, 2));
   await writeFile(internalPath, JSON.stringify(internalState, null, 2));
+  await writeFile(nftImagesPath, JSON.stringify(nftImages, null, 2));
   console.log(`wrote ${outPath}`);
   console.log(`wrote ${internalPath}`);
+  console.log(`wrote ${nftImagesPath}`);
 }
 
 async function main() {

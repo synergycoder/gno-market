@@ -185,6 +185,14 @@
     background: var(--border-soft); vertical-align: middle;
   }
   .token-inline { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+  .nft-collection-image {
+    width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
+    vertical-align: middle; background: var(--bg-elevated); border: 1px solid var(--border);
+  }
+  .nft-collection-image-placeholder {
+    display: inline-block; width: 36px; height: 36px; border-radius: 6px;
+    background: var(--border-soft); vertical-align: middle;
+  }
   .genesis-tag {
     display: inline-block; font-size: 0.72rem; padding: 0.1rem 0.5rem;
     border-radius: 1rem; background: var(--badge-bg); color: var(--badge-text);
@@ -482,7 +490,7 @@
     first visit.</p>
   <p id="nftStatus" class="status">Loading…</p>
   <table id="nftTable" style="display:none">
-    <thead><tr><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
+    <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
     <tbody id="nftBody"></tbody>
   </table>
   <p class="status">Click any row to preview its on-chain Render() output.</p>
@@ -935,6 +943,15 @@ let currentTokenDecimals = {}; // path -> decimals|null, from the same cache pay
 let currentNfts = [];   // [{path, std}] from the last successful loadNfts
 const genesisFileCache = new Map(); // netKey -> Map(realmPath -> files[])
 
+// Declared early (before activateTab/restoreInitialView below, which can
+// reference these synchronously if "nfts" is the initial/persisted tab)
+// to avoid a temporal-dead-zone crash — const/let aren't usable before
+// their own declaration line runs, even though the functions that use
+// them are hoisted fine.
+const nftImagesPromises = new Map(); // netKey -> Promise<{path: imageDataURI}>
+let nftImagesLoadedNet = null;
+let nftImagesLoadedData = {};
+
 // Genesis-realm source is immutable once deployed, so it's safe to persist
 // across page loads indefinitely — this is what actually makes the "one-time
 // scan, cached after that" promise true across reloads, not just within a
@@ -992,6 +1009,7 @@ select.addEventListener("change", () => {
   clearAllTabData();
   loadAll(currentKey);
   refreshHeaderWalletBalance();
+  if (document.getElementById("panel-nfts") && !document.getElementById("panel-nfts").hidden) loadNftImagesForTab();
 });
 
 // ---------- tabs ----------
@@ -1024,6 +1042,7 @@ function activateTab(tabName) {
   document.getElementById("suggestionsLink").classList.toggle("active", tabName === "suggestions");
   panel.hidden = false;
   if (tabName === "suggestions") loadSuggestions();
+  if (tabName === "nfts") loadNftImagesForTab();
   // subtab/token only mean anything under the defi tab — clear them from
   // the URL for every other tab so a stale filter doesn't linger there.
   updateUrlForView(tabName === "defi" ? { tab: tabName } : { tab: tabName, subtab: null, token: null });
@@ -1446,6 +1465,7 @@ function renderNftRows(rows) {
   const tbody = document.getElementById("nftBody");
   tbody.innerHTML = rows.map(r => `
     <tr class="clickable" data-path="${escapeHtml(r.path)}">
+      <td class="nft-image-cell"><span class="nft-collection-image-placeholder"></span></td>
       <td>${r.name ? escapeHtml(r.name) : "—"}</td>
       <td>${r.symbol ? escapeHtml(r.symbol) : "—"}</td>
       <td>${r.tokenCount != null ? r.tokenCount.toLocaleString() : "—"}</td>
@@ -1454,6 +1474,43 @@ function renderNftRows(rows) {
     </tr>
   `).join("");
   document.getElementById("nftTable").style.display = rows.length ? "table" : "none";
+  if (nftImagesLoadedNet === currentKey) patchNftRowImages(nftImagesLoadedData);
+}
+
+// ---------- NFT collection images: lazy-loaded, separate small file
+// (see build-cache.mjs's own comment on fetchNftCollectionImages for
+// why this isn't just part of the main cached data) — only fetched once
+// the NFT Collections tab is actually opened, not on every page load.
+// (nftImagesPromises/nftImagesLoadedNet/nftImagesLoadedData are declared
+// much earlier, near currentKey — see the comment there.) ----------
+function getNftImages(netKey) {
+  if (!nftImagesPromises.has(netKey)) {
+    nftImagesPromises.set(netKey, fetch(`data/${netKey}-nft-images.json`, { cache: "no-cache" })
+      .then(r => r.ok ? r.json() : {})
+      .catch(() => ({})));
+  }
+  return nftImagesPromises.get(netKey);
+}
+
+// Each image string is opaque data straight from the chain (see
+// build-cache.mjs) — set directly as an <img src>, same as token logos
+// elsewhere on this page. Never parsed or inspected here either.
+function patchNftRowImages(images) {
+  document.querySelectorAll("#nftBody tr[data-path]").forEach(tr => {
+    const image = images[tr.dataset.path];
+    if (!image) return;
+    const cell = tr.querySelector(".nft-image-cell");
+    if (cell) cell.innerHTML = `<img class="nft-collection-image" src="${escapeHtml(image)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  });
+}
+
+async function loadNftImagesForTab() {
+  const netKey = currentKey;
+  const images = await getNftImages(netKey);
+  nftImagesLoadedNet = netKey;
+  nftImagesLoadedData = images;
+  if (netKey !== currentKey) return; // network switched away before this resolved
+  patchNftRowImages(images);
 }
 
 async function loadNfts(net, netKey, forceLive = false) {

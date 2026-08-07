@@ -1,7 +1,7 @@
 {
   "network": "testnet",
-  "generatedAt": "2026-08-06T23:41:58.447Z",
-  "lastHeight": 454237,
+  "generatedAt": "2026-08-07T00:02:16.912Z",
+  "lastHeight": 474916,
   "tokens": [
     {
       "name": "Test",
@@ -9,7 +9,7 @@
       "symbol": "TEST",
       "image": null,
       "description": null,
-      "totalSupply": 0,
+      "totalSupply": null,
       "holderCount": 0
     },
     {
@@ -81,7 +81,7 @@
       "symbol": "TRX",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_trx.svg",
       "description": "This is a GRC20 token issued on topaz-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 100000000000000000,
+      "totalSupply": null,
       "holderCount": 13
     },
     {
@@ -152,8 +152,7 @@
       "path": "gno.land/r/gnoswap/gnft",
       "standard": "GRC721",
       "name": "GNOSWAP NFT",
-      "symbol": "GNFT",
-      "tokenCount": 236
+      "symbol": "GNFT"
     },
     {
       "path": "gno.land/r/gnoswap/position/v1",
@@ -167,8 +166,7 @@
       "path": "gno.land/r/samcrew/gnobuilders_badges_v2",
       "standard": "GRC721",
       "name": "GnoBuilders Badges",
-      "symbol": "GNOBADGE",
-      "tokenCount": 0
+      "symbol": "GNOBADGE"
     },
     {
       "path": "gno.land/r/samcrew/memba_collections",
@@ -184,6 +182,22 @@
     }
   ],
   "recentDeployed": [
+    {
+      "path": "gno.land/p/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/median",
+      "blockHeight": 474916,
+      "blockTime": "2026-08-06T23:44:42.640413351Z",
+      "hash": "RcFYRVpxNSfLxqshey/OXg6IpYNV5atY0BQfgbOkPH0=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/fixedpoint",
+      "blockHeight": 474841,
+      "blockTime": "2026-08-06T23:40:11.311473527Z",
+      "hash": "vAvvjEU93PPJg334OqAsv019qIUJmden6zcRreX6yI4=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "kind": "Package"
+    },
     {
       "path": "gno.land/r/g1j2adx6ngvawtmkhq7eexsk9uq4u9zsrealpye2/testtoken",
       "blockHeight": 454237,
@@ -10390,7 +10404,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999993504000000,
+      "balance": 999999993472000000,
       "genesis": true
     },
     {
@@ -10544,11 +10558,6 @@
       "genesis": false
     },
     {
-      "address": "g1x7k4628w93a7wzdhqc06atzx0v50rnshweuxu0",
-      "balance": 9430778900,
-      "genesis": false
-    },
-    {
       "address": "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
       "balance": 5948252639,
       "genesis": false
@@ -10570,7 +10579,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 165060955,
+      "balance": 180060955,
       "genesis": false
     },
     {
@@ -10616,6 +10625,11 @@
     {
       "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
       "balance": 37583842,
+      "genesis": false
+    },
+    {
+      "address": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "balance": 30401281,
       "genesis": false
     },
     {
@@ -10706,11 +10720,6 @@
     {
       "address": "g1rpc79t72aellp5g07pvr7vva3250sft0zve26p",
       "balance": 17357479,
-      "genesis": false
-    },
-    {
-      "address": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
-      "balance": 16968681,
       "genesis": false
     },
     {
@@ -11034,11 +11043,6 @@
       "genesis": false
     },
     {
-      "address": "g1uzxyk9fvtk0zfsl20kswvatt2da67sjjh4fud0",
-      "balance": 12533300,
-      "genesis": false
-    },
-    {
       "address": "g179t0kaxdl0r2hv3hhr2tcpqdchpt7h80c6m6rn",
       "balance": 12123600,
       "genesis": false
@@ -11126,11 +11130,6 @@
     {
       "address": "g1apx2ktj0tc7gqzaqtgl9xluflnqehgpqla0anv",
       "balance": 11292400,
-      "genesis": false
-    },
-    {
-      "address": "g1222c3qnzny0e6spfdhr59386tlfhlatnre3ew7",
-      "balance": 11205600,
       "genesis": false
     },
     {
@@ -11251,11 +11250,6 @@
     {
       "address": "g1x3702r5pyv3v36eauc4k055l9wxvxah6dwd29t",
       "balance": 8521026,
-      "genesis": false
-    },
-    {
-      "address": "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
-      "balance": 8435223,
       "genesis": false
     },
     {
@@ -11700,6 +11694,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "DvbTPd8R2QPtIoguSILFx40eWXbTlhfTQa50fpr4q34=",
+      "blockHeight": 474966,
+      "blockTime": "2026-08-06T23:47:37.719411696Z",
+      "to": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "amount": 15000000
+    },
+    {
+      "hash": "9sk8umXrEfmozdNmJBUK+gX9FM12TGom+s33QBOsKWU=",
+      "blockHeight": 474937,
+      "blockTime": "2026-08-06T23:45:56.657944755Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 15000000
+    },
     {
       "hash": "vmfpqYIyY3n0qNaJ8WufLWF3P57U/pigiEecBqE9yIY=",
       "blockHeight": 473599,
@@ -17112,7 +17120,7 @@
       "g1cccz6z0l3rsw9448yrkvex0wkr86uhfcraefq0",
       "g1hxsz6mnhjx2n75xr2vpe6tytdk8jj4p49gcsug"
     ],
-    "lastHeight": 473599
+    "lastHeight": 474966
   },
   "tokenHolders": {
     "balances": {
@@ -17386,16 +17394,16 @@
     "tokenCount": 12,
     "nftRealmCount": 12,
     "totalRealmsScanned": 196,
-    "txPackageCount": 248,
+    "txPackageCount": 250,
     "genesisOnlyCount": 31,
     "trendingRealmCount": 47,
     "governanceRealmCount": 9,
     "socialRealmCount": 4,
     "defiRealmCount": 16,
     "gnoswapSwapCount": 756,
-    "whaleWatchCount": 270,
+    "whaleWatchCount": 266,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 140,
-    "faucetDripCount": 457
+    "faucetDripCount": 459
   }
 }
