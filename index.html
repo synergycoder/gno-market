@@ -1755,6 +1755,41 @@ async function fetchGenesisRealmFiles(net, netKey, paths) {
   return cache;
 }
 
+// Live/force-refresh port of build-cache.mjs's own fetchNftCollectionMeta
+// (same function, same regexes) — the precomputed cache path already
+// carries name/symbol/tokenCount from that server-side function, but the
+// force-live rescan below only ever recomputed {path, standard} and never
+// fetched these at all, so every row silently rendered "—" for them no
+// matter how long you waited on a force refresh (not a hang — the scan
+// itself completed fine, it just never asked the chain for this data).
+async function fetchNftCollectionMetaLive(net, nftRealms) {
+  await mapLimit(nftRealms, 8, async (n) => {
+    try {
+      const raw = await abciQuery(net, "vm/qeval", `${n.path}.Name()`);
+      const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
+      if (m) n.name = m[1];
+    } catch {
+      // leave n.name unset
+    }
+    try {
+      const raw = await abciQuery(net, "vm/qeval", `${n.path}.Symbol()`);
+      const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
+      if (m) n.symbol = m[1];
+    } catch {
+      // leave n.symbol unset
+    }
+    for (const fn of ["TokenCount()", "TotalSupply()"]) {
+      try {
+        const raw = await abciQuery(net, "vm/qeval", `${n.path}.${fn}`);
+        const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
+        if (m) { n.tokenCount = Number(m[1]); break; }
+      } catch {
+        // try the next convention
+      }
+    }
+  });
+}
+
 let nftsInFlight = false;
 function renderNftRows(rows) {
   // rows: [{path, standard, name?, symbol?, tokenCount?}]
@@ -1858,6 +1893,12 @@ async function loadNfts(net, netKey, forceLive = false) {
     }
 
     const rows = [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([path, standard]) => ({ path, standard }));
+
+    if (forceLive && rows.length) {
+      statusEl.textContent = `Loading name/symbol/minted-count for ${rows.length} collection${rows.length === 1 ? "" : "s"}…`;
+      await fetchNftCollectionMetaLive(net, rows);
+    }
+
     renderNftRows(rows);
     statusEl.textContent =
       `${rows.length} realm${rows.length === 1 ? "" : "s"} detected — scanned ${allRealms.length} total ` +

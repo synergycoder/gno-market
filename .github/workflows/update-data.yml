@@ -10,11 +10,25 @@ permissions:
 
 concurrency:
   group: update-data
-  cancel-in-progress: false
+  # A stuck run used to block every subsequent scheduled trigger for its
+  # entire duration instead of just delaying by one 30-min cycle — with
+  # no timeout-minutes below either, that meant hours of stale data
+  # (observed live: multiple runs auto-cancelled by GitHub's 6-hour job
+  # ceiling, and every scheduled run in between queuing uselessly behind
+  # the stuck one instead of just superseding it). A fresh run now
+  # cancels whatever's still running instead of waiting on it.
+  cancel-in-progress: true
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    # Real runs (both networks, every RPC/indexer call already has its own
+    # 15-30s timeout) finish in 1-2 minutes even on a slow day — this is
+    # a hard ceiling for whatever caused real hangs to run for hours
+    # (exact cause unconfirmed; every individual network call already has
+    # a bounded timeout, so it wasn't a single unbounded await inside the
+    # script itself — this bounds the blast radius either way).
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
