@@ -636,9 +636,9 @@
 
 <div class="tab-panel" id="panel-new" hidden>
   <h2>🆕 What's New on Gno.land</h2>
-  <p class="status">Every package/realm deployed via a transaction, most recent first. Genesis-deployed
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every package/realm deployed via a transaction, most recent first. Genesis-deployed
     content (seeded at chain launch, not via a transaction — many well-known realms like boards/blog) is
-    invisible to this kind of scan, same limitation as the NFT detection below.</p>
+    invisible to this kind of scan, same limitation as the NFT detection below.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="newStatus" class="status">Loading…</p>
   <table id="newTable" style="display:none">
     <thead><tr>
@@ -656,7 +656,7 @@
 
 <div class="tab-panel" id="panel-tokens" hidden>
   <h2>🪙 Fungible Tokens (GRC20)</h2>
-  <p class="status">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Source: on-chain registry <code>gno.land/r/demo/defi/grc20reg</code> — genesis-deployed
     tokens are already included, since registration happens in each token's <code>init()</code> regardless
     of how it was deployed. Decimals and logos come from the same community-curated registry GnoScan's own
     token page reads (<code>onbloc/gno-token-resource</code> on GitHub). Holder counts are derived by
@@ -664,7 +664,7 @@
     swap through Gnoswap's router, for example, emits Transfer events for the traded tokens too) and
     counting addresses with a positive balance — close to GnoScan's own numbers but not always exact:
     a balance assigned directly in a realm's <code>init()</code> rather than minted via a
-    <code>Transfer</code> event wouldn't be reflected here.</p>
+    <code>Transfer</code> event wouldn't be reflected here.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="tokenStatus" class="status">Loading…</p>
   <table id="tokenTable" style="display:none">
     <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Realm</th><th>Decimals</th><th>Total supply</th><th>Holders</th></tr></thead>
@@ -675,12 +675,12 @@
 
 <div class="tab-panel" id="panel-nfts" hidden>
   <h2>🖼️ NFT Collections (detected)</h2>
-  <p class="status">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
     library AND defines a matching function (Mint/OwnerOf/TokenURI/...). No central registry exists for
     NFTs, so this is best-effort detection, not a guarantee — a realm that merely references someone
     else's collection (a marketplace, a staking contract) can still slip through if it redeclares a
     matching function name. Genesis-deployed realms are scanned too, cached in your browser after the
-    first visit.</p>
+    first visit.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="nftStatus" class="status">Loading…</p>
   <table id="nftTable" style="display:none">
     <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
@@ -691,11 +691,11 @@
 
 <div class="tab-panel" id="panel-wallet" hidden>
   <h2>👛 Scan Wallet</h2>
-  <p class="status">Checks the address below (read-only — no keys, no signing) for: native GNOT balance,
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Checks the address below (read-only — no keys, no signing) for: native GNOT balance,
     plus every fungible token and detected NFT collection from the other two tabs. Token/NFT coverage is
     limited to whatever those tabs found, so their caveats apply here too. Amounts are shown human-scale
     wherever a token's decimals could be determined on-chain; GRC20 doesn't reliably expose this, so a
-    token that doesn't will show its raw on-chain units instead, labeled as such.</p>
+    token that doesn't will show its raw on-chain units instead, labeled as such.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <div class="wallet-form">
     <input type="text" id="walletInput" placeholder="g1... wallet address" autocomplete="off" spellcheck="false">
     <button id="walletScanBtn">Scan</button>
@@ -712,8 +712,8 @@
   <div class="subtab-panel" id="subpanel-wallet-holdings">
     <div id="walletNativeSection" style="display:none">
       <h3>Native balance</h3>
-      <p class="status">GNOT is the chain's native token (like ETH or ATOM) — held directly on the
-        account, not through a GRC20 realm, so it's checked separately from everything below.</p>
+      <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">GNOT is the chain's native token (like ETH or ATOM) — held directly on the
+        account, not through a GRC20 realm, so it's checked separately from everything below.</span><button class="text-collapsible-toggle" type="button">More</button></p>
       <p id="walletNativeAmount"></p>
     </div>
 
@@ -737,11 +737,11 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-wallet-history" hidden>
-    <p class="status">Every on-chain transaction involving the address above — sent, received, or
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every on-chain transaction involving the address above — sent, received, or
       triggered by it — read live from the indexer (not precomputed, since this is specific to
       whatever address you enter). Betanet's indexer doesn't allow direct browser requests (no
       CORS headers, unlike testnet's), so this only works live on testnet; betanet will show an
-      explanation instead of results.</p>
+      explanation instead of results.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <div class="wallet-form">
       <button id="walletHistoryLoadBtn">Load history</button>
     </div>
@@ -756,9 +756,9 @@
 
 <div class="tab-panel" id="panel-trending" hidden>
   <h2>🔥 Trending / Active Realms</h2>
-  <p class="status">Every realm ranked by how many successful function-call transactions it has received,
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every realm ranked by how many successful function-call transactions it has received,
     all-time (not just deploys — this is realms actually being <em>used</em>). Precomputed from the shared
-    cache, same 30-minute refresh as the other tabs.</p>
+    cache, same 30-minute refresh as the other tabs.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="trendingStatus" class="status">Loading…</p>
   <table id="trendingTable" style="display:none">
     <thead><tr>
@@ -775,11 +775,11 @@
 
 <div class="tab-panel" id="panel-governance" hidden>
   <h2>🏛️ DAO Governance Activity</h2>
-  <p class="status">Best-effort detection, not a guarantee (same caveat as NFT Collections): a realm is
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Best-effort detection, not a guarantee (same caveat as NFT Collections): a realm is
     flagged here if its source mentions "governance"/"dao"/"gov" <strong>and</strong> defines a
     <code>Propose</code>, <code>Vote</code>, or <code>Execute</code> function — a realm using different
     naming for the same idea won't be caught. Call counts are all activity on that realm, not only
-    governance-specific calls (a realm can expose other functions too).</p>
+    governance-specific calls (a realm can expose other functions too).</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="governanceStatus" class="status">Loading…</p>
   <table id="governanceTable" style="display:none">
     <thead><tr>
@@ -796,10 +796,10 @@
 
 <div class="tab-panel" id="panel-social" hidden>
   <h2>💬 Social Realm Activity</h2>
-  <p class="status">Best-effort detection, not a guarantee: a realm is flagged here if its source mentions
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Best-effort detection, not a guarantee: a realm is flagged here if its source mentions
     "board"/"blog"/"social" <strong>and</strong> defines a thread/post/reply-style function (e.g.
     <code>CreateThread</code>, <code>CreatePost</code>, <code>CreateBoard</code>). Misses realms using
-    different naming for the same idea.</p>
+    different naming for the same idea.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="socialStatus" class="status">Loading…</p>
   <table id="socialTable" style="display:none">
     <thead><tr>
@@ -823,9 +823,9 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-defi-overview">
-    <p class="status">Every realm deployed under <code>gno.land/r/gnoswap/</code> — the ecosystem's DEX —
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every realm deployed under <code>gno.land/r/gnoswap/</code> — the ecosystem's DEX —
       ranked by call activity. Path-prefix based, not a heuristic, so this one's exact rather than
-      best-effort.</p>
+      best-effort.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <p id="defiStatus" class="status">Loading…</p>
     <table id="defiTable" style="display:none">
       <thead><tr>
@@ -841,7 +841,7 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-defi-swaps" hidden>
-    <p class="status">Every swap executed through <code>gno.land/r/gnoswap/router</code>, read from the
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every swap executed through <code>gno.land/r/gnoswap/router</code>, read from the
       <code>ExactInSwap</code>/<code>ExactOutSwap</code> event each one emits — covers single- and
       multi-hop routes alike. Amounts are converted to each token's normal human-readable unit using
       its on-chain decimals (e.g. 5 GNS, not 5000000); a token whose decimals aren't exposed on-chain
@@ -849,7 +849,7 @@
       Gnoswap's pools require GRC20-compliant tokens, so native GNOT is traded via its 1:1 wrapped
       form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot&chainId=topaz-1" target="_blank" rel="noopener">wugnot</a>,
       instead. Follows the network selected above, same as every other tab — Gnoswap is currently only
-      deployed on testnet, so betanet will show none.</p>
+      deployed on testnet, so betanet will show none.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <div class="wallet-form">
       <label for="swapTokenFilter" class="status" style="white-space:nowrap">Filter by token:</label>
       <select id="swapTokenFilter"><option value="">All tokens</option></select>
@@ -872,7 +872,7 @@
 
 <div class="tab-panel" id="panel-whales" hidden>
   <h2>🐋 Whale Watch</h2>
-  <p class="status">Native GNOT balance for every address this site has seen deploy a package, call a
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Native GNOT balance for every address this site has seen deploy a package, call a
     realm, execute a Gnoswap swap, send or receive a plain native-GNOT transfer, or hold a genesis
     balance allocation — ranked richest first. The indexer has no accounts/balances query at all, and
     the chain's own auth module exposes no "list all accounts" query either (checked directly against
@@ -881,7 +881,7 @@
     address that has ever existed on the chain. Addresses marked <span class="genesis-tag">Genesis</span>
     were funded directly in the chain's genesis file rather than observed via a transaction. The size
     tier is recalculated live from the current list every time it loads, so it adjusts automatically as
-    more wallets are discovered.</p>
+    more wallets are discovered.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="whalesStatus" class="status">Loading…</p>
   <table id="whalesTable" style="display:none">
     <thead><tr>
@@ -904,11 +904,11 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-deps-popular">
-    <p class="status">Which shared packages (<code>p/...</code>) and realms (<code>r/...</code>) get
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Which shared packages (<code>p/...</code>) and realms (<code>r/...</code>) get
       imported by the most other realms — read directly from each realm's own <code>import (...)</code>
       block, not runtime call traces (Gno transactions only record the top-level caller, never
       intermediate realm-to-realm hops, so there's no "who actually got called" data to mine). An
-      import is what a realm declares it depends on, which is the closest real signal available.</p>
+      import is what a realm declares it depends on, which is the closest real signal available.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <p id="depsPopularStatus" class="status">Loading…</p>
     <table id="depsPopularTable" style="display:none">
       <thead><tr>
@@ -921,10 +921,10 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-deps-graph" hidden>
-    <p class="status">Every realm-to-realm import found (a realm importing another realm's own package
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every realm-to-realm import found (a realm importing another realm's own package
       at <code>gno.land/r/...</code>, rather than a shared <code>p/...</code> library) — the closest
       available proxy for a cross-realm call graph, since which imports are actually invoked at runtime
-      isn't observable on-chain. One row per import edge.</p>
+      isn't observable on-chain. One row per import edge.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <p id="depsGraphStatus" class="status">Loading…</p>
     <table id="depsGraphTable" style="display:none">
       <thead><tr><th>From realm</th><th>Imports realm</th></tr></thead>
@@ -935,11 +935,11 @@
 
 <div class="tab-panel" id="panel-faucet" hidden>
   <h2>🚰 Faucet Drips</h2>
-  <p class="status">Every native GNOT transfer out of <code id="faucetAddressLabel">the known faucet wallet</code>
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Every native GNOT transfer out of <code id="faucetAddressLabel">the known faucet wallet</code>
     — read the same way as Whale Watch's bank-send discovery (a plain <code>BankMsgSend</code>, no
     contract call involved), just scoped to one specific sender. Recipients here are also folded into
     Whale Watch's known-address list, so a wallet that's only ever received a faucet drip still shows up
-    there.</p>
+    there.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="faucetStatus" class="status">Loading…</p>
   <table id="faucetTable" style="display:none">
     <thead><tr>
@@ -954,12 +954,12 @@
 
 <div class="tab-panel" id="panel-snapshots" hidden>
   <h2>📸 Wallet Snapshots</h2>
-  <p class="status">Build a custom wallet list for an airdrop, whitelist, or any other targeting need.
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Build a custom wallet list for an airdrop, whitelist, or any other targeting need.
     Toggle any combination of criteria below — matching wallets are added to the list, automatically
     deduplicated; toggle a criterion back off to remove exactly the wallets it contributed (a wallet
     stays listed if another still-active criterion also matches it). Counts on each button are that
     criterion's own unique wallet count, on its own. Every criterion is scoped to wallets this site has
-    actually observed taking some action on the currently selected network — not external data.</p>
+    actually observed taking some action on the currently selected network — not external data.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <div id="snapshotCriteria" class="snapshot-criteria"></div>
   <div class="snapshot-summary">
     <span><strong id="snapshotCount">0</strong> unique wallet<span id="snapshotCountPlural">s</span> selected</span>
@@ -977,10 +977,10 @@
 
 <div class="tab-panel" id="panel-links" hidden>
   <h2>🔗 Links</h2>
-  <p class="status">The official gno.land project's own sites and community channels — sourced directly
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">The official gno.land project's own sites and community channels — sourced directly
     from <a href="https://gno.land/ecosystem" target="_blank" rel="noopener">gno.land/ecosystem</a> and its
     site footer, plus Gnoswap (the ecosystem's DeFi app, already featured on this site's DeFi tab; not
-    linked from gno.land's own page, but a de-facto part of the ecosystem).</p>
+    linked from gno.land's own page, but a de-facto part of the ecosystem).</span><button class="text-collapsible-toggle" type="button">More</button></p>
 
   <div class="link-group">
     <h3>Get started</h3>
@@ -1023,10 +1023,10 @@
 
 <div class="tab-panel" id="panel-dashboard">
   <h2>📊 Dashboard</h2>
-  <p class="status">Chain-wide stats and activity, built entirely from data already precomputed for the
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Chain-wide stats and activity, built entirely from data already precomputed for the
     other tabs — no extra queries. Native token price, market cap, and a trading-volume chart are planned
     but held back for now: GNOT has no real-world market (this is testnet, gno.land has no mainnet yet),
-    so anything price-shaped needs careful, explicit labeling before it ships.</p>
+    so anything price-shaped needs careful, explicit labeling before it ships.</span><button class="text-collapsible-toggle" type="button">More</button></p>
   <p id="dashboardStatus" class="status">Loading…</p>
 
   <div id="dashboardStats" class="stat-grid" style="display:none"></div>
@@ -1063,10 +1063,10 @@
 
 <div class="tab-panel" id="panel-suggestions" hidden>
   <h2>💡 Suggestions</h2>
-  <p class="status">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
     dedicated collector address, submitted through your own Adena wallet on <strong>testnet only</strong>
     (regardless of which network is selected above). Nothing is stored on this site or its cache — the
-    list below is read directly from chain history every time this page loads.</p>
+    list below is read directly from chain history every time this page loads.</span><button class="text-collapsible-toggle" type="button">More</button></p>
 
   <div class="suggest-form">
     <textarea id="suggestionInput" placeholder="Suggest a feature or change…" maxlength="200" rows="3"></textarea>
