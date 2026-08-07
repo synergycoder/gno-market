@@ -195,6 +195,27 @@
     background: var(--border-soft); vertical-align: middle;
   }
   .token-inline { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+  .wallet-token-logo { width: 28px; height: 28px; }
+  .wallet-balance-value { font-size: 1.15rem; font-weight: 600; }
+  .nft-gallery-collection { margin-top: 1.4rem; }
+  .nft-gallery-collection h4 { margin: 0 0 0.5rem; }
+  .nft-card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;
+  }
+  .nft-card {
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    background: var(--bg-elevated); display: flex; flex-direction: column;
+  }
+  .nft-card-image {
+    width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: var(--border-soft);
+  }
+  .nft-card-image-placeholder {
+    width: 100%; aspect-ratio: 1 / 1; background: var(--border-soft); display: flex;
+    align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem;
+  }
+  .nft-card-body { padding: 0.6rem 0.7rem; }
+  .nft-card-title { font-weight: 600; margin-bottom: 0.3rem; }
+  .nft-card-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
   .nft-collection-image {
     width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
     vertical-align: middle; background: var(--bg-elevated); border: 1px solid var(--border);
@@ -544,7 +565,7 @@
   <div id="walletTokenSection" style="display:none">
     <h3>Fungible token holdings</h3>
     <table id="walletTokenTable">
-      <thead><tr><th>Name</th><th>Symbol</th><th>Balance</th><th>Realm</th></tr></thead>
+      <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Balance</th><th>Realm</th></tr></thead>
       <tbody id="walletTokenBody"></tbody>
     </table>
   </div>
@@ -555,6 +576,7 @@
       <thead><tr><th>Collection</th><th>Standard</th><th>Count</th><th>Token IDs</th></tr></thead>
       <tbody id="walletNftBody"></tbody>
     </table>
+    <div id="walletNftGallery"></div>
   </div>
   <p class="status">Click any result row to preview that realm's Render() output.</p>
 </div>
@@ -1243,10 +1265,11 @@ function cacheAgeNote(generatedAt) {
 
 // ---------- Fungible tokens: read grc20reg's Render() via RPC vm/qrender ----------
 
-function tokenLogoImg(imageUrl, symbol) {
+function tokenLogoImg(imageUrl, symbol, extraClass = "") {
+  const cls = extraClass ? ` ${extraClass}` : "";
   return imageUrl
-    ? `<img class="token-logo" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`
-    : `<span class="token-logo token-logo-placeholder" title="${escapeHtml(symbol || "")}"></span>`;
+    ? `<img class="token-logo${cls}" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+    : `<span class="token-logo token-logo-placeholder${cls}" title="${escapeHtml(symbol || "")}"></span>`;
 }
 
 function renderTokenRows(rows) {
@@ -1807,6 +1830,128 @@ async function fetchOwnedTokenIds(net, collectionPath, ownerAddress) {
   return [...owners.entries()].filter(([, owner]) => owner === ownerAddress).map(([tokenId]) => tokenId).sort();
 }
 
+// ---------- Per-owned-token NFT metadata (Scan Wallet gallery) ----------
+// Same two conventions build-cache.mjs already handles for the one
+// representative collection image (see its fetchNftCollectionImages),
+// applied per token ID a wallet actually holds. Every value here is an
+// opaque string straight from the chain, set directly as text or an
+// <img src> — never parsed as image bytes, only as JSON/struct text.
+
+function normalizeImageUri(uri) {
+  if (typeof uri !== "string" || !uri) return null;
+  if (/^ipfs:\/\//.test(uri)) return uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+  if (/^data:image\//.test(uri) || /^https?:\/\//.test(uri)) return uri;
+  return null;
+}
+
+function decodeBase64Utf8(b64) {
+  const bin = atob(b64);
+  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+function parseMetadataURI(uri) {
+  const jsonMatch = /^data:application\/json;base64,(.+)$/.exec(uri);
+  if (jsonMatch) {
+    try {
+      const meta = JSON.parse(decodeBase64Utf8(jsonMatch[1]));
+      return {
+        image: normalizeImageUri(meta.image),
+        name: typeof meta.name === "string" ? meta.name : null,
+        description: typeof meta.description === "string" ? meta.description : null,
+        externalUrl: typeof meta.external_url === "string" ? meta.external_url : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+  const direct = normalizeImageUri(uri);
+  return direct ? { image: direct, name: null, description: null, externalUrl: null } : null;
+}
+
+const MAX_GALLERY_TOKENS_PER_COLLECTION = 24;
+
+async function fetchOwnedTokenMetadata(net, collectionPath, tokenId) {
+  const literal = JSON.stringify(tokenId);
+  for (const fn of ["GetTokenURI", "TokenURI"]) {
+    try {
+      const raw = await abciQuery(net, "vm/qeval", `${collectionPath}.${fn}(${literal})`);
+      const firstLine = (raw || "").trim().split("\n")[0];
+      const m = /^\("([^"]*)" string\)$/.exec(firstLine);
+      if (!m) continue;
+      const meta = parseMetadataURI(m[1]);
+      if (meta) return { tokenId, ...meta };
+    } catch {
+      // try next convention
+    }
+  }
+  try {
+    const raw = await abciQuery(net, "vm/qeval", `${collectionPath}.TokenMetadata(${literal})`);
+    const firstLine = (raw || "").trim().split("\n")[0];
+    // grc721.Metadata field order: Image, ImageData, ExternalURL, Description,
+    // Name, Attributes ([]Trait — not string-typed, skipped by this regex),
+    // BackgroundColor, AnimationURL, YoutubeURL. Confirmed against the actual
+    // package source, not assumed from ERC721 convention. An empty string
+    // field prints as `( string)` with no quotes at all (not `("" string)`),
+    // so the quotes have to stay optional or every field after the first
+    // empty one shifts left.
+    const fields = [...firstLine.matchAll(/\((?:"([^"]*)")?\s*string\)/g)].map((m) => m[1] ?? "");
+    if (fields.length) {
+      return {
+        tokenId,
+        image: normalizeImageUri(fields[0]),
+        externalUrl: fields[2] || null,
+        description: fields[3] || null,
+        name: fields[4] || null,
+      };
+    }
+  } catch {
+    // best-effort
+  }
+  return { tokenId, image: null, name: null, description: null, externalUrl: null };
+}
+
+async function fetchOwnedNftGalleryData(net, heldNfts) {
+  const collections = [];
+  for (const n of heldNfts) {
+    if (!n.tokenIds || !n.tokenIds.length) continue;
+    const ids = n.tokenIds.slice(0, MAX_GALLERY_TOKENS_PER_COLLECTION);
+    const tokens = await mapLimit(ids, 4, (tid) => fetchOwnedTokenMetadata(net, n.path, tid));
+    collections.push({ path: n.path, std: n.std, totalOwned: n.tokenIds.length, tokens });
+  }
+  return collections;
+}
+
+function renderWalletNftGallery(collections) {
+  const el = document.getElementById("walletNftGallery");
+  if (!collections.length) {
+    el.innerHTML = "";
+    return;
+  }
+  el.innerHTML = collections.map((c) => `
+    <div class="nft-gallery-collection">
+      <h4>${escapeHtml(c.path)} <span class="badge">${escapeHtml(c.std)}</span></h4>
+      ${c.tokens.length < c.totalOwned
+        ? `<p class="status">Showing ${c.tokens.length} of ${c.totalOwned} held (capped to limit RPC calls).</p>`
+        : ""}
+      <div class="nft-card-grid">
+        ${c.tokens.map((t) => `
+          <div class="nft-card">
+            ${looksLikeRenderableImage(t.image)
+              ? `<img class="nft-card-image" src="${escapeHtml(t.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+              : `<div class="nft-card-image-placeholder">No image found</div>`}
+            <div class="nft-card-body">
+              <div class="nft-card-title">${escapeHtml(t.name || c.path.split("/").pop())} #${escapeHtml(t.tokenId)}</div>
+              ${t.description ? `<div class="nft-card-meta">${escapeHtml(t.description)}</div>` : ""}
+              ${t.externalUrl ? `<div class="nft-card-meta"><a href="${escapeHtml(t.externalUrl)}" target="_blank" rel="noopener noreferrer">External link</a></div>` : ""}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
 let walletScanInFlight = false;
 async function scanWallet() {
   if (walletScanInFlight) return;
@@ -1833,6 +1978,7 @@ async function scanWallet() {
   document.getElementById("walletNativeSection").style.display = "none";
   tokenSection.style.display = "none";
   nftSection.style.display = "none";
+  document.getElementById("walletNftGallery").innerHTML = "";
   statusEl.textContent = `Checking native balance, ${currentTokens.length} tokens, and ${currentNfts.length} NFT collections…`;
 
   const net = NETWORKS[currentKey];
@@ -1886,11 +2032,17 @@ async function scanWallet() {
       }
     });
 
+    const galleryEligible = heldNfts.filter(n => n.tokenIds && n.tokenIds.length);
+    if (galleryEligible.length) {
+      statusEl.textContent = `Loading NFT images and metadata for ${galleryEligible.length} collection${galleryEligible.length === 1 ? "" : "s"}…`;
+    }
+
     document.getElementById("walletTokenBody").innerHTML = heldTokens.map(t => `
       <tr class="clickable" data-path="${escapeHtml(t.path)}">
+        <td>${tokenLogoImg(t.image, t.symbol, "wallet-token-logo")}</td>
         <td>${escapeHtml(t.name)}</td>
         <td>${escapeHtml(t.symbol)}</td>
-        <td>${formatTokenAmount(t.balance, currentTokenDecimals[t.path])}</td>
+        <td class="wallet-balance-value">${formatTokenAmount(t.balance, currentTokenDecimals[t.path])}</td>
         <td>${escapeHtml(t.path)}</td>
       </tr>
     `).join("");
@@ -1905,6 +2057,13 @@ async function scanWallet() {
       </tr>
     `).join("");
     nftSection.style.display = heldNfts.length ? "block" : "none";
+
+    if (galleryEligible.length) {
+      const galleryData = await fetchOwnedNftGalleryData(net, galleryEligible);
+      renderWalletNftGallery(galleryData);
+    } else {
+      document.getElementById("walletNftGallery").innerHTML = "";
+    }
 
     let summary = `Holdings found in ${heldTokens.length} token${heldTokens.length === 1 ? "" : "s"} and ` +
       `${heldNfts.length} NFT collection${heldNfts.length === 1 ? "" : "s"}, out of ` +
@@ -2086,6 +2245,7 @@ function disconnectAdena() {
   document.getElementById("walletNativeSection").style.display = "none";
   document.getElementById("walletTokenSection").style.display = "none";
   document.getElementById("walletNftSection").style.display = "none";
+  document.getElementById("walletNftGallery").innerHTML = "";
   try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
   hideHeaderWallet();
 }
