@@ -84,7 +84,7 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     max-width: 900px;
-    margin: 2rem auto;
+    margin: 0 auto 2rem;
     padding: 0 1rem calc(var(--footer-height) + 1rem);
     line-height: 1.5;
     background: var(--bg);
@@ -175,6 +175,22 @@
   .site-footer-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
   .sub { color: var(--text-muted); margin: 0.2rem 0 0; }
   .status { color: var(--text-muted); font-size: 0.9rem; }
+  /* Long explanatory paragraphs collapse to a single line + a "More"
+     toggle by default — plain single-line truncation (not line-clamp)
+     since the ask was specifically "only keep one line". Excludes
+     .status-alert and anything short enough it was never wrapped in
+     this to begin with (a one-sentence hint doesn't need a toggle). */
+  .text-collapsible-content {
+    display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .text-collapsible[data-expanded="true"] .text-collapsible-content {
+    white-space: normal; overflow: visible; text-overflow: clip;
+  }
+  .text-collapsible-toggle {
+    background: none; border: none; color: var(--accent-2); cursor: pointer;
+    font-size: 0.85em; padding: 0; margin-left: 0.4em; text-decoration: underline;
+    font-family: inherit; white-space: nowrap;
+  }
   .status-alert {
     display: block; color: var(--warning); background: var(--warning-bg);
     border: 1px solid var(--warning-border); border-radius: 6px;
@@ -4310,6 +4326,15 @@ window.addEventListener("scroll", () => {
 }, { passive: true });
 scrollTopBtn.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+document.querySelectorAll(".text-collapsible-toggle").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const wrap = btn.closest(".text-collapsible");
+    const expanded = wrap.dataset.expanded === "true";
+    wrap.dataset.expanded = String(!expanded);
+    btn.textContent = expanded ? "More" : "Less";
+  });
 });
 
 loadAll(currentKey);
