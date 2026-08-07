@@ -42,6 +42,7 @@
     --success: #5fae72;
     --warning: #f0ac3f; --warning-bg: rgba(240,172,63,0.1); --warning-border: rgba(240,172,63,0.4);
     --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --footer-height: 3.4rem;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme]) {
@@ -84,7 +85,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     max-width: 900px;
     margin: 2rem auto;
-    padding: 0 1rem;
+    padding: 0 1rem calc(var(--footer-height) + 1rem);
     line-height: 1.5;
     background: var(--bg);
     color: var(--text);
@@ -99,7 +100,6 @@
     margin-bottom: -0.9rem; /* keeps the rest of the page's original spacing now that the header carries its own padding */
   }
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .header-row-bottom { justify-content: flex-start; gap: 0.6rem; }
   .brand { display: flex; align-items: center; gap: 0.75rem; }
   .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
   .brand h1 { margin: 0; font-size: 1.5rem; }
@@ -154,6 +154,18 @@
     font-size: 0.82rem; color: var(--text-muted); border-left: 2px solid var(--accent);
     padding: 0.4rem 0.7rem; margin: 0.9rem 0 1rem;
   }
+  .site-footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 400;
+    min-height: var(--footer-height); box-sizing: border-box;
+    background: var(--bg-elevated); border-top: 1px solid var(--border);
+    padding: 0.5rem max(1rem, calc((100% - 900px) / 2 + 1rem));
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .site-footer .disclaimer {
+    margin: 0; border-left: none; padding: 0; font-size: 0.78rem; flex: 1 1 260px; min-width: 0;
+  }
+  .site-footer-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
   .sub { color: var(--text-muted); margin: 0.2rem 0 0; }
   .status { color: var(--text-muted); font-size: 0.9rem; }
   .status-alert {
@@ -216,7 +228,9 @@
   .nft-card {
     border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
     background: var(--bg-elevated); display: flex; flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
+  .nft-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent-2); }
   .nft-card-image {
     width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: var(--border-soft);
   }
@@ -310,14 +324,38 @@
   }
   .tab {
     background: none; border: none; cursor: pointer; font-family: inherit;
-    font-size: 0.95rem; color: var(--text-muted); padding: 0.6rem 1rem;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    border-radius: 6px 6px 0 0;
+    font-size: 0.95rem; color: var(--text-muted); padding: 0.55rem 1rem;
+    border: 2px solid transparent; margin-bottom: 2px; border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease;
   }
   .tab:hover { color: var(--text); background: var(--border-soft); }
-  .tab.active { color: var(--accent-strong); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab.active {
+    color: #fff; background: var(--accent); font-weight: 600;
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
   .tab-icon { margin-right: 0.35rem; opacity: 0.85; }
   .tab-panel { padding-top: 1.5rem; }
+
+  .tab-more-wrap { position: relative; }
+  .tab-more-btn {
+    background: none; border: 2px solid var(--border); cursor: pointer; font-family: inherit;
+    font-size: 0.95rem; color: var(--text-muted); padding: 0.55rem 1rem;
+    border-radius: 999px; display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .tab-more-btn:hover { color: var(--text); background: var(--border-soft); }
+  .tab-more-btn.active {
+    color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 600;
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .tab-more-caret { font-size: 0.75em; opacity: 0.8; }
+  .tab-more-menu {
+    position: absolute; top: calc(100% + 0.4rem); right: 0; z-index: 50;
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25); padding: 0.4rem; min-width: 190px;
+    display: flex; flex-direction: column; gap: 0.1rem;
+  }
+  .tab-more-menu .tab { border-radius: 6px; text-align: left; }
+  .tab-more-menu .tab.active { box-shadow: none; }
 
   .subtabs { display: flex; gap: 0.25rem; margin-top: 0.5rem; border-bottom: 1px solid var(--border-soft); }
   .subtab {
@@ -347,11 +385,18 @@
   }
   .stat-tile {
     background: var(--bg-elevated); border: 1px solid var(--border-soft); border-radius: 8px;
-    padding: 0.9rem 1rem; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    padding: 0.9rem 1rem 0.9rem 1.15rem; position: relative; overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
+  .stat-tile::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--accent-2); opacity: 0.75; transition: background 0.15s ease;
+  }
+  .stat-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
   .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1.2; }
   .stat-tile .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
   .stat-tile.clickable { cursor: pointer; }
+  .stat-tile.clickable:hover::before { background: var(--accent); }
   .stat-tile.clickable:hover, .stat-tile.clickable:focus-visible {
     border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); outline: none;
   }
@@ -463,7 +508,7 @@
      reusing their scroll-triggered show/hide JS, which isn't needed
      since this page is far shorter. */
   .scroll-top-btn {
-    position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 500;
+    position: fixed; right: 1.2rem; bottom: calc(var(--footer-height) + 0.8rem); z-index: 450;
     width: 56px; height: 56px; padding: 0; border: none; border-radius: 50%;
     background: var(--bg-elevated); box-shadow: var(--shadow); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -474,7 +519,7 @@
   .scroll-top-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
   .scroll-top-btn img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
   @media (max-width: 480px) {
-    .scroll-top-btn { width: 44px; height: 44px; right: 0.8rem; bottom: 0.8rem; }
+    .scroll-top-btn { width: 44px; height: 44px; right: 0.8rem; }
   }
 </style>
 </head>
@@ -483,6 +528,17 @@
 <button id="scrollTopBtn" class="scroll-top-btn" type="button" aria-label="Back to top" title="Back to top">
   <img src="assets/scroll-top-tardigrade.png" alt="">
 </button>
+
+<footer class="site-footer">
+  <p class="disclaimer">
+    This is an independent, community-built tool — not affiliated with, endorsed by, or part of the
+    gno.land team or project.
+  </p>
+  <div class="site-footer-actions">
+    <span id="donateSlot"></span>
+    <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
+  </div>
+</footer>
 
 <header class="site-header">
   <div class="header-row header-row-top">
@@ -507,33 +563,32 @@
       </button>
     </div>
   </div>
-  <div class="header-row header-row-bottom">
-    <span id="donateSlot"></span>
-    <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
-  </div>
 </header>
-<p class="disclaimer">
-  This is an independent, community-built tool — not affiliated with, endorsed by, or part of the
-  gno.land team or project.
-</p>
 <p class="sub">Live view of gno.land chain activity.</p>
 <p class="status" id="refreshStatus"></p>
 
 <div class="tabs" role="tablist">
   <button class="tab active" data-tab="dashboard" role="tab"><span class="tab-icon">📊</span>Dashboard</button>
-  <button class="tab" data-tab="new" role="tab"><span class="tab-icon">🆕</span>What's New</button>
   <button class="tab" data-tab="tokens" role="tab"><span class="tab-icon">🪙</span>Fungible Tokens</button>
   <button class="tab" data-tab="nfts" role="tab"><span class="tab-icon">🖼️</span>NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab"><span class="tab-icon">👛</span>Scan Wallet</button>
   <button class="tab" data-tab="trending" role="tab"><span class="tab-icon">🔥</span>Trending</button>
-  <button class="tab" data-tab="governance" role="tab"><span class="tab-icon">🏛️</span>DAO Governance</button>
-  <button class="tab" data-tab="social" role="tab"><span class="tab-icon">💬</span>Social</button>
-  <button class="tab" data-tab="defi" role="tab"><span class="tab-icon">🔄</span>DeFi (Gnoswap)</button>
-  <button class="tab" data-tab="whales" role="tab"><span class="tab-icon">🐋</span>Whale Watch</button>
-  <button class="tab" data-tab="deps" role="tab"><span class="tab-icon">🕸️</span>Dependencies</button>
-  <button class="tab" data-tab="faucet" role="tab"><span class="tab-icon">🚰</span>Faucet Drips</button>
-  <button class="tab" data-tab="snapshots" role="tab"><span class="tab-icon">📸</span>Wallet Snapshots</button>
-  <button class="tab" data-tab="links" role="tab"><span class="tab-icon">🔗</span>Links</button>
+  <div class="tab-more-wrap">
+    <button class="tab-more-btn" id="tabMoreBtn" type="button" aria-haspopup="true" aria-expanded="false">
+      <span id="tabMoreLabel">More</span><span class="tab-more-caret">▾</span>
+    </button>
+    <div class="tab-more-menu" id="tabMoreMenu" role="menu" hidden>
+      <button class="tab" data-tab="new" role="menuitem"><span class="tab-icon">🆕</span>What's New</button>
+      <button class="tab" data-tab="governance" role="menuitem"><span class="tab-icon">🏛️</span>DAO Governance</button>
+      <button class="tab" data-tab="social" role="menuitem"><span class="tab-icon">💬</span>Social</button>
+      <button class="tab" data-tab="defi" role="menuitem"><span class="tab-icon">🔄</span>DeFi (Gnoswap)</button>
+      <button class="tab" data-tab="whales" role="menuitem"><span class="tab-icon">🐋</span>Whale Watch</button>
+      <button class="tab" data-tab="deps" role="menuitem"><span class="tab-icon">🕸️</span>Dependencies</button>
+      <button class="tab" data-tab="faucet" role="menuitem"><span class="tab-icon">🚰</span>Faucet Drips</button>
+      <button class="tab" data-tab="snapshots" role="menuitem"><span class="tab-icon">📸</span>Wallet Snapshots</button>
+      <button class="tab" data-tab="links" role="menuitem"><span class="tab-icon">🔗</span>Links</button>
+    </div>
+  </div>
 </div>
 
 <div class="tab-panel" id="panel-new" hidden>
@@ -1178,6 +1233,17 @@ function updateUrlForView(partial) {
   history.replaceState(null, "", qs ? `${location.pathname}?${qs}` : location.pathname);
 }
 
+// Tabs living inside the "More ▾" dropdown rather than the main bar —
+// kept as a set here (not just CSS) so activateTab() can tell whether
+// the active tab is one of them and highlight/label the dropdown
+// trigger accordingly, same as a normal tab would show active.
+const MORE_MENU_TABS = new Set(["new", "governance", "social", "defi", "whales", "deps", "faucet", "snapshots", "links"]);
+
+function closeTabMoreMenu() {
+  document.getElementById("tabMoreMenu").hidden = true;
+  document.getElementById("tabMoreBtn").setAttribute("aria-expanded", "false");
+}
+
 function activateTab(tabName) {
   const panel = document.getElementById("panel-" + tabName);
   if (!panel) return;
@@ -1187,6 +1253,15 @@ function activateTab(tabName) {
   panel.hidden = false;
   if (tabName === "suggestions") loadSuggestions();
   if (tabName === "nfts") loadNftImagesForTab();
+
+  const moreBtn = document.getElementById("tabMoreBtn");
+  const isMoreTab = MORE_MENU_TABS.has(tabName);
+  moreBtn.classList.toggle("active", isMoreTab);
+  document.getElementById("tabMoreLabel").textContent = isMoreTab
+    ? document.querySelector(`.tab-more-menu .tab[data-tab="${tabName}"]`).lastChild.textContent.trim()
+    : "More";
+  closeTabMoreMenu();
+
   // subtab/token only mean anything under the defi tab — clear them from
   // the URL for every other tab so a stale filter doesn't linger there.
   updateUrlForView(tabName === "defi" ? { tab: tabName } : { tab: tabName, subtab: null, token: null });
@@ -1197,6 +1272,20 @@ document.querySelectorAll(".tab").forEach(btn => {
     activateTab(btn.dataset.tab);
     try { localStorage.setItem(TAB_STORAGE_KEY, btn.dataset.tab); } catch {}
   });
+});
+
+document.getElementById("tabMoreBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const menu = document.getElementById("tabMoreMenu");
+  const nowOpen = menu.hidden;
+  menu.hidden = !nowOpen;
+  document.getElementById("tabMoreBtn").setAttribute("aria-expanded", String(nowOpen));
+});
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("tabMoreMenu").hidden && !e.target.closest(".tab-more-wrap")) closeTabMoreMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeTabMoreMenu();
 });
 
 document.getElementById("suggestionsLink").addEventListener("click", () => {
@@ -4059,6 +4148,25 @@ document.getElementById("dashboardStats").addEventListener("keydown", (e) => {
   if (tile) { e.preventDefault(); goToStatTileTarget(tile); }
 });
 
+// Counts each dashboard stat up from 0 to its real value rather than
+// just printing it — purely a motion touch, each tile animates
+// independently off its own data-count-to so a slow one doesn't hold
+// up the rest.
+function animateStatCounts() {
+  const duration = 700;
+  document.querySelectorAll("#dashboardStats .stat-value[data-count-to]").forEach((el) => {
+    const target = Number(el.dataset.countTo);
+    const start = performance.now();
+    function frame(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased).toLocaleString();
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
 async function loadDashboard(netKey) {
   const statusEl = document.getElementById("dashboardStatus");
   clearStatusAlert(statusEl);
@@ -4082,23 +4190,24 @@ async function loadDashboard(netKey) {
     }
 
     const stats = [
-      { label: "Block height", value: (height ?? "—").toLocaleString?.() ?? String(height ?? "—") },
-      { label: "Realms/packages deployed", value: (cached.recentDeployed || []).length.toLocaleString(), link: { tab: "new" } },
-      { label: "Known active wallets", value: (cached.whaleWatch || []).length.toLocaleString(), link: { tab: "whales" } },
-      { label: "GRC20 tokens tracked", value: (cached.tokens || []).length.toLocaleString(), link: { tab: "tokens" } },
-      { label: "NFT collections detected", value: (cached.stats?.nftRealmCount ?? 0).toLocaleString(), link: { tab: "nfts" } },
-      { label: "DAO governance realms", value: (cached.stats?.governanceRealmCount ?? 0).toLocaleString(), link: { tab: "governance" } },
-      { label: "Social realms", value: (cached.stats?.socialRealmCount ?? 0).toLocaleString(), link: { tab: "social" } },
-      { label: "Gnoswap swaps (all-time)", value: (cached.gnoswapSwaps || []).length.toLocaleString(), link: { tab: "defi", subtab: "defi-swaps" } },
+      { label: "Block height", value: height },
+      { label: "Realms/packages deployed", value: (cached.recentDeployed || []).length, link: { tab: "new" } },
+      { label: "Known active wallets", value: (cached.whaleWatch || []).length, link: { tab: "whales" } },
+      { label: "GRC20 tokens tracked", value: (cached.tokens || []).length, link: { tab: "tokens" } },
+      { label: "NFT collections detected", value: cached.stats?.nftRealmCount ?? 0, link: { tab: "nfts" } },
+      { label: "DAO governance realms", value: cached.stats?.governanceRealmCount ?? 0, link: { tab: "governance" } },
+      { label: "Social realms", value: cached.stats?.socialRealmCount ?? 0, link: { tab: "social" } },
+      { label: "Gnoswap swaps (all-time)", value: (cached.gnoswapSwaps || []).length, link: { tab: "defi", subtab: "defi-swaps" } },
     ];
     document.getElementById("dashboardStats").innerHTML = stats.map(s => `
       <div class="stat-tile${s.link ? " clickable" : ""}"
         ${s.link ? `tabindex="0" role="button" data-link-tab="${s.link.tab}" data-link-subtab="${s.link.subtab || ""}"` : ""}>
-        <div class="stat-value">${escapeHtml(s.value)}</div>
+        <div class="stat-value"${Number.isFinite(s.value) ? ` data-count-to="${s.value}"` : ""}>${Number.isFinite(s.value) ? "0" : "—"}</div>
         <div class="stat-label">${escapeHtml(s.label)}</div>
       </div>
     `).join("");
     document.getElementById("dashboardStats").style.display = "grid";
+    animateStatCounts();
 
     chartItems.deploy = cached.recentDeployed || [];
     chartItems.swap = cached.gnoswapSwaps || [];
