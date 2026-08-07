@@ -354,6 +354,14 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.25); padding: 0.4rem; min-width: 190px;
     display: flex; flex-direction: column; gap: 0.1rem;
   }
+  /* [hidden]'s built-in "display: none" is a user-agent-stylesheet rule —
+     the plain .tab-more-menu{display:flex} rule above is an
+     author-stylesheet rule of equal specificity, and author beats
+     user-agent regardless of source order, so it was silently winning
+     and the menu stayed visually open no matter what the `hidden`
+     attribute/property said. This rule's higher specificity (class +
+     attribute) restores the expected behavior. */
+  .tab-more-menu[hidden] { display: none; }
   .tab-more-menu .tab { border-radius: 6px; text-align: left; }
   .tab-more-menu .tab.active { box-shadow: none; }
 
