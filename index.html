@@ -2102,6 +2102,16 @@ async function scanWallet() {
     if (galleryEligible.length) {
       const galleryData = await fetchOwnedNftGalleryData(net, galleryEligible);
       renderWalletNftGallery(galleryData);
+    } else if (heldNfts.some(n => n.tokenIds === null)) {
+      // Token-id enumeration (fetchOwnedTokenIds) replays events via the
+      // indexer, not RPC — so it hits the exact same betanet CORS wall as
+      // the History tab's live queries, even though the gallery's own
+      // per-token metadata fetch (vm/qeval, RPC) would work fine on its
+      // own. Without this, the gallery just silently showed nothing.
+      document.getElementById("walletNftGallery").innerHTML =
+        `<p class="status">Individual NFTs held couldn't be listed — betanet's indexer doesn't allow ` +
+        `direct browser requests (no CORS headers), unlike testnet's. The collection-level counts above ` +
+        `still work; this only affects per-token detail on betanet.</p>`;
     } else {
       document.getElementById("walletNftGallery").innerHTML = "";
     }
