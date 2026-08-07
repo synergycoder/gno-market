@@ -87,14 +87,15 @@
   }
 
   .site-header {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap;
+    display: flex; flex-direction: column; gap: 0.7rem;
     position: sticky; top: 0; z-index: 50;
     background: var(--bg);
     padding-block: 0.9rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: -0.9rem; /* keeps the rest of the page's original spacing now that the header carries its own padding */
   }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .header-row-bottom { justify-content: flex-start; gap: 0.6rem; }
   .brand { display: flex; align-items: center; gap: 0.75rem; }
   .brand .logo { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
   .brand h1 { margin: 0; font-size: 1.5rem; }
@@ -107,6 +108,15 @@
   }
   .header-wallet-status #headerWalletAddr { font-weight: 600; }
   .header-wallet-status #headerWalletBalance { color: var(--text-muted); }
+  .adena-connect-btn {
+    padding: 0.5rem 0.9rem; border-radius: 6px; cursor: pointer; font-family: inherit;
+    font-size: 0.85rem; font-weight: 600; white-space: nowrap;
+    background: none; color: var(--text); border: 1px dashed var(--border);
+  }
+  .adena-connect-btn:hover { background: var(--border-soft); border-color: var(--accent-2); color: var(--text); }
+  .adena-connect-btn.connected { background: none; color: var(--success); border-style: solid; border-color: var(--success); }
+  .adena-connect-btn.connected:hover { background: var(--border-soft); color: var(--accent); border-color: var(--accent); }
+  .adena-connect-btn:disabled { opacity: 0.5; cursor: default; }
   .tab-link {
     background: none; border: 1px dashed var(--border); color: var(--text-muted); cursor: pointer;
     border-radius: 6px; padding: 0.45rem 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 600;
@@ -244,11 +254,13 @@
   .preview {
     padding: 1rem 1.2rem; background: var(--border-soft); border-radius: 6px;
     margin: 0.5rem; font-size: 0.92rem;
+    overflow-x: auto; /* wide content (long unbroken strings, code, tables) scrolls within its own box instead of cramping/wrapping or clipping */
   }
   .preview h3, .preview h4, .preview h5 { margin: 0.6rem 0 0.3rem; }
   .preview p { margin: 0.4rem 0; }
   .preview ul { margin: 0.4rem 0; padding-left: 1.2rem; }
-  .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; }
+  .preview pre { overflow-x: auto; }
+  .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; white-space: pre; }
   code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
 
   .tabs {
@@ -395,26 +407,31 @@
 <body>
 
 <header class="site-header">
-  <div class="brand">
-    <img src="assets/gnome-logo.png" alt="" class="logo">
-    <h1>Gno.Observer</h1>
+  <div class="header-row header-row-top">
+    <div class="brand">
+      <img src="assets/gnome-logo.png" alt="" class="logo">
+      <h1>Gno.Observer</h1>
+    </div>
+    <div class="header-controls">
+      <span id="headerWalletStatus" class="header-wallet-status" style="display:none" title="Connected wallet, balance on the currently selected network">
+        <span id="headerWalletAddr"></span>
+        <span id="headerWalletBalance">…</span>
+      </span>
+      <button id="headerConnectBtn" class="adena-connect-btn" type="button">Connect Adena</button>
+      <select id="networkSelect"></select>
+      <button id="forceRefreshBtn" class="icon-btn" type="button" aria-label="Force refresh"
+        title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.03-6.75"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+        <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+    </div>
   </div>
-  <div class="header-controls">
-    <span id="headerWalletStatus" class="header-wallet-status" style="display:none" title="Connected wallet, balance on the currently selected network">
-      <span id="headerWalletAddr"></span>
-      <span id="headerWalletBalance">…</span>
-    </span>
+  <div class="header-row header-row-bottom">
     <span id="donateSlot"></span>
     <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
-    <select id="networkSelect"></select>
-    <button id="forceRefreshBtn" class="icon-btn" type="button" aria-label="Force refresh"
-      title="Fetch live on-chain data now, bypassing the shared cache. Only affects your own view — it doesn't push an update for other visitors.">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.03-6.75"/><path d="M21 3v6h-6"/></svg>
-    </button>
-    <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
-      <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-    </button>
   </div>
 </header>
 <p class="disclaimer">
@@ -506,7 +523,7 @@
   <div class="wallet-form">
     <input type="text" id="walletInput" placeholder="g1... wallet address" autocomplete="off" spellcheck="false">
     <button id="walletScanBtn">Scan</button>
-    <button id="adenaConnectBtn" class="btn-secondary">Connect Adena</button>
+    <button id="adenaConnectBtn" class="adena-connect-btn">Connect Adena</button>
   </div>
   <p id="adenaStatus" class="status"></p>
   <p id="walletStatus" class="status"></p>
@@ -1495,12 +1512,23 @@ function getNftImages(netKey) {
 // Each image string is opaque data straight from the chain (see
 // build-cache.mjs) — set directly as an <img src>, same as token logos
 // elsewhere on this page. Never parsed or inspected here either.
+// Simple text check, nothing else: only wrap the string in an <img> if
+// it actually looks like something a browser can load as an image
+// (an http(s) link, or a data:image/... URI) — otherwise show it as
+// plain text rather than silently failing inside a broken <img> tag.
+function looksLikeRenderableImage(s) {
+  return typeof s === "string" && (/^https?:\/\//.test(s) || /^data:image\//.test(s));
+}
+
 function patchNftRowImages(images) {
   document.querySelectorAll("#nftBody tr[data-path]").forEach(tr => {
     const image = images[tr.dataset.path];
     if (!image) return;
     const cell = tr.querySelector(".nft-image-cell");
-    if (cell) cell.innerHTML = `<img class="nft-collection-image" src="${escapeHtml(image)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+    if (!cell) return;
+    cell.innerHTML = looksLikeRenderableImage(image)
+      ? `<img class="nft-collection-image" src="${escapeHtml(image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      : `<span class="nft-collection-image-placeholder" title="${escapeHtml(image)}"></span>`;
   });
 }
 
@@ -1993,25 +2021,35 @@ async function refreshHeaderWalletBalance() {
   }
 }
 
+// Two buttons on the page now trigger the same Adena connection (the
+// header's, for quick access from anywhere, and Scan Wallet's original
+// one) — every function below that used to reach for a single button by
+// ID now updates every element sharing this class instead, so both stay
+// in sync regardless of which one was actually clicked.
+function adenaConnectBtns() {
+  return document.querySelectorAll(".adena-connect-btn");
+}
+
 function applyAdenaConnectedUI(address) {
   const statusEl = document.getElementById("adenaStatus");
-  const btn = document.getElementById("adenaConnectBtn");
   document.getElementById("walletInput").value = address;
   statusEl.innerHTML = `Connected: ${truncateAddress(address)}`;
-  btn.textContent = "✓ Connected";
-  btn.classList.add("connected");
-  btn.title = "Click to disconnect";
+  adenaConnectBtns().forEach(btn => {
+    btn.textContent = "✓ Connected";
+    btn.classList.add("connected");
+    btn.title = "Click to disconnect";
+  });
   showHeaderWallet(address);
 
   if (!adenaListenerRegistered) {
     // Adena has no "off"/unsubscribe API, so this listener outlives any
-    // later disconnectAdena() call on the same page — guard on the
-    // button's live state so a still-registered listener doesn't silently
+    // later disconnectAdena() call on the same page — guard on a button's
+    // live state so a still-registered listener doesn't silently
     // reconnect the UI if the user switches accounts in the extension
     // after clicking Disconnect, without reloading the page.
     window.adena.On("changedAccount", (newAddress) => {
       if (!newAddress) return;
-      if (!document.getElementById("adenaConnectBtn").classList.contains("connected")) return;
+      if (![...adenaConnectBtns()].some(b => b.classList.contains("connected"))) return;
       document.getElementById("walletInput").value = newAddress;
       statusEl.innerHTML = `Connected: ${truncateAddress(newAddress)}`;
       showHeaderWallet(newAddress);
@@ -2032,10 +2070,11 @@ function applyAdenaConnectedUI(address) {
 // wallet-specific UI. A user who wants to fully revoke Adena's own
 // per-domain approval still has to do that from the extension itself.
 function disconnectAdena() {
-  const btn = document.getElementById("adenaConnectBtn");
-  btn.textContent = "Connect Adena";
-  btn.title = "";
-  btn.classList.remove("connected");
+  adenaConnectBtns().forEach(btn => {
+    btn.textContent = "Connect Adena";
+    btn.title = "";
+    btn.classList.remove("connected");
+  });
   document.getElementById("adenaStatus").textContent = "Disconnected.";
   document.getElementById("walletInput").value = "";
   document.getElementById("walletNativeSection").style.display = "none";
@@ -2047,7 +2086,6 @@ function disconnectAdena() {
 
 async function connectAdena() {
   const statusEl = document.getElementById("adenaStatus");
-  const btn = document.getElementById("adenaConnectBtn");
 
   if (typeof window.adena === "undefined") {
     const fileNote = location.protocol === "file:"
@@ -2060,19 +2098,20 @@ async function connectAdena() {
     return;
   }
 
-  btn.disabled = true;
-  btn.classList.remove("connected");
-  btn.innerHTML = '<span class="spinner"></span>Connecting…';
+  adenaConnectBtns().forEach(btn => {
+    btn.disabled = true;
+    btn.classList.remove("connected");
+    btn.innerHTML = '<span class="spinner"></span>Connecting…';
+  });
   statusEl.textContent = "Connecting to Adena…";
   try {
     applyAdenaConnectedUI(await establishAdenaConnection());
   } catch (err) {
     statusEl.textContent = "Adena connection failed: " + err.message;
-    btn.textContent = "Connect Adena";
-    btn.classList.remove("connected");
+    adenaConnectBtns().forEach(btn => { btn.textContent = "Connect Adena"; btn.classList.remove("connected"); });
     try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
   } finally {
-    btn.disabled = false;
+    adenaConnectBtns().forEach(btn => { btn.disabled = false; });
   }
 }
 
@@ -2112,9 +2151,7 @@ async function autoReconnectAdena() {
 
   if (!(await waitForAdena())) return; // extension not present / never injected — leave idle
 
-  const btn = document.getElementById("adenaConnectBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Connecting…';
+  adenaConnectBtns().forEach(btn => { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Connecting…'; });
   document.getElementById("adenaStatus").textContent = "Restoring your Adena connection…";
   try {
     applyAdenaConnectedUI(await establishAdenaConnection());
@@ -2124,29 +2161,30 @@ async function autoReconnectAdena() {
     // confusing. Just fall back to the normal idle button; a real click
     // still works exactly as before.
     document.getElementById("adenaStatus").textContent = "";
-    btn.textContent = "Connect Adena";
+    adenaConnectBtns().forEach(btn => { btn.textContent = "Connect Adena"; });
     try { localStorage.removeItem(ADENA_CONNECTED_KEY); } catch {}
   } finally {
-    btn.disabled = false;
+    adenaConnectBtns().forEach(btn => { btn.disabled = false; });
   }
 }
 
-document.getElementById("adenaConnectBtn").addEventListener("click", () => {
-  const btn = document.getElementById("adenaConnectBtn");
-  if (btn.classList.contains("connected")) {
-    disconnectAdena();
-  } else {
-    connectAdena();
-  }
-});
-// Swap the connected button's label to "Disconnect" on hover so the
-// click's dual meaning (connect when idle, disconnect when connected) is
-// discoverable rather than surprising.
-document.getElementById("adenaConnectBtn").addEventListener("mouseenter", (e) => {
-  if (e.target.classList.contains("connected")) e.target.textContent = "Disconnect";
-});
-document.getElementById("adenaConnectBtn").addEventListener("mouseleave", (e) => {
-  if (e.target.classList.contains("connected")) e.target.textContent = "✓ Connected";
+adenaConnectBtns().forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("connected")) {
+      disconnectAdena();
+    } else {
+      connectAdena();
+    }
+  });
+  // Swap the connected button's label to "Disconnect" on hover so the
+  // click's dual meaning (connect when idle, disconnect when connected)
+  // is discoverable rather than surprising.
+  btn.addEventListener("mouseenter", (e) => {
+    if (e.target.classList.contains("connected")) e.target.textContent = "Disconnect";
+  });
+  btn.addEventListener("mouseleave", (e) => {
+    if (e.target.classList.contains("connected")) e.target.textContent = "✓ Connected";
+  });
 });
 autoReconnectAdena();
 

@@ -270,20 +270,34 @@ async function fetchFirstMintedTokenId(net, collectionPath) {
 // shapes seen/anticipated: JSON metadata embedded as a data: URI (the
 // confirmed-live case), or a token URI that IS itself directly an image
 // link (no JSON wrapper) for simpler collections.
+// Browsers have no native understanding of the ipfs:// URI scheme — an
+// <img src="ipfs://..."> just fails to load (silently, since the <img>
+// tags here have onerror="this.style.display='none'"), which is exactly
+// what "the ipfs ones don't show up" looks like. Rewriting to a public
+// gateway is a plain string transform, not image processing.
+function normalizeImageUri(uri) {
+  if (typeof uri !== "string" || !uri) return null;
+  if (/^ipfs:\/\//.test(uri)) return uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+  if (/^data:image\//.test(uri) || /^https?:\/\//.test(uri)) return uri;
+  return null;
+}
+
 function extractImageFromMetadataURI(uri) {
   if (!uri) return null;
   const jsonMatch = /^data:application\/json;base64,(.+)$/.exec(uri);
   if (jsonMatch) {
     try {
       const metadata = JSON.parse(Buffer.from(jsonMatch[1], "base64").toString("utf-8"));
-      return typeof metadata.image === "string" ? metadata.image : null;
+      // The bug this fixes: metadata.image itself can ALSO be an ipfs://
+      // link (a very common NFT metadata convention) — the old code
+      // returned it verbatim here without ever reaching the ipfs
+      // rewrite below, since that branch only ran for the OUTER uri.
+      return normalizeImageUri(metadata.image);
     } catch {
       return null;
     }
   }
-  if (/^data:image\//.test(uri) || /^https?:\/\//.test(uri)) return uri;
-  if (/^ipfs:\/\//.test(uri)) return uri.replace("ipfs://", "https://ipfs.io/ipfs/");
-  return null;
+  return normalizeImageUri(uri);
 }
 
 async function fetchNftCollectionImages(net, nftRealms) {
@@ -292,18 +306,44 @@ async function fetchNftCollectionImages(net, nftRealms) {
     try {
       const tokenId = await fetchFirstMintedTokenId(net, n.path);
       if (!tokenId) return;
-      let uri = null;
+
+      // Convention A: TokenURI()/GetTokenURI() returning a single string
+      // (a data: URI holding JSON metadata, or a direct image link) —
+      // confirmed live against gingernft. Only the FIRST line of the raw
+      // response is checked: a (string, error) function still returns
+      // "success" from vm/qeval (no thrown error) when it errors
+      // on-chain, printing a second line for the error return — matching
+      // across both lines with a greedy/dotall regex risks capturing
+      // text from that second line's own nested quotes.
       for (const fn of ["GetTokenURI", "TokenURI"]) {
         try {
           const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.${fn}("${tokenId}")`);
-          const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
-          if (m) { uri = m[1]; break; }
+          const firstLine = (raw || "").trim().split("\n")[0];
+          const m = /^\("([^"]*)" string\)$/.exec(firstLine);
+          const image = m ? extractImageFromMetadataURI(m[1]) : null;
+          if (image) { images[n.path] = image; return; }
         } catch {
           // try the next convention
         }
       }
-      const image = extractImageFromMetadataURI(uri);
-      if (image) images[n.path] = image;
+
+      // Convention B: TokenMetadata() returning a grc721.Metadata struct
+      // directly (Image is its first field, per
+      // gno.land/p/.../grc721/igrc721_metadata.gno) — confirmed live
+      // against tardigrades, whose TokenURI() exists but always errors
+      // "invalid token id" (its own metadata is only reachable this way,
+      // not through the more common TokenURI convention). vm/qeval
+      // renders a struct as (struct{(field1),(field2),...} typename) in
+      // declaration order — only the first field is parsed here.
+      try {
+        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.TokenMetadata("${tokenId}")`);
+        const firstLine = (raw || "").trim().split("\n")[0];
+        const m = /^\(struct\{\("([^"]*)" string\)/.exec(firstLine);
+        const image = m ? extractImageFromMetadataURI(m[1]) : null;
+        if (image) images[n.path] = image;
+      } catch {
+        // best-effort — not every collection will resolve, leave it out
+      }
     } catch {
       // best-effort — not every collection will resolve, leave it out
     }
