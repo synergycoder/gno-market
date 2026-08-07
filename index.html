@@ -1407,8 +1407,23 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
   const json = await res.json();
   if (json.error) throw new Error(json.error.message);
   const raw = json.result.response.ResponseBase.Data;
-  if (json.result.response.ResponseBase.Error) {
-    return null; // e.g. "invalid package path" for a path with no render/file
+  const respError = json.result.response.ResponseBase.Error;
+  if (respError) {
+    // Was silently returning null here for ANY on-chain error — fine for
+    // the common "invalid package path" case (no render/file to find),
+    // but it also swallowed genuinely informative failures the same way
+    // (confirmed live: a real realm's Render() throwing "out of gas in
+    // location: CPUCycles" once its token count grew past what its own
+    // unpaginated listing logic could afford) into the exact same
+    // generic "(empty render)" text a user would see for a realm that
+    // truly has nothing to show — no way to tell those apart. Every
+    // caller either already wraps this in its own try/catch (same
+    // outcome either way) or was silently treating a real failure as an
+    // empty success (an existing bug in its own right, now surfaced
+    // instead of hidden) — audited every call site before making this
+    // change specifically because it's shared by so many of them.
+    const msg = typeof respError === "string" ? respError : (respError.value || respError.message || JSON.stringify(respError));
+    throw new Error(msg);
   }
   return raw ? decodeURIComponent(escape(atob(raw))) : "";
 }
