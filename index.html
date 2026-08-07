@@ -455,9 +455,34 @@
     vertical-align: -0.15em; animation: spin 0.6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Same "tardigrade floating in space" back-to-top button as
+     tardigradesnft.com (the collection this whole page's Scan Wallet
+     history has been tested against) — same idea (fixed bottom-right,
+     click to smooth-scroll to the top), reimplemented here rather than
+     reusing their scroll-triggered show/hide JS, which isn't needed
+     since this page is far shorter. */
+  .scroll-top-btn {
+    position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 500;
+    width: 56px; height: 56px; padding: 0; border: none; border-radius: 50%;
+    background: var(--bg-elevated); box-shadow: var(--shadow); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .scroll-top-btn.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .scroll-top-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  .scroll-top-btn img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+  @media (max-width: 480px) {
+    .scroll-top-btn { width: 44px; height: 44px; right: 0.8rem; bottom: 0.8rem; }
+  }
 </style>
 </head>
 <body>
+
+<button id="scrollTopBtn" class="scroll-top-btn" type="button" aria-label="Back to top" title="Back to top">
+  <img src="assets/scroll-top-tardigrade.png" alt="">
+</button>
 
 <header class="site-header">
   <div class="header-row header-row-top">
@@ -1000,6 +1025,13 @@ const NETWORKS = {
     chainId: "gnoland1",
     rpcUrl: "https://rpc.gno.land",
     indexerUrl: "https://indexer.gno.land/graphql/query",
+    // betanet's indexer sends no CORS headers at all (unlike testnet's,
+    // which allows browser requests directly) — a real gap in that one
+    // deployment, not a fixed policy. This is a small self-hosted proxy
+    // (see dreamhost-proxy/) that forwards to the same indexer
+    // server-side, where CORS never applies, and attaches the header
+    // the indexer itself doesn't send. Only betanet needs this.
+    indexerProxyUrl: "https://gno-proxy.tardigradesnft.com/gno-betanet-proxy.php",
   },
 };
 
@@ -1232,11 +1264,16 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
 }
 
 async function graphqlQuery(net, query, timeoutMs = 20000) {
+  // betanet routes through our own proxy (see NETWORKS.betanet's
+  // indexerProxyUrl comment) since indexer.gno.land itself blocks
+  // browser requests; testnet's indexer allows them directly, so it
+  // has no indexerProxyUrl and this is a no-op for it.
+  const url = net.indexerProxyUrl || net.indexerUrl;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res;
   try {
-    res = await fetch(net.indexerUrl, {
+    res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
@@ -1245,21 +1282,17 @@ async function graphqlQuery(net, query, timeoutMs = 20000) {
   } catch (err) {
     if (err.name === "AbortError") throw new Error(`Indexer query timed out after ${timeoutMs / 1000}s`);
     // A bare "Failed to fetch" is the browser's generic (and unhelpfully
-    // vague) message for a request that never got a response at all — most
-    // often CORS. Confirmed directly (OPTIONS preflight, curl): betanet's
-    // indexer (indexer.gno.land) sends no access-control-allow-origin
-    // header at all, unlike testnet's (which sends "*") — so any
-    // browser-side call to it is blocked before it ever reaches the
-    // network tab as a real HTTP response. This isn't fixable from this
-    // page; it's the indexer's own server config. Only affects live
-    // browser calls (force-refresh, or the live-scan fallback when the
-    // shared cache is unavailable) — the precomputed cache still works
-    // fine since that's built server-side (Node, not a browser, so CORS
-    // never applies) and just fetched as a static JSON file.
+    // vague) message for a request that never got a response at all —
+    // now that betanet routes through our own proxy, this means the
+    // PROXY itself is unreachable (down, DNS issue), not a CORS block —
+    // the indexer's own missing CORS header is exactly what the proxy
+    // exists to work around. Still gracefully degrades either way: the
+    // precomputed cache (built server-side, unaffected by any of this)
+    // keeps working regardless.
     if (err instanceof TypeError && /fetch/i.test(err.message)) {
       throw new Error(
-        net.indexerUrl.includes("indexer.gno.land")
-          ? "Couldn't reach betanet's indexer directly from the browser — it doesn't allow cross-origin requests (no CORS headers), unlike testnet's. This only affects live/force-refresh; the precomputed cache for this tab still works normally."
+        net.indexerProxyUrl
+          ? "Couldn't reach the betanet indexer proxy — it may be temporarily down. This only affects live/force-refresh; the precomputed cache for this tab still works normally."
           : "Couldn't reach the indexer (network error or CORS) — this only affects live/force-refresh; the precomputed cache for this tab still works normally."
       );
     }
@@ -3089,13 +3122,8 @@ function mdToHtmlSafe(markdown) {
 async function showSnapshotHeight(net) {
   const el = document.getElementById("refreshStatus");
   try {
-    const res = await fetch(net.indexerUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: "query { latestBlockHeight }" }),
-    });
-    const json = await res.json();
-    const height = json.data && json.data.latestBlockHeight;
+    const data = await graphqlQuery(net, "query { latestBlockHeight }");
+    const height = data.latestBlockHeight;
     el.textContent = `Snapshot as of block ${height ?? "?"} · reload the page for a fresh one.`;
   } catch {
     el.textContent = "";
@@ -4047,13 +4075,8 @@ async function loadDashboard(netKey) {
 
     let height = cached.lastHeight;
     try {
-      const res = await fetch(net.indexerUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: "query { latestBlockHeight }" }),
-      });
-      const json = await res.json();
-      if (json.data && json.data.latestBlockHeight) height = json.data.latestBlockHeight;
+      const data = await graphqlQuery(net, "query { latestBlockHeight }");
+      if (data.latestBlockHeight) height = data.latestBlockHeight;
     } catch {
       // fall back to the cache's own lastHeight, set above
     }
@@ -4144,6 +4167,14 @@ async function forceRefreshAll() {
 }
 
 document.getElementById("forceRefreshBtn").addEventListener("click", forceRefreshAll);
+
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+window.addEventListener("scroll", () => {
+  scrollTopBtn.classList.toggle("visible", window.scrollY > 400);
+}, { passive: true });
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 loadAll(currentKey);
 
