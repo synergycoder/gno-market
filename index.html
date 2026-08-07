@@ -2146,6 +2146,303 @@ document.querySelectorAll("#panel-wallet .subtab").forEach(btn => {
   });
 });
 
+// ---------- Scan Wallet: History sub-tab ----------
+// The indexer has no "every tx this address touched" query (confirmed via
+// live schema introspection) — every message type needs its own query,
+// and event-attribute filters only match one key/value pair at a time, so
+// "sent"/"received" are queried once each (Transfer events with attrs
+// from==W / to==W) and split into token vs NFT client-side by whether the
+// event carries a "value" (GRC20) or "tokenId" (GRC721) attr — confirmed
+// live that both standards stamp a "token" attr with the same
+// "<realm path>.<SYMBOL>[.<instanceId>]" shape realmPathOnly()/swap
+// parsing elsewhere on this page already expects. Swap/deploy reuse the
+// already-fetched site-wide cache instead of a live query — same data
+// already shown on the DeFi/What's New tabs, just filtered to this
+// address, and it works on betanet too (unlike the live queries below,
+// which need testnet's CORS-permissive indexer).
+const HISTORY_CATEGORIES = [
+  { key: "token_received", label: "🪙 Tokens received" },
+  { key: "token_sent", label: "🪙 Tokens sent" },
+  { key: "nft_minted", label: "🖼️ NFT minted" },
+  { key: "nft_received", label: "🖼️ NFT received" },
+  { key: "nft_sent", label: "🖼️ NFT sent" },
+  { key: "swap", label: "🔄 Token swap" },
+  { key: "gnot_received", label: "💸 GNOT received" },
+  { key: "gnot_sent", label: "💸 GNOT sent" },
+  { key: "deploy", label: "📦 Realm deployed" },
+];
+const HISTORY_DISPLAY_LIMIT = 300;
+let walletHistoryInFlight = false;
+let walletHistoryRows = [];
+
+function parseUgnotAmount(raw) {
+  const m = /^(\d+)ugnot$/.exec(raw || "");
+  return m ? Number(m[1]) : null;
+}
+
+// Event "token" attrs are "<realm path>.<SYMBOL>" or, for realms that
+// mint multiple named instances from one shared package, "<realm
+// path>.<SYMBOL>.<instanceId>" (confirmed live on both gnoswap/gns and
+// wugnot) — tokenSymbol() elsewhere on this page assumes the 2-segment
+// form already normalized by build-cache.mjs, so a live 3-segment value
+// would return the instance id instead of the symbol. This strips
+// exactly at the same cut point realmPathOnly() uses, then takes only
+// the next segment, working for either shape.
+function symbolFromEventToken(tokenAttr) {
+  if (!tokenAttr) return "?";
+  const path = realmPathOnly(tokenAttr);
+  return tokenAttr.slice(path.length + 1).split(".")[0] || "?";
+}
+
+async function fetchBankSendRows(net, address, direction) {
+  const field = direction === "sent" ? "from_address" : "to_address";
+  const query = `query {
+    getTransactions(where: {
+      messages: { value: { BankMsgSend: { ${field}: { eq: "${address}" } } } }
+    }, order: { heightAndIndex: DESC }) {
+      hash
+      block_height
+      messages { value { __typename ... on BankMsgSend { from_address to_address amount } } }
+    }
+  }`;
+  const data = await graphqlQuery(net, query);
+  const rows = [];
+  for (const tx of data.getTransactions || []) {
+    for (const m of tx.messages || []) {
+      if (m.value?.__typename !== "BankMsgSend" || m.value[field] !== address) continue;
+      rows.push({
+        category: direction === "sent" ? "gnot_sent" : "gnot_received",
+        blockHeight: tx.block_height,
+        hash: tx.hash,
+        counterparty: direction === "sent" ? m.value.to_address : m.value.from_address,
+        amountRaw: m.value.amount,
+      });
+    }
+  }
+  return rows;
+}
+
+// One query per (event type, attr key) pair returns every tx where AT
+// LEAST ONE event matches — a tx can carry several matching events (e.g.
+// a multi-hop swap), so every event in the response is re-checked
+// individually rather than trusting the first one (confirmed live: a
+// real tx's first Transfer event was to a different address than the one
+// that made the where-clause match).
+async function fetchEventRows(net, address, eventType, attrKey) {
+  const query = `query {
+    getTransactions(where: {
+      response: { events: { GnoEvent: { type: { eq: "${eventType}" }, attrs: { key: { eq: "${attrKey}" }, value: { eq: "${address}" } } } } }
+    }, order: { heightAndIndex: DESC }) {
+      hash
+      block_height
+      response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+    }
+  }`;
+  const data = await graphqlQuery(net, query);
+  const rows = [];
+  for (const tx of data.getTransactions || []) {
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent" || ev.type !== eventType) continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (attrs[attrKey] !== address) continue;
+      rows.push({
+        blockHeight: tx.block_height,
+        hash: tx.hash,
+        isNft: attrs.tokenId !== undefined,
+        token: attrs.token || null,
+        from: attrs.from || null,
+        to: attrs.to || null,
+        value: attrs.value || null,
+        tokenId: attrs.tokenId || null,
+      });
+    }
+  }
+  return rows;
+}
+
+// GRC20/GRC721 Transfer events represent mint/burn as a Transfer with an
+// empty "from"/"to" attr (confirmed live: a mint event's "from" attr is
+// ""), not a separate event — truncateAddress("") on that produces a
+// blank string, so it needs its own label rather than an empty address.
+function historyCounterparty(addr) {
+  return addr ? truncateAddress(addr) : "(mint/burn — no counterparty)";
+}
+
+function historyRowDetails(r) {
+  switch (r.category) {
+    case "gnot_sent":
+    case "gnot_received": {
+      const amt = parseUgnotAmount(r.amountRaw);
+      const amtText = amt != null ? `${formatGnot(amt)} GNOT` : escapeHtml(r.amountRaw || "?");
+      return r.category === "gnot_sent"
+        ? `Sent ${amtText} to ${truncateAddress(r.counterparty)}`
+        : `Received ${amtText} from ${truncateAddress(r.counterparty)}`;
+    }
+    case "token_sent":
+    case "token_received": {
+      const path = realmPathOnly(r.token || "");
+      const amt = r.value != null ? formatTokenAmount(r.value, currentTokenDecimals[path]) : "?";
+      const symbol = escapeHtml(symbolFromEventToken(r.token));
+      return r.category === "token_sent"
+        ? `Sent ${amt} ${symbol} to ${historyCounterparty(r.to)}`
+        : `Received ${amt} ${symbol} from ${historyCounterparty(r.from)}`;
+    }
+    case "nft_sent":
+    case "nft_received": {
+      const path = escapeHtml(realmPathOnly(r.token || ""));
+      const tid = escapeHtml(r.tokenId || "?");
+      return r.category === "nft_sent"
+        ? `Sent #${tid} of ${path} to ${historyCounterparty(r.to)}`
+        : `Received #${tid} of ${path} from ${historyCounterparty(r.from)}`;
+    }
+    case "nft_minted":
+      return `Minted #${escapeHtml(r.tokenId || "?")} of ${escapeHtml(realmPathOnly(r.token || ""))}`;
+    case "swap": {
+      const s = r.swap;
+      return `Swapped ${formatTokenAmount(s.amountIn, currentTokenDecimals[realmPathOnly(s.tokenIn)])} ${escapeHtml(tokenSymbol(s.tokenIn))} → ` +
+        `${formatTokenAmount(s.amountOut, currentTokenDecimals[realmPathOnly(s.tokenOut)])} ${escapeHtml(tokenSymbol(s.tokenOut))}`;
+    }
+    case "deploy":
+      return `Deployed ${escapeHtml(r.deploy.kind || "package")} ${escapeHtml(r.deploy.path)}`;
+    default:
+      return "";
+  }
+}
+
+function activeHistoryFilterKeys() {
+  return new Set([...document.querySelectorAll("#walletHistoryFilters input:checked")].map(cb => cb.dataset.key));
+}
+
+function renderWalletHistoryFilters() {
+  const el = document.getElementById("walletHistoryFilters");
+  const present = new Set(walletHistoryRows.map(r => r.category));
+  const cats = HISTORY_CATEGORIES.filter(c => present.has(c.key));
+  if (!cats.length) {
+    el.style.display = "none";
+    el.innerHTML = "";
+    return;
+  }
+  el.style.display = "flex";
+  el.innerHTML = cats.map(c => `
+    <label class="history-filter-pill active">
+      <input type="checkbox" checked data-key="${c.key}">${c.label}
+    </label>
+  `).join("");
+  el.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      cb.closest(".history-filter-pill").classList.toggle("active", cb.checked);
+      renderWalletHistoryRows();
+    });
+  });
+}
+
+function renderWalletHistoryRows() {
+  const activeKeys = activeHistoryFilterKeys();
+  const rows = walletHistoryRows.filter(r => activeKeys.has(r.category));
+  const shown = rows.slice(0, HISTORY_DISPLAY_LIMIT);
+  document.getElementById("walletHistoryBody").innerHTML = shown.map(r => {
+    const cat = HISTORY_CATEGORIES.find(c => c.key === r.category);
+    return `
+      <tr>
+        <td>${r.blockTime ? formatDate(r.blockTime) : `block ${r.blockHeight}`}</td>
+        <td><span class="history-type-badge">${cat ? cat.label : r.category}</span></td>
+        <td>${historyRowDetails(r)}</td>
+        <td>${r.hash ? `<a href="${gnoscanTxUrl(r.hash)}" target="_blank" rel="noopener">view ↗</a>` : "—"}</td>
+      </tr>
+    `;
+  }).join("");
+  document.getElementById("walletHistoryTable").style.display = rows.length ? "table" : "none";
+  const statusEl = document.getElementById("walletHistoryStatus");
+  if (!walletHistoryRows.length) {
+    statusEl.textContent = statusEl.dataset.baseNote || "No transactions found for this address.";
+  } else {
+    statusEl.textContent = rows.length
+      ? `${rows.length} transaction${rows.length === 1 ? "" : "s"} match the selected filters` +
+        (rows.length > shown.length ? ` — showing the most recent ${shown.length}` : "") + "." +
+        (statusEl.dataset.baseNote ? ` ${statusEl.dataset.baseNote}` : "")
+      : `No transactions match the selected filters.${statusEl.dataset.baseNote ? " " + statusEl.dataset.baseNote : ""}`;
+  }
+}
+
+async function loadWalletHistory() {
+  if (walletHistoryInFlight) return;
+  const address = document.getElementById("walletInput").value.trim();
+  const statusEl = document.getElementById("walletHistoryStatus");
+  const btn = document.getElementById("walletHistoryLoadBtn");
+  if (!isPlausibleGnoAddress(address)) {
+    statusEl.textContent = 'That doesn\'t look like a gno.land address — should look like "g1..." (bech32).';
+    return;
+  }
+
+  walletHistoryInFlight = true;
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>Loading…';
+  statusEl.dataset.baseNote = "";
+  statusEl.textContent = "Checking realm deploys and Gnoswap swaps, then querying the indexer for transfers, mints, and native sends…";
+  document.getElementById("walletHistoryFilters").style.display = "none";
+  document.getElementById("walletHistoryTable").style.display = "none";
+
+  const net = NETWORKS[currentKey];
+  const netKey = currentKey;
+  let liveError = null;
+  async function tryLive(fn) {
+    try {
+      return await fn();
+    } catch (err) {
+      liveError = liveError || err;
+      return [];
+    }
+  }
+
+  try {
+    const cached = await getCachedData(netKey);
+    const swapRows = ((cached && cached.gnoswapSwaps) || [])
+      .filter(s => s.caller === address)
+      .map(s => ({ category: "swap", blockHeight: s.blockHeight, blockTime: s.blockTime, hash: s.hash, swap: s }));
+    const deployRows = ((cached && cached.recentDeployed) || [])
+      .filter(p => p.creator === address)
+      .map(p => ({ category: "deploy", blockHeight: p.blockHeight, blockTime: p.blockTime, hash: p.hash, deploy: p }));
+
+    const [sent, received, minted, gnotSent, gnotReceived] = await Promise.all([
+      tryLive(() => fetchEventRows(net, address, "Transfer", "from")),
+      tryLive(() => fetchEventRows(net, address, "Transfer", "to")),
+      tryLive(() => fetchEventRows(net, address, "Mint", "to")),
+      tryLive(() => fetchBankSendRows(net, address, "sent")),
+      tryLive(() => fetchBankSendRows(net, address, "received")),
+    ]);
+
+    const eventRows = [
+      ...sent.map(r => ({ ...r, category: r.isNft ? "nft_sent" : "token_sent" })),
+      ...received.map(r => ({ ...r, category: r.isNft ? "nft_received" : "token_received" })),
+      ...minted.map(r => ({ ...r, category: "nft_minted" })),
+    ];
+
+    let allRows = [...swapRows, ...deployRows, ...eventRows, ...gnotSent, ...gnotReceived];
+
+    const heightsNeeded = [...new Set(allRows.filter(r => !r.blockTime).map(r => r.blockHeight))];
+    const times = await fetchBlockTimes(net, heightsNeeded);
+    allRows = allRows.map(r => ({ ...r, blockTime: r.blockTime || times.get(r.blockHeight) || null }));
+    allRows.sort((a, b) => b.blockHeight - a.blockHeight);
+
+    walletHistoryRows = allRows;
+    statusEl.dataset.baseNote = liveError
+      ? `Transfers/mints/native sends couldn't be loaded live: ${liveError.message} (swap and deploy history above still reflects the precomputed cache.)`
+      : "";
+    renderWalletHistoryFilters();
+    renderWalletHistoryRows();
+  } catch (err) {
+    statusEl.dataset.baseNote = "";
+    statusEl.textContent = "Failed to load history: " + err.message;
+  } finally {
+    walletHistoryInFlight = false;
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+document.getElementById("walletHistoryLoadBtn").addEventListener("click", loadWalletHistory);
+
 // ---------- Adena wallet connect ----------
 // API per Adena's own docs (docs.adena.app/integrations): AddEstablish to
 // request a connection, GetAccount to read the active account, and the
