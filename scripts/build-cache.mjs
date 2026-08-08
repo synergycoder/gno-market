@@ -355,6 +355,137 @@ async function fetchNftCollectionImages(net, nftRealms) {
   return images;
 }
 
+// ---------- Ginger Mints (betanet only) — precomputed mint feed for the
+// index.html "Ginger NFT Mints" subtab, same shape/logic as its client-side
+// live-query fallback (fetchCollectionMintEvents/fetchOwnedTokenMetadata in
+// index.html) so the two stay interchangeable. Incremental: a token whose
+// metadata was already resolved in a previous run is carried forward
+// unchanged rather than re-fetched — metadata for an already-minted token
+// never changes, so there's nothing to gain by re-querying it every run.
+const GINGER_COLLECTION = {
+  path: "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2",
+  name: "Lord G's - Ginge Gnomie",
+  maxSupply: 111,
+};
+
+async function fetchGingerMintEvents(net) {
+  const query = `query {
+    getTransactions(where: {
+      success: { eq: true },
+      messages: { value: { MsgCall: { pkg_path: { eq: "${GINGER_COLLECTION.path}" } } } }
+    }, order: { heightAndIndex: DESC }) {
+      hash
+      block_height
+      response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+    }
+  }`;
+  const data = await graphqlQuery(net.indexerUrl, query, 30000);
+  const mints = [];
+  for (const tx of data.getTransactions || []) {
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent" || ev.type !== "Mint") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (!attrs.tokenId) continue;
+      mints.push({ hash: tx.hash, blockHeight: tx.block_height, tokenId: attrs.tokenId, to: attrs.to || null });
+    }
+  }
+  return mints;
+}
+
+// Same two conventions/field order as index.html's parseMetadataURI +
+// fetchOwnedTokenMetadata (see those for the confirmation notes) — kept as
+// a near-identical port rather than a shared module since this project has
+// no build step to share code between the Node script and the static page.
+function parseGingerMetadataURI(uri) {
+  const jsonMatch = /^data:application\/json;base64,(.+)$/.exec(uri);
+  if (jsonMatch) {
+    try {
+      const meta = JSON.parse(Buffer.from(jsonMatch[1], "base64").toString("utf-8"));
+      return {
+        image: normalizeImageUri(meta.image),
+        name: typeof meta.name === "string" ? meta.name : null,
+        description: typeof meta.description === "string" ? meta.description : null,
+        attributes: Array.isArray(meta.attributes)
+          ? meta.attributes
+              .filter((a) => a && typeof a === "object")
+              .map((a) => ({
+                traitType: typeof a.trait_type === "string" ? a.trait_type : "Trait",
+                value: a.value == null ? "" : String(a.value),
+              }))
+          : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+  const direct = normalizeImageUri(uri);
+  return direct ? { image: direct, name: null, description: null, attributes: null } : null;
+}
+
+async function fetchGingerTokenMetadata(net, tokenId) {
+  const literal = JSON.stringify(tokenId);
+  for (const fn of ["GetTokenURI", "TokenURI"]) {
+    try {
+      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GINGER_COLLECTION.path}.${fn}(${literal})`);
+      const firstLine = (raw || "").trim().split("\n")[0];
+      const m = /^\("([^"]*)" string\)$/.exec(firstLine);
+      if (!m) continue;
+      const meta = parseGingerMetadataURI(m[1]);
+      if (meta) return meta;
+    } catch {
+      // try the next convention
+    }
+  }
+  try {
+    const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GINGER_COLLECTION.path}.TokenMetadata(${literal})`);
+    const firstLine = (raw || "").trim().split("\n")[0];
+    const fields = [...firstLine.matchAll(/\((?:"([^"]*)")?\s*string\)/g)].map((m) => m[1] ?? "");
+    if (fields.length) {
+      return {
+        image: normalizeImageUri(fields[0]),
+        description: fields[3] || null,
+        name: fields[4] || null,
+        attributes: null, // struct's Attributes field isn't string-typed — same gap as the client parser
+      };
+    }
+  } catch {
+    // best-effort
+  }
+  return { image: null, name: null, description: null, attributes: null };
+}
+
+async function fetchGingerMints(net, prevGingerMints) {
+  const mints = await fetchGingerMintEvents(net);
+  const prevByToken = new Map((prevGingerMints?.mints || []).map((m) => [m.tokenId, m]));
+  let newlyFetched = 0;
+  await mapLimit(mints, 6, async (m) => {
+    const existing = prevByToken.get(m.tokenId);
+    if (existing && existing.image !== undefined) {
+      m.image = existing.image;
+      m.name = existing.name;
+      m.description = existing.description;
+      m.attributes = existing.attributes;
+      return;
+    }
+    newlyFetched++;
+    const meta = await fetchGingerTokenMetadata(net, m.tokenId);
+    m.image = meta.image;
+    m.name = meta.name;
+    m.description = meta.description;
+    m.attributes = meta.attributes;
+  });
+
+  const prevTimeByHeight = new Map(
+    (prevGingerMints?.mints || []).filter((m) => m.blockTime).map((m) => [m.blockHeight, m.blockTime])
+  );
+  const heightsNeedingTime = [...new Set(mints.map((m) => m.blockHeight))].filter((h) => !prevTimeByHeight.has(h));
+  const blockTimes = heightsNeedingTime.length ? await fetchBlockTimes(net, heightsNeedingTime) : new Map();
+  for (const m of mints) m.blockTime = blockTimes.get(m.blockHeight) || prevTimeByHeight.get(m.blockHeight) || null;
+
+  mints.sort((a, b) => b.blockHeight - a.blockHeight);
+  return { mints, newlyFetched };
+}
+
 // ---------- token decimals ----------
 // GRC20 decimals aren't reliably exposed — some implementations expose
 // Decimals(), some GetDecimals(), some neither (confirmed directly against
@@ -1200,6 +1331,7 @@ async function buildNetwork(netKey, net) {
   const outPath = path.join(DATA_DIR, `${netKey}.json`);
   const internalPath = path.join(DATA_DIR, `${netKey}.internal.json`);
   const nftImagesPath = path.join(DATA_DIR, `${netKey}-nft-images.json`);
+  const gingerMintsPath = path.join(DATA_DIR, `${netKey}-ginger-mints.json`);
   // Two files: outPath is what every visitor downloads (client-shipped
   // fields only); internalPath holds incremental-cache state the client
   // never reads (raw per-realm import lists, the full swap/faucet-drip
@@ -1223,6 +1355,9 @@ async function buildNetwork(netKey, net) {
   } catch {
     // no previous run, or corrupt — start fresh
   }
+  const prevGingerMints = netKey === "betanet"
+    ? await readFile(gingerMintsPath, "utf-8").then(JSON.parse).catch(() => null)
+    : null;
 
   const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry, faucetResult] = await Promise.all([
     fetchTokens(net),
@@ -1370,6 +1505,13 @@ async function buildNetwork(netKey, net) {
   const whaleWatch = await fetchWhaleWatch(net, knownAddresses, genesisAddrSet);
   console.log(`whale watch: ${whaleWatch.length}/${knownAddresses.size} known addresses checked (${genesisAddrs.length} from genesis balances, ${bankSendResult.addresses.length} from bank sends)`);
 
+  let gingerMints = null;
+  if (netKey === "betanet") {
+    const result = await fetchGingerMints(net, prevGingerMints);
+    gingerMints = { generatedAt: new Date().toISOString(), mints: result.mints };
+    console.log(`ginger mints: ${result.mints.length} total (${result.newlyFetched} newly fetched this run)`);
+  }
+
   const output = {
     network: netKey,
     generatedAt: new Date().toISOString(),
@@ -1433,9 +1575,11 @@ async function buildNetwork(netKey, net) {
   await writeFile(outPath, JSON.stringify(output, null, 2));
   await writeFile(internalPath, JSON.stringify(internalState, null, 2));
   await writeFile(nftImagesPath, JSON.stringify(nftImages, null, 2));
+  if (gingerMints) await writeFile(gingerMintsPath, JSON.stringify(gingerMints, null, 2));
   console.log(`wrote ${outPath}`);
   console.log(`wrote ${internalPath}`);
   console.log(`wrote ${nftImagesPath}`);
+  if (gingerMints) console.log(`wrote ${gingerMintsPath}`);
 }
 
 async function main() {
@@ -1445,8 +1589,13 @@ async function main() {
   // succeeds still gets written and committed. The run is only reported
   // as failed (non-zero exit, visible in the Actions UI) after everything
   // that *could* succeed has been given the chance to.
+  // Local-dev convenience — unset in CI, so the scheduled run always does
+  // both networks. e.g. `ONLY_NETWORK=betanet node scripts/build-cache.mjs`
+  // to iterate on a betanet-only change without paying the testnet scan cost.
+  const only = process.env.ONLY_NETWORK;
   let anyFailed = false;
   for (const [netKey, net] of Object.entries(NETWORKS)) {
+    if (only && netKey !== only) continue;
     try {
       await buildNetwork(netKey, net);
     } catch (err) {

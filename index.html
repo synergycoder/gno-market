@@ -288,6 +288,17 @@
     width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
     vertical-align: middle; background: var(--border-soft); display: block;
   }
+  @keyframes ginger-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }
+  .ginger-mint-pending { animation: ginger-pulse 1.3s ease-in-out infinite; background: var(--border-soft); }
+  .ginger-mint-pending-text { color: var(--text-muted); font-style: italic; }
+  @keyframes ginger-spin { to { transform: rotate(360deg); } }
+  .ginger-mints-spinner {
+    display: inline-block; width: 0.85em; height: 0.85em; margin: 0 0.4em -0.1em 0.1em;
+    border: 2px solid var(--border); border-top-color: var(--accent-2);
+    border-radius: 50%; animation: ginger-spin 0.7s linear infinite;
+  }
+  .ginger-mints-title { margin: 0.6rem 0 0.2rem; font-size: 1.6rem; display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+  .ginger-mints-title .ginger-mints-realm-link { font-size: 0.85rem; font-weight: 500; }
   .ginger-mint-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
   .ginger-mint-stat-card {
     flex: 1 1 220px; border-radius: 14px; padding: 1.1rem 1.3rem; color: #fff;
@@ -794,6 +805,7 @@
   </div>
 
   <div class="subtab-panel" id="subpanel-nfts-ginger-mints" hidden>
+    <h3 class="ginger-mints-title" id="gingerMintsTitle"></h3>
     <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Live mint feed for <strong>Lord G's - Ginge Gnomie</strong>
       (on betanet, regardless of which network is selected above) — queried directly from the chain
       every time this tab opens, not precomputed, so it always reflects the current state rather than
@@ -804,11 +816,11 @@
     <div class="ginger-mint-stats" id="gingerMintStats"></div>
     <div class="view-toggle" role="group" aria-label="View">
       <button type="button" class="view-toggle-btn" id="gingerMintsViewList" data-view="list">☰ List</button>
-      <button type="button" class="view-toggle-btn" id="gingerMintsViewGrid" data-view="grid">▦ Grid</button>
+      <button type="button" class="view-toggle-btn" id="gingerMintsViewGrid" data-view="grid"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:-1px"><rect x="0" y="0" width="6" height="6" rx="1.2"/><rect x="8" y="0" width="6" height="6" rx="1.2"/><rect x="0" y="8" width="6" height="6" rx="1.2"/><rect x="8" y="8" width="6" height="6" rx="1.2"/></svg> Grid</button>
     </div>
     <p id="gingerMintsStatus" class="status">Loading…</p>
     <table id="gingerMintsListTable" style="display:none">
-      <thead><tr><th>Date</th><th></th><th>Collection</th><th>Name</th><th>Token ID</th><th>Minted by</th></tr></thead>
+      <thead><tr><th></th><th>Name</th><th>Token ID</th><th>Minted by</th><th>Date</th></tr></thead>
       <tbody id="gingerMintsListBody"></tbody>
     </table>
     <div id="gingerMintsGrid" class="nft-card-grid"></div>
@@ -1412,6 +1424,12 @@ function updateUrlForView(partial) {
 // trigger accordingly, same as a normal tab would show active.
 const MORE_MENU_TABS = new Set(["new", "governance", "social", "defi", "whales", "deps", "faucet", "snapshots", "links"]);
 
+// Panels with their own sub-tabs (each has .subtab buttons + .subtab-panel
+// targets inside #panel-<name>) — used to keep ?subtab= alive in the URL
+// across a tab switch, and to know which panels restoreInitialView() should
+// look for a subtab param on.
+const TABS_WITH_SUBTABS = new Set(["wallet", "defi", "deps", "nfts"]);
+
 function closeTabMoreMenu() {
   document.getElementById("tabMoreMenu").hidden = true;
   document.getElementById("tabMoreBtn").setAttribute("aria-expanded", "false");
@@ -1435,9 +1453,12 @@ function activateTab(tabName) {
     : "More";
   closeTabMoreMenu();
 
-  // subtab/token only mean anything under the defi tab — clear them from
-  // the URL for every other tab so a stale filter doesn't linger there.
-  updateUrlForView(tabName === "defi" ? { tab: tabName } : { tab: tabName, subtab: null, token: null });
+  // subtab/token only mean anything on panels that actually have subtabs —
+  // clear them for every other tab so a stale filter doesn't linger there.
+  // Panels that do have subtabs keep whatever's already in the URL; the
+  // subtab's own activation (below, or via restoreInitialView) sets it
+  // explicitly right after, so this never leaves a wrong value in place.
+  updateUrlForView(TABS_WITH_SUBTABS.has(tabName) ? { tab: tabName } : { tab: tabName, subtab: null, token: null });
 }
 
 document.querySelectorAll(".tab").forEach(btn => {
@@ -1475,10 +1496,10 @@ document.getElementById("suggestionsLink").addEventListener("click", () => {
   const urlTab = params.get("tab");
   if (urlTab && document.getElementById("panel-" + urlTab)) {
     activateTab(urlTab);
-    if (urlTab === "defi") {
+    if (TABS_WITH_SUBTABS.has(urlTab)) {
       const subtab = params.get("subtab");
-      if (subtab && document.querySelector(`#panel-defi .subtab[data-subtab="${subtab}"]`)) {
-        activateDefiSubtab(subtab, { token: params.get("token") });
+      if (subtab && document.querySelector(`#panel-${urlTab} .subtab[data-subtab="${subtab}"]`)) {
+        activateSubtab(urlTab, subtab, { token: params.get("token") });
       }
     }
     return;
@@ -2399,6 +2420,14 @@ const GINGER_COLLECTIONS = [
 // while still keeping a safety ceiling in place.
 const GINGER_MINTS_DISPLAY_LIMIT = 500;
 
+// Set immediately (not inside loadGingerMints) so the title/realm link
+// show up the instant the subtab renders, not after the live fetch lands.
+(function initGingerMintsTitle() {
+  const c = GINGER_COLLECTIONS[0];
+  document.getElementById("gingerMintsTitle").innerHTML =
+    `${escapeHtml(c.name)} <a class="ginger-mints-realm-link" href="https://${escapeHtml(c.path)}" target="_blank" rel="noopener">view realm on gno.land ↗</a>`;
+})();
+
 async function fetchCollectionMintEvents(net, collectionPath) {
   const query = `query {
     getTransactions(where: {
@@ -2429,39 +2458,48 @@ function renderGingerMintsGrid(mints) {
     grid.innerHTML = "";
     return;
   }
-  grid.innerHTML = mints.map((m) => `
-    <div class="nft-card clickable" data-token-id="${escapeHtml(m.tokenId)}">
-      ${looksLikeRenderableImage(m.image)
-        ? `<img class="nft-card-image" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
-        : `<div class="nft-card-image-placeholder">No image found</div>`}
+  grid.innerHTML = mints.map((m) => {
+    const pending = m.image === undefined; // fetched-but-empty is null, not undefined — see loadGingerMints
+    return `
+    <div class="nft-card${pending ? "" : " clickable"}" data-token-id="${escapeHtml(m.tokenId)}">
+      ${pending
+        ? `<div class="nft-card-image-placeholder ginger-mint-pending"></div>`
+        : looksLikeRenderableImage(m.image)
+          ? `<img class="nft-card-image" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+          : `<div class="nft-card-image-placeholder">No image found</div>`}
       <div class="nft-card-body">
-        <div class="nft-card-title">${escapeHtml(m.name || m.collectionName)} #${escapeHtml(m.tokenId)}</div>
-        <div class="nft-card-meta">${escapeHtml(m.collectionName)}</div>
-        <div class="nft-card-meta">${m.blockTime ? formatDate(m.blockTime) : `block ${m.blockHeight}`}</div>
+        <div class="nft-card-title${pending ? " ginger-mint-pending-text" : ""}">${pending ? "Loading…" : (m.name ? escapeHtml(m.name) : `${escapeHtml(m.collectionName)} #${escapeHtml(m.tokenId)}`)}</div>
+        <div class="nft-card-meta">Token ID ${escapeHtml(m.tokenId)}</div>
         <div class="nft-card-meta">Minted by ${m.to
           ? `<a href="${gnoscanAccountUrl(m.to, "betanet")}" target="_blank" rel="noopener">${truncateAddress(m.to)}</a>`
           : "—"}</div>
+        <div class="nft-card-meta">${m.blockTime ? formatDate(m.blockTime) : (m.blockTime === undefined ? `<span class="ginger-mint-pending-text">Loading…</span>` : `block ${m.blockHeight}`)}</div>
       </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 }
 
 function renderGingerMintsList(mints) {
   const tbody = document.getElementById("gingerMintsListBody");
-  tbody.innerHTML = mints.map((m) => `
-    <tr class="clickable" data-token-id="${escapeHtml(m.tokenId)}">
-      <td>${m.blockTime ? formatDate(m.blockTime) : `block ${m.blockHeight}`}</td>
-      <td>${looksLikeRenderableImage(m.image)
-        ? `<img class="mint-row-thumb" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
-        : ""}</td>
-      <td>${escapeHtml(m.collectionName)}</td>
-      <td>${escapeHtml(m.name || m.collectionName)}</td>
+  tbody.innerHTML = mints.map((m) => {
+    const pending = m.image === undefined; // fetched-but-empty is null, not undefined — see loadGingerMints
+    return `
+    <tr class="${pending ? "" : "clickable"}" data-token-id="${escapeHtml(m.tokenId)}">
+      <td>${pending
+        ? `<div class="mint-row-thumb ginger-mint-pending"></div>`
+        : looksLikeRenderableImage(m.image)
+          ? `<img class="mint-row-thumb" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+          : ""}</td>
+      <td>${pending ? `<span class="ginger-mint-pending-text">Loading…</span>` : (m.name ? escapeHtml(m.name) : escapeHtml(m.collectionName))}</td>
       <td>${escapeHtml(m.tokenId)}</td>
       <td>${m.to
         ? `<a href="${gnoscanAccountUrl(m.to, "betanet")}" target="_blank" rel="noopener">${truncateAddress(m.to)}</a>`
         : "—"}</td>
+      <td>${m.blockTime ? formatDate(m.blockTime) : (m.blockTime === undefined ? `<span class="ginger-mint-pending-text">…</span>` : `block ${m.blockHeight}`)}</td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
 }
 
 let gingerMintsByToken = new Map();
@@ -2515,7 +2553,7 @@ document.addEventListener("keydown", (e) => {
     const el = e.target.closest("[data-token-id]");
     if (!el) return;
     const m = gingerMintsByToken.get(el.dataset.tokenId);
-    if (m) openNftDetailModal(m);
+    if (m && m.image !== undefined) openNftDetailModal(m); // still loading — nothing to show yet
   });
 });
 
@@ -2566,35 +2604,93 @@ document.getElementById("gingerMintsViewList").addEventListener("click", () => s
 document.getElementById("gingerMintsViewGrid").addEventListener("click", () => setGingerMintsView("grid"));
 applyGingerMintsView();
 
+// scripts/build-cache.mjs writes this every 30 min for betanet only —
+// already-resolved mints (image/name/description/attributes/blockTime),
+// same shape loadGingerMints() builds live. Memoized like getCachedData().
+let gingerMintsCachePromise = null;
+function getGingerMintsCache() {
+  if (!gingerMintsCachePromise) {
+    gingerMintsCachePromise = fetch("data/betanet-ginger-mints.json", { cache: "no-cache" })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  return gingerMintsCachePromise;
+}
+
+// Coalesces bursts of near-simultaneous per-token resolutions (mapLimit(6)
+// means up to 6 land in the same tick) into one paint instead of one
+// full re-render per token.
+let gingerMintsRenderScheduled = false;
+function scheduleGingerMintsRender(mints) {
+  if (gingerMintsRenderScheduled) return;
+  gingerMintsRenderScheduled = true;
+  requestAnimationFrame(() => {
+    gingerMintsRenderScheduled = false;
+    renderGingerMints(mints);
+  });
+}
+
 let gingerMintsLoaded = false;
 async function loadGingerMints() {
   if (gingerMintsLoaded) return;
   gingerMintsLoaded = true;
   const statusEl = document.getElementById("gingerMintsStatus");
   clearStatusAlert(statusEl);
-  statusEl.textContent = "Loading mint history for Lord G's - Ginge Gnomie…";
 
   const net = NETWORKS.betanet;
+  const collection = GINGER_COLLECTIONS[0];
+  const cache = await getGingerMintsCache();
+  const cachedMints = cache && Array.isArray(cache.mints) ? cache.mints : [];
+  const knownTokenIds = new Set(cachedMints.map((m) => m.tokenId));
+
+  const updateStats = (count) =>
+    renderGingerMintStats([{ name: collection.name, count, maxSupply: collection.maxSupply }]);
+
+  if (cachedMints.length) {
+    // Cached rows are already fully resolved — show them immediately,
+    // nothing pending here.
+    renderGingerMints(cachedMints);
+    updateStats(cachedMints.length);
+    statusEl.innerHTML = `${cachedMints.length} mints found (cached, ${cacheAgeNote(cache.generatedAt)})` +
+      `<span class="ginger-mints-spinner"></span>checking for newer mints…`;
+  } else {
+    statusEl.textContent = `Loading mint history for ${collection.name}…`;
+  }
+
   try {
-    const perCollection = await Promise.all(
-      GINGER_COLLECTIONS.map((c) => fetchCollectionMintEvents(net, c.path))
-    );
-    const allMints = [];
-    GINGER_COLLECTIONS.forEach((c, i) => {
-      for (const m of perCollection[i]) allMints.push({ ...m, collectionPath: c.path, collectionName: c.name });
-    });
-    allMints.sort((a, b) => b.blockHeight - a.blockHeight);
+    const liveEvents = await fetchCollectionMintEvents(net, collection.path);
+    // Object.assign mutates newEvents' own items in place and returns those
+    // same references — merged must hold the exact objects the mapLimit
+    // loop below mutates with resolved metadata, not copies of them, or
+    // the metadata lands on objects nothing ever renders again.
+    const newEvents = liveEvents
+      .filter((m) => !knownTokenIds.has(m.tokenId))
+      .map((m) => Object.assign(m, { collectionPath: collection.path, collectionName: collection.name }));
+    const merged = [...cachedMints, ...newEvents];
+    merged.sort((a, b) => b.blockHeight - a.blockHeight);
 
-    renderGingerMintStats(GINGER_COLLECTIONS.map((c, i) => ({ name: c.name, count: perCollection[i].length, maxSupply: c.maxSupply })));
-
-    const totalFound = allMints.length;
-    const shown = allMints.slice(0, GINGER_MINTS_DISPLAY_LIMIT);
-    if (shown.length) {
-      statusEl.textContent = `Loading images and names for ${shown.length} mint${shown.length === 1 ? "" : "s"}…`;
+    if (!newEvents.length) {
+      renderGingerMints(merged);
+      updateStats(merged.length);
+      statusEl.textContent = `${merged.length} mint${merged.length === 1 ? "" : "s"} found.`;
+      return;
     }
-    await mapLimit(shown, 6, async (m) => {
+
+    // New tokens render right away as placeholders (image/name left
+    // undefined — the pending state renderGingerMints*'s templates key
+    // off of) so the page never blocks on the slowest fetch; each one
+    // gets patched in as its own metadata call resolves.
+    renderGingerMints(merged);
+    updateStats(merged.length);
+    let remaining = newEvents.length;
+    const describeProgress = () =>
+      `${merged.length} mint${merged.length === 1 ? "" : "s"} found` +
+      `<span class="ginger-mints-spinner"></span>loading ${remaining} new mint${remaining === 1 ? "" : "s"}…`;
+    statusEl.innerHTML = describeProgress();
+
+    await mapLimit(newEvents, 6, async (m) => {
       try {
-        const meta = await fetchOwnedTokenMetadata(net, m.collectionPath, m.tokenId);
+        const meta = await fetchOwnedTokenMetadata(net, collection.path, m.tokenId);
         m.image = meta.image;
         m.name = meta.name;
         m.description = meta.description;
@@ -2605,18 +2701,25 @@ async function loadGingerMints() {
         m.description = null;
         m.attributes = null;
       }
+      remaining--;
+      scheduleGingerMintsRender(merged);
+      statusEl.innerHTML = remaining > 0 ? describeProgress() : `${merged.length} mint${merged.length === 1 ? "" : "s"} found.`;
     });
 
-    const heights = [...new Set(shown.map((m) => m.blockHeight))];
+    const heights = [...new Set(newEvents.map((m) => m.blockHeight))];
     const blockTimes = heights.length ? await fetchBlockTimes(net, heights) : new Map();
-    for (const m of shown) m.blockTime = blockTimes.get(m.blockHeight) || null;
-
-    renderGingerMints(shown);
-    statusEl.textContent = `${totalFound} mint${totalFound === 1 ? "" : "s"} found` +
-      (totalFound > shown.length ? ` — showing the most recent ${shown.length}` : "") + ".";
+    for (const m of newEvents) m.blockTime = blockTimes.get(m.blockHeight) || null;
+    renderGingerMints(merged);
+    statusEl.textContent = `${merged.length} mint${merged.length === 1 ? "" : "s"} found.`;
   } catch (err) {
-    gingerMintsLoaded = false; // allow retry on next open
-    setStatusAlert(statusEl, "Failed to load: " + err.message);
+    if (cachedMints.length) {
+      // Already showing real (if slightly stale) data — a failed live
+      // top-up isn't worth blowing that away over.
+      statusEl.textContent = `${cachedMints.length} mints found (cached, ${cacheAgeNote(cache.generatedAt)}) — couldn't check for newer ones: ${err.message}`;
+    } else {
+      gingerMintsLoaded = false; // allow retry on next open
+      setStatusAlert(statusEl, "Failed to load: " + err.message);
+    }
   }
 }
 
@@ -2777,12 +2880,7 @@ document.getElementById("walletNftBody").addEventListener("click", (e) => {
 });
 
 document.querySelectorAll("#panel-wallet .subtab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#panel-wallet .subtab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll("#panel-wallet .subtab-panel").forEach(p => { p.hidden = true; });
-    btn.classList.add("active");
-    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
-  });
+  btn.addEventListener("click", () => activateSubtab("wallet", btn.dataset.subtab));
 });
 
 // ---------- Scan Wallet: History sub-tab ----------
@@ -3799,11 +3897,18 @@ function loadAllActivityTabs(netKey) {
 
 // ---------- DeFi sub-tabs: Overview (above) / Swaps ----------
 
-function activateDefiSubtab(subtabKey, opts) {
-  const btn = document.querySelector(`#panel-defi .subtab[data-subtab="${subtabKey}"]`);
+// Generic sub-tab activation shared by every panel that has sub-tabs
+// (wallet, defi, deps, nfts) — shows the right subtab-panel and keeps
+// ?subtab= (and, for defi-swaps only, ?token=) in sync in the URL so any
+// subtab is deep-linkable and survives a plain page refresh. Per-subtab
+// side effects (loading data the first time it's opened) are dispatched
+// by subtabKey since they're each a one-off, not worth their own hook.
+function activateSubtab(panelName, subtabKey, opts) {
+  const panelSelector = `#panel-${panelName}`;
+  const btn = document.querySelector(`${panelSelector} .subtab[data-subtab="${subtabKey}"]`);
   if (!btn) return;
-  document.querySelectorAll("#panel-defi .subtab").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll("#panel-defi .subtab-panel").forEach(p => { p.hidden = true; });
+  document.querySelectorAll(`${panelSelector} .subtab`).forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(`${panelSelector} .subtab-panel`).forEach(p => { p.hidden = true; });
   btn.classList.add("active");
   document.getElementById("subpanel-" + subtabKey).hidden = false;
   // Reloaded on every open rather than cached client-side — getCachedData
@@ -3815,11 +3920,15 @@ function activateDefiSubtab(subtabKey, opts) {
       if (opts && opts.token) setSwapTokenFilter(opts.token);
     });
   }
-  updateUrlForView({ subtab: subtabKey });
+  if (subtabKey === "nfts-ginger-mints") loadGingerMints();
+  updateUrlForView({
+    subtab: subtabKey,
+    token: subtabKey === "defi-swaps" && opts && opts.token ? opts.token : null,
+  });
 }
 
 document.querySelectorAll("#panel-defi .subtab").forEach(btn => {
-  btn.addEventListener("click", () => activateDefiSubtab(btn.dataset.subtab));
+  btn.addEventListener("click", () => activateSubtab("defi", btn.dataset.subtab));
 });
 
 function tokenSymbol(path) {
@@ -4457,22 +4566,11 @@ async function loadDependencies(netKey) {
 }
 
 document.querySelectorAll("#panel-deps .subtab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#panel-deps .subtab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll("#panel-deps .subtab-panel").forEach(p => { p.hidden = true; });
-    btn.classList.add("active");
-    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
-  });
+  btn.addEventListener("click", () => activateSubtab("deps", btn.dataset.subtab));
 });
 
 document.querySelectorAll("#panel-nfts .subtab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#panel-nfts .subtab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll("#panel-nfts .subtab-panel").forEach(p => { p.hidden = true; });
-    btn.classList.add("active");
-    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
-    if (btn.dataset.subtab === "nfts-ginger-mints") loadGingerMints();
-  });
+  btn.addEventListener("click", () => activateSubtab("nfts", btn.dataset.subtab));
 });
 
 // ---------- Dashboard: chain-wide stats, built entirely from data already
@@ -4623,7 +4721,7 @@ function goToStatTileTarget(tile) {
   if (!tab) return;
   activateTab(tab);
   try { localStorage.setItem(TAB_STORAGE_KEY, tab); } catch {}
-  if (tile.dataset.linkSubtab) activateDefiSubtab(tile.dataset.linkSubtab);
+  if (tile.dataset.linkSubtab) activateSubtab("defi", tile.dataset.linkSubtab);
 }
 document.getElementById("dashboardStats").addEventListener("click", (e) => {
   const tile = e.target.closest(".stat-tile[data-link-tab]");
