@@ -2559,11 +2559,20 @@ function formatDateShort(iso) {
 // mint to the actual last, not some fixed window. Mints without a
 // resolved blockTime yet (brand new, still being patched in — see
 // loadGingerMints) are left out until it resolves rather than guessed at.
+let gingerChartPoints = [];
 function renderGingerMintsChart(mints) {
   const svg = document.getElementById("gingerMintsChart");
+  // A render can land while a dot is mid-hover (progressive loading keeps
+  // re-rendering this chart as new mints resolve) — rebuilding innerHTML
+  // then destroys the very circle the mouse is over, and a removed
+  // element never fires mouseleave, so the tooltip would otherwise be
+  // stuck open with no way to close it. Hiding it unconditionally here
+  // means it only ever comes back via a fresh, real hover.
+  hideGingerChartTooltip();
   const withTime = mints.filter((m) => m.blockTime).slice().sort((a, b) => new Date(a.blockTime) - new Date(b.blockTime));
   if (withTime.length < 2) {
     svg.innerHTML = "";
+    gingerChartPoints = [];
     return;
   }
 
@@ -2579,6 +2588,7 @@ function renderGingerMintsChart(mints) {
     y: padT + plotH - ((i + 1) / n) * plotH,
     m,
   }));
+  gingerChartPoints = points; // read by the delegated listeners set up once, below
 
   const linePath = points.map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
   const marks = points.map((p, i) => `
@@ -2596,22 +2606,55 @@ function renderGingerMintsChart(mints) {
     <path class="ginger-mints-chart-line" d="${linePath}"></path>
     ${marks}
   `;
-
-  svg.querySelectorAll(".ginger-mints-chart-dot-hit").forEach((hit) => {
-    const dot = svg.querySelector(`.ginger-mints-chart-dot[data-idx="${hit.dataset.idx}"]`);
-    hit.addEventListener("mouseenter", (e) => {
-      dot.classList.add("hovered");
-      dot.setAttribute("r", "5");
-      showGingerChartTooltip(e, points[+hit.dataset.idx].m);
-    });
-    hit.addEventListener("mousemove", positionGingerChartTooltip);
-    hit.addEventListener("mouseleave", () => {
-      dot.classList.remove("hovered");
-      dot.setAttribute("r", "3");
-      hideGingerChartTooltip();
-    });
-  });
 }
+
+// Delegated listeners set up ONCE on the stable <svg> element itself,
+// rather than per-circle on every render — a per-circle mouseleave is
+// exactly what went missing before: renderGingerMintsChart rebuilds the
+// circles from scratch on every progressive-loading update, and a
+// hovered element that gets removed from the DOM never fires its own
+// mouseleave, leaving the tooltip stuck open with nothing left to close
+// it. Delegating to the <svg> (which itself is never replaced, only its
+// contents) means there's always exactly one live listener, checking
+// e.target fresh on every event instead of trusting a specific circle's
+// lifecycle.
+(function wireGingerChartHover() {
+  const svg = document.getElementById("gingerMintsChart");
+  function setHoverState(idx, on) {
+    const dot = svg.querySelector(`.ginger-mints-chart-dot[data-idx="${idx}"]`);
+    if (!dot) return;
+    dot.classList.toggle("hovered", on);
+    dot.setAttribute("r", on ? "5" : "3");
+  }
+  svg.addEventListener("mouseover", (e) => {
+    const hit = e.target.closest(".ginger-mints-chart-dot-hit");
+    if (!hit) return;
+    const point = gingerChartPoints[+hit.dataset.idx];
+    if (!point) return;
+    setHoverState(hit.dataset.idx, true);
+    showGingerChartTooltip(e, point.m);
+  });
+  svg.addEventListener("mousemove", (e) => {
+    if (e.target.closest(".ginger-mints-chart-dot-hit")) positionGingerChartTooltip(e);
+  });
+  svg.addEventListener("mouseout", (e) => {
+    const hit = e.target.closest(".ginger-mints-chart-dot-hit");
+    if (!hit) return;
+    setHoverState(hit.dataset.idx, false);
+    hideGingerChartTooltip();
+  });
+  // Catch-all in case a fast mouse movement skips a mouseout on the way
+  // out entirely (leaving the whole chart in one motion) — same fix
+  // pattern as the More-menu dropdown's outside-click close.
+  svg.addEventListener("mouseleave", hideGingerChartTooltip);
+})();
+
+// Scroll and click are the other two ways the user reported the tooltip
+// getting stuck: position:fixed doesn't track the page's scroll position
+// (so it visibly detaches from the dot it was describing), and there was
+// never any "click elsewhere closes it" handling at all.
+window.addEventListener("scroll", hideGingerChartTooltip, { passive: true });
+document.addEventListener("click", hideGingerChartTooltip);
 
 function showGingerChartTooltip(e, m) {
   const tip = document.getElementById("gingerMintsChartTooltip");
