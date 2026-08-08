@@ -834,7 +834,7 @@
     <div class="ginger-mint-stats" id="gingerMintStats"></div>
     <div class="ginger-mints-chart-wrap">
       <h4 class="ginger-mints-chart-title">Mints over time</h4>
-      <svg id="gingerMintsChart" class="ginger-mints-chart" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="gingerMintsChart" class="ginger-mints-chart" viewBox="0 0 900 280" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div id="gingerMintsChartTooltip" class="ginger-mints-chart-tooltip" hidden></div>
     <div class="view-toggle" role="group" aria-label="View">
@@ -2549,9 +2549,17 @@ function renderGingerMints(mints) {
   applyGingerMintsView();
 }
 
-function formatDateShort(iso) {
-  const d = new Date(iso);
-  return isNaN(d) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+// Two-line axis tick: date on top, hour:minute below — so an axis
+// spanning several days shows each day it actually crossed (not just the
+// first/last), and each tick also carries the time of day, not just the
+// date.
+function formatChartTick(ts) {
+  const d = new Date(ts);
+  if (isNaN(d)) return { date: "", time: "" };
+  return {
+    date: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    time: d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }),
+  };
 }
 
 // One dot per mint, x = when it happened, y = how many had minted by then
@@ -2576,18 +2584,16 @@ function renderGingerMintsChart(mints) {
     return;
   }
 
-  const W = 900, H = 260, padL = 34, padR = 16, padT = 16, padB = 28;
+  const W = 900, H = 280, padL = 34, padR = 16, padT = 16, padB = 46;
   const plotW = W - padL - padR, plotH = H - padT - padB;
   const t0 = new Date(withTime[0].blockTime).getTime();
   const t1 = new Date(withTime[withTime.length - 1].blockTime).getTime();
   const span = Math.max(1, t1 - t0);
   const n = withTime.length;
+  const xAt = (t) => padL + ((t - t0) / span) * plotW;
+  const yAt = (count) => padT + plotH - (count / n) * plotH;
 
-  const points = withTime.map((m, i) => ({
-    x: padL + ((new Date(m.blockTime).getTime() - t0) / span) * plotW,
-    y: padT + plotH - ((i + 1) / n) * plotH,
-    m,
-  }));
+  const points = withTime.map((m, i) => ({ x: xAt(new Date(m.blockTime).getTime()), y: yAt(i + 1), m }));
   gingerChartPoints = points; // read by the delegated listeners set up once, below
 
   const linePath = points.map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
@@ -2596,13 +2602,37 @@ function renderGingerMintsChart(mints) {
     <circle class="ginger-mints-chart-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" data-idx="${i}"></circle>
   `).join("");
 
+  // 5 evenly time-spaced x-ticks (by time, not by mint index — a burst of
+  // mints on one day and a quiet week shouldn't get equal tick spacing)
+  // and 5 evenly count-spaced y-ticks, so a multi-day range actually shows
+  // the days in between instead of only the first/last.
+  const X_TICKS = 5, Y_TICKS = 5;
+  const xTickTimes = Array.from({ length: X_TICKS }, (_, i) => t0 + (span * i) / (X_TICKS - 1));
+  const yTickCounts = [...new Set(Array.from({ length: Y_TICKS }, (_, i) => Math.round((n * i) / (Y_TICKS - 1))))];
+
+  const xGrid = xTickTimes.map((t, i) => {
+    const x = xAt(t).toFixed(1);
+    const anchor = i === 0 ? "start" : i === X_TICKS - 1 ? "end" : "middle";
+    const { date, time } = formatChartTick(t);
+    return `
+      <line x1="${x}" y1="${padT}" x2="${x}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,3"></line>
+      <text class="ginger-mints-chart-axis-label" x="${x}" y="${padT + plotH + 13}" text-anchor="${anchor}">${escapeHtml(date)}</text>
+      <text class="ginger-mints-chart-axis-label" x="${x}" y="${padT + plotH + 25}" text-anchor="${anchor}">${escapeHtml(time)}</text>
+    `;
+  }).join("");
+  const yGrid = yTickCounts.map((count) => {
+    const y = yAt(count).toFixed(1);
+    return `
+      <line x1="${padL}" y1="${y}" x2="${padL + plotW}" y2="${y}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,3"></line>
+      <text class="ginger-mints-chart-axis-label" x="${padL - 6}" y="${y}" text-anchor="end" dominant-baseline="middle">${count}</text>
+    `;
+  }).join("");
+
   svg.innerHTML = `
     <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1"></line>
     <line x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1"></line>
-    <text class="ginger-mints-chart-axis-label" x="${padL - 6}" y="${padT + 8}" text-anchor="end">${n}</text>
-    <text class="ginger-mints-chart-axis-label" x="${padL - 6}" y="${padT + plotH}" text-anchor="end">0</text>
-    <text class="ginger-mints-chart-axis-label" x="${padL}" y="${H - 6}" text-anchor="start">${escapeHtml(formatDateShort(withTime[0].blockTime))}</text>
-    <text class="ginger-mints-chart-axis-label" x="${padL + plotW}" y="${H - 6}" text-anchor="end">${escapeHtml(formatDateShort(withTime[n - 1].blockTime))}</text>
+    ${xGrid}
+    ${yGrid}
     <path class="ginger-mints-chart-line" d="${linePath}"></path>
     ${marks}
   `;
@@ -2662,7 +2692,7 @@ function showGingerChartTooltip(e, m) {
     ${looksLikeRenderableImage(m.image) ? `<img src="${escapeHtml(m.image)}" alt="">` : ""}
     <div>
       <div><strong>${m.name ? escapeHtml(m.name) : `Token ID ${escapeHtml(m.tokenId)}`}</strong></div>
-      <div class="ginger-mints-chart-tooltip-meta">Token ID ${escapeHtml(m.tokenId)}${m.blockTime ? " · " + escapeHtml(formatDateShort(m.blockTime)) : ""}</div>
+      <div class="ginger-mints-chart-tooltip-meta">Token ID ${escapeHtml(m.tokenId)}${m.blockTime ? " · " + formatDate(m.blockTime) : ""}</div>
     </div>
   `;
   tip.hidden = false;
