@@ -1319,6 +1319,29 @@ const nftImagesPromises = new Map(); // netKey -> Promise<{path: imageDataURI}>
 let nftImagesLoadedNet = null;
 let nftImagesLoadedData = {};
 
+// Same temporal-dead-zone reasoning as above, for the Ginger Mints subtab:
+// restoreInitialView() can call loadGingerMints() synchronously if
+// nfts/nfts-ginger-mints is the initial/persisted tab+subtab — this bug
+// was real, not hypothetical (caught live: refreshing the page while
+// already on that subtab threw "Cannot access 'gingerMintsLoaded' before
+// initialization" and the tab stayed stuck on "Loading…" forever).
+const GINGER_COLLECTIONS = [
+  { path: "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2", name: "Lord G's - Ginge Gnomie", maxSupply: 111 },
+];
+// Well above the collection's own 111 cap — effectively "show everything"
+// while still keeping a safety ceiling in place.
+const GINGER_MINTS_DISPLAY_LIMIT = 500;
+let gingerMintsByToken = new Map();
+let gingerMintsCachePromise = null;
+let gingerMintsRenderScheduled = false;
+let gingerMintsLoaded = false;
+const GINGER_VIEW_STORAGE_KEY = "gnoObserverGingerMintsView";
+let gingerMintsView = "list";
+try {
+  const savedGingerView = localStorage.getItem(GINGER_VIEW_STORAGE_KEY);
+  if (savedGingerView === "grid" || savedGingerView === "list") gingerMintsView = savedGingerView;
+} catch {}
+
 // Genesis-realm source is immutable once deployed, so it's safe to persist
 // across page loads indefinitely — this is what actually makes the "one-time
 // scan, cached after that" promise true across reloads, not just within a
@@ -2409,16 +2432,9 @@ function renderWalletNftGallery(collections) {
 // cache), this is a narrow, scoped query — exactly the shape the
 // betanet CORS proxy was built for — so there's no reason to make this
 // one wait on the batch cycle too.
-// Lord Ginge Genesis (gingernft) dropped — barely used (1 minted) and not
-// what this feature is meant to track. maxSupply is off-chain (the
-// contract itself has no MaxSupply()/Cap() — confirmed directly), so it's
-// hardcoded from the collection's own announced total rather than guessed.
-const GINGER_COLLECTIONS = [
-  { path: "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2", name: "Lord G's - Ginge Gnomie", maxSupply: 111 },
-];
-// Well above the collection's own 111 cap — effectively "show everything"
-// while still keeping a safety ceiling in place.
-const GINGER_MINTS_DISPLAY_LIMIT = 500;
+// GINGER_COLLECTIONS/GINGER_MINTS_DISPLAY_LIMIT are declared up near
+// nftImagesPromises (same temporal-dead-zone reasoning — see the comment
+// there), not here where they'd naturally sit next to this code.
 
 // Set immediately (not inside loadGingerMints) so the title/realm link
 // show up the instant the subtab renders, not after the live fetch lands.
@@ -2502,7 +2518,6 @@ function renderGingerMintsList(mints) {
   }).join("");
 }
 
-let gingerMintsByToken = new Map();
 function renderGingerMints(mints) {
   gingerMintsByToken = new Map(mints.map((m) => [m.tokenId, m]));
   renderGingerMintsGrid(mints);
@@ -2579,13 +2594,6 @@ function renderGingerMintStats(counts) {
   }).join("");
 }
 
-const GINGER_VIEW_STORAGE_KEY = "gnoObserverGingerMintsView";
-let gingerMintsView = "list";
-try {
-  const savedGingerView = localStorage.getItem(GINGER_VIEW_STORAGE_KEY);
-  if (savedGingerView === "grid" || savedGingerView === "list") gingerMintsView = savedGingerView;
-} catch {}
-
 function applyGingerMintsView() {
   document.getElementById("gingerMintsGrid").style.display = gingerMintsView === "grid" ? "grid" : "none";
   const table = document.getElementById("gingerMintsListTable");
@@ -2607,7 +2615,6 @@ applyGingerMintsView();
 // scripts/build-cache.mjs writes this every 30 min for betanet only —
 // already-resolved mints (image/name/description/attributes/blockTime),
 // same shape loadGingerMints() builds live. Memoized like getCachedData().
-let gingerMintsCachePromise = null;
 function getGingerMintsCache() {
   if (!gingerMintsCachePromise) {
     gingerMintsCachePromise = fetch("data/betanet-ginger-mints.json", { cache: "no-cache" })
@@ -2620,7 +2627,6 @@ function getGingerMintsCache() {
 // Coalesces bursts of near-simultaneous per-token resolutions (mapLimit(6)
 // means up to 6 land in the same tick) into one paint instead of one
 // full re-render per token.
-let gingerMintsRenderScheduled = false;
 function scheduleGingerMintsRender(mints) {
   if (gingerMintsRenderScheduled) return;
   gingerMintsRenderScheduled = true;
@@ -2630,7 +2636,6 @@ function scheduleGingerMintsRender(mints) {
   });
 }
 
-let gingerMintsLoaded = false;
 async function loadGingerMints() {
   if (gingerMintsLoaded) return;
   gingerMintsLoaded = true;
