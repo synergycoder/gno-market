@@ -315,6 +315,24 @@
   }
   .ginger-mint-stat-bar-fill { height: 100%; background: #fff; border-radius: 999px; }
   .ginger-mint-stat-remaining { font-size: 0.8rem; margin-top: 0.4rem; opacity: 0.9; }
+  .ginger-mints-chart-wrap {
+    margin: 1.2rem 0; border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.8rem 1rem 0.4rem; background: var(--bg-elevated);
+  }
+  .ginger-mints-chart-title { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+  .ginger-mints-chart { width: 100%; height: auto; display: block; }
+  .ginger-mints-chart-line { fill: none; stroke: var(--accent-2); stroke-width: 2; }
+  .ginger-mints-chart-dot-hit { fill: transparent; cursor: pointer; }
+  .ginger-mints-chart-dot { fill: var(--accent-2); pointer-events: none; }
+  .ginger-mints-chart-dot.hovered { fill: var(--accent-strong); }
+  .ginger-mints-chart-axis-label { font-size: 10px; fill: var(--text-muted); }
+  .ginger-mints-chart-tooltip {
+    position: fixed; z-index: 250; background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.5rem 0.6rem; box-shadow: var(--shadow); font-size: 0.78rem;
+    display: flex; gap: 0.5rem; align-items: center; pointer-events: none; max-width: 220px;
+  }
+  .ginger-mints-chart-tooltip img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--border-soft); }
+  .ginger-mints-chart-tooltip .ginger-mints-chart-tooltip-meta { color: var(--text-muted); }
 
   .nft-detail-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
   .nft-detail-modal[hidden] { display: none; }
@@ -814,6 +832,11 @@
       token itself, not a URL) — set straight as an image source, never decoded or inspected
       here.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <div class="ginger-mint-stats" id="gingerMintStats"></div>
+    <div class="ginger-mints-chart-wrap">
+      <h4 class="ginger-mints-chart-title">Mints over time</h4>
+      <svg id="gingerMintsChart" class="ginger-mints-chart" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div id="gingerMintsChartTooltip" class="ginger-mints-chart-tooltip" hidden></div>
     <div class="view-toggle" role="group" aria-label="View">
       <button type="button" class="view-toggle-btn" id="gingerMintsViewList" data-view="list">☰ List</button>
       <button type="button" class="view-toggle-btn" id="gingerMintsViewGrid" data-view="grid"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor" style="vertical-align:-1px"><rect x="0" y="0" width="6" height="6" rx="1.2"/><rect x="8" y="0" width="6" height="6" rx="1.2"/><rect x="0" y="8" width="6" height="6" rx="1.2"/><rect x="8" y="8" width="6" height="6" rx="1.2"/></svg> Grid</button>
@@ -2522,7 +2545,95 @@ function renderGingerMints(mints) {
   gingerMintsByToken = new Map(mints.map((m) => [m.tokenId, m]));
   renderGingerMintsGrid(mints);
   renderGingerMintsList(mints);
+  renderGingerMintsChart(mints);
   applyGingerMintsView();
+}
+
+function formatDateShort(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+// One dot per mint, x = when it happened, y = how many had minted by then
+// (so the line reads directly as mint velocity) — spans the actual first
+// mint to the actual last, not some fixed window. Mints without a
+// resolved blockTime yet (brand new, still being patched in — see
+// loadGingerMints) are left out until it resolves rather than guessed at.
+function renderGingerMintsChart(mints) {
+  const svg = document.getElementById("gingerMintsChart");
+  const withTime = mints.filter((m) => m.blockTime).slice().sort((a, b) => new Date(a.blockTime) - new Date(b.blockTime));
+  if (withTime.length < 2) {
+    svg.innerHTML = "";
+    return;
+  }
+
+  const W = 900, H = 260, padL = 34, padR = 16, padT = 16, padB = 28;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const t0 = new Date(withTime[0].blockTime).getTime();
+  const t1 = new Date(withTime[withTime.length - 1].blockTime).getTime();
+  const span = Math.max(1, t1 - t0);
+  const n = withTime.length;
+
+  const points = withTime.map((m, i) => ({
+    x: padL + ((new Date(m.blockTime).getTime() - t0) / span) * plotW,
+    y: padT + plotH - ((i + 1) / n) * plotH,
+    m,
+  }));
+
+  const linePath = points.map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
+  const marks = points.map((p, i) => `
+    <circle class="ginger-mints-chart-dot-hit" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="9" data-idx="${i}"></circle>
+    <circle class="ginger-mints-chart-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" data-idx="${i}"></circle>
+  `).join("");
+
+  svg.innerHTML = `
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1"></line>
+    <line x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1"></line>
+    <text class="ginger-mints-chart-axis-label" x="${padL - 6}" y="${padT + 8}" text-anchor="end">${n}</text>
+    <text class="ginger-mints-chart-axis-label" x="${padL - 6}" y="${padT + plotH}" text-anchor="end">0</text>
+    <text class="ginger-mints-chart-axis-label" x="${padL}" y="${H - 6}" text-anchor="start">${escapeHtml(formatDateShort(withTime[0].blockTime))}</text>
+    <text class="ginger-mints-chart-axis-label" x="${padL + plotW}" y="${H - 6}" text-anchor="end">${escapeHtml(formatDateShort(withTime[n - 1].blockTime))}</text>
+    <path class="ginger-mints-chart-line" d="${linePath}"></path>
+    ${marks}
+  `;
+
+  svg.querySelectorAll(".ginger-mints-chart-dot-hit").forEach((hit) => {
+    const dot = svg.querySelector(`.ginger-mints-chart-dot[data-idx="${hit.dataset.idx}"]`);
+    hit.addEventListener("mouseenter", (e) => {
+      dot.classList.add("hovered");
+      dot.setAttribute("r", "5");
+      showGingerChartTooltip(e, points[+hit.dataset.idx].m);
+    });
+    hit.addEventListener("mousemove", positionGingerChartTooltip);
+    hit.addEventListener("mouseleave", () => {
+      dot.classList.remove("hovered");
+      dot.setAttribute("r", "3");
+      hideGingerChartTooltip();
+    });
+  });
+}
+
+function showGingerChartTooltip(e, m) {
+  const tip = document.getElementById("gingerMintsChartTooltip");
+  tip.innerHTML = `
+    ${looksLikeRenderableImage(m.image) ? `<img src="${escapeHtml(m.image)}" alt="">` : ""}
+    <div>
+      <div><strong>${m.name ? escapeHtml(m.name) : `Token ID ${escapeHtml(m.tokenId)}`}</strong></div>
+      <div class="ginger-mints-chart-tooltip-meta">Token ID ${escapeHtml(m.tokenId)}${m.blockTime ? " · " + escapeHtml(formatDateShort(m.blockTime)) : ""}</div>
+    </div>
+  `;
+  tip.hidden = false;
+  positionGingerChartTooltip(e);
+}
+
+function positionGingerChartTooltip(e) {
+  const tip = document.getElementById("gingerMintsChartTooltip");
+  tip.style.left = e.clientX + 14 + "px";
+  tip.style.top = e.clientY + 14 + "px";
+}
+
+function hideGingerChartTooltip() {
+  document.getElementById("gingerMintsChartTooltip").hidden = true;
 }
 
 function openNftDetailModal(m) {
