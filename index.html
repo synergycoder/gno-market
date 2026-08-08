@@ -265,6 +265,7 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .nft-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent-2); }
+  .nft-card.clickable { cursor: pointer; }
   .nft-card-image {
     width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: var(--border-soft);
   }
@@ -275,6 +276,66 @@
   .nft-card-body { padding: 0.6rem 0.7rem; }
   .nft-card-title { font-weight: 600; margin-bottom: 0.3rem; }
   .nft-card-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .view-toggle { display: flex; gap: 0.4rem; margin: 0.6rem 0; }
+  .view-toggle-btn {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--text);
+    cursor: pointer; font-size: 0.85rem; font-family: inherit;
+  }
+  .view-toggle-btn:hover { color: var(--accent-2); }
+  .view-toggle-btn.active { border-color: var(--accent-2); color: var(--accent-2); font-weight: 600; }
+  .mint-row-thumb {
+    width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
+    vertical-align: middle; background: var(--border-soft); display: block;
+  }
+  .ginger-mint-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  .ginger-mint-stat-card {
+    flex: 1 1 220px; border-radius: 14px; padding: 1.1rem 1.3rem; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    box-shadow: var(--shadow);
+  }
+  .ginger-mint-stat-card:nth-child(2) { background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+  .ginger-mint-stat-name { font-size: 0.85rem; font-weight: 600; opacity: 0.92; }
+  .ginger-mint-stat-value { font-size: 2.3rem; font-weight: 800; line-height: 1.15; margin-top: 0.15rem; }
+  .ginger-mint-stat-value span { font-size: 1.1rem; font-weight: 600; opacity: 0.85; }
+  .ginger-mint-stat-bar {
+    height: 8px; border-radius: 999px; background: rgba(255,255,255,0.28);
+    margin-top: 0.65rem; overflow: hidden;
+  }
+  .ginger-mint-stat-bar-fill { height: 100%; background: #fff; border-radius: 999px; }
+  .ginger-mint-stat-remaining { font-size: 0.8rem; margin-top: 0.4rem; opacity: 0.9; }
+
+  .nft-detail-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .nft-detail-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
+  .nft-detail-dialog {
+    position: relative; background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: var(--shadow); max-width: 720px; width: 100%;
+    max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
+  }
+  @media (min-width: 640px) { .nft-detail-dialog { flex-direction: row; } }
+  .nft-detail-close {
+    position: absolute; top: 0.6rem; right: 0.6rem; z-index: 1; width: 32px; height: 32px;
+    border-radius: 50%; border: 1px solid var(--border); background: var(--bg-elevated);
+    color: var(--text); cursor: pointer; font-size: 1rem; line-height: 1;
+  }
+  .nft-detail-close:hover { border-color: var(--accent-2); color: var(--accent-2); }
+  .nft-detail-image-wrap {
+    flex: 0 0 auto; background: var(--border-soft); display: flex; align-items: center; justify-content: center;
+  }
+  @media (min-width: 640px) { .nft-detail-image-wrap { flex: 0 0 45%; } }
+  .nft-detail-image { width: 100%; max-height: 45vh; object-fit: contain; display: block; }
+  @media (min-width: 640px) { .nft-detail-image { max-height: 90vh; } }
+  .nft-detail-body { padding: 1.2rem 1.4rem; overflow-wrap: anywhere; }
+  .nft-detail-body h3 { margin: 0 0 0.3rem; padding-right: 1.5rem; }
+  .nft-detail-collection { margin: 0 0 0.5rem; font-size: 0.9rem; }
+  .nft-detail-meta { margin: 0 0 0.8rem; font-size: 0.82rem; color: var(--text-muted); }
+  .nft-detail-description { margin: 0 0 0.8rem; font-size: 0.9rem; }
+  .nft-detail-traits { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .nft-detail-trait {
+    border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.6rem;
+    font-size: 0.78rem; background: var(--border-soft);
+  }
+  .nft-detail-trait strong { display: block; font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
   .nft-collection-image {
     width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
     vertical-align: middle; background: var(--bg-elevated); border: 1px solid var(--border);
@@ -586,6 +647,23 @@
 </head>
 <body>
 
+<div id="nftDetailModal" class="nft-detail-modal" hidden>
+  <div class="nft-detail-backdrop"></div>
+  <div class="nft-detail-dialog" role="dialog" aria-modal="true">
+    <button type="button" class="nft-detail-close" aria-label="Close">✕</button>
+    <div class="nft-detail-image-wrap">
+      <img id="nftDetailImage" class="nft-detail-image" src="" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="nft-detail-body">
+      <h3 id="nftDetailTitle"></h3>
+      <p class="nft-detail-collection" id="nftDetailCollection"></p>
+      <p class="nft-detail-meta" id="nftDetailMeta"></p>
+      <p class="nft-detail-description" id="nftDetailDescription"></p>
+      <div class="nft-detail-traits" id="nftDetailTraits"></div>
+    </div>
+  </div>
+</div>
+
 <button id="scrollTopBtn" class="scroll-top-btn" type="button" aria-label="Back to top" title="Back to top">
   <img src="assets/scroll-top-tardigrade.png" alt="">
 </button>
@@ -693,18 +771,47 @@
 
 <div class="tab-panel" id="panel-nfts" hidden>
   <h2>🖼️ NFT Collections (detected)</h2>
-  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
-    library AND defines a matching function (Mint/OwnerOf/TokenURI/...). No central registry exists for
-    NFTs, so this is best-effort detection, not a guarantee — a realm that merely references someone
-    else's collection (a marketplace, a staking contract) can still slip through if it redeclares a
-    matching function name. Genesis-deployed realms are scanned too, cached in your browser after the
-    first visit.</span><button class="text-collapsible-toggle" type="button">More</button></p>
-  <p id="nftStatus" class="status">Loading…</p>
-  <table id="nftTable" style="display:none">
-    <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
-    <tbody id="nftBody"></tbody>
-  </table>
-  <p class="status">Click any row to preview its on-chain Render() output.</p>
+
+  <div class="subtabs" role="tablist">
+    <button class="subtab active" data-subtab="nfts-collections" role="tab">Collections</button>
+    <button class="subtab" data-subtab="nfts-ginger-mints" role="tab">Ginger NFT Mints</button>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-nfts-collections">
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Source: every deployed realm (genesis included) that imports a GRC721/GRC1155-style
+      library AND defines a matching function (Mint/OwnerOf/TokenURI/...). No central registry exists for
+      NFTs, so this is best-effort detection, not a guarantee — a realm that merely references someone
+      else's collection (a marketplace, a staking contract) can still slip through if it redeclares a
+      matching function name. Genesis-deployed realms are scanned too, cached in your browser after the
+      first visit.</span><button class="text-collapsible-toggle" type="button">More</button></p>
+    <p id="nftStatus" class="status">Loading…</p>
+    <table id="nftTable" style="display:none">
+      <thead><tr><th></th><th>Name</th><th>Symbol</th><th>Minted</th><th>Package</th><th>Standard</th></tr></thead>
+      <tbody id="nftBody"></tbody>
+    </table>
+    <p class="status">Click any row to preview its on-chain Render() output.</p>
+  </div>
+
+  <div class="subtab-panel" id="subpanel-nfts-ginger-mints" hidden>
+    <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Live mint feed for <strong>Lord G's - Ginge Gnomie</strong>
+      (on betanet, regardless of which network is selected above) — queried directly from the chain
+      every time this tab opens, not precomputed, so it always reflects the current state rather than
+      waiting on the site's 30-minute refresh cycle. Each token's image is rendered directly from its own
+      on-chain metadata (typically an inline <code>data:image/...</code> string already embedded in the
+      token itself, not a URL) — set straight as an image source, never decoded or inspected
+      here.</span><button class="text-collapsible-toggle" type="button">More</button></p>
+    <div class="ginger-mint-stats" id="gingerMintStats"></div>
+    <div class="view-toggle" role="group" aria-label="View">
+      <button type="button" class="view-toggle-btn" id="gingerMintsViewList" data-view="list">☰ List</button>
+      <button type="button" class="view-toggle-btn" id="gingerMintsViewGrid" data-view="grid">▦ Grid</button>
+    </div>
+    <p id="gingerMintsStatus" class="status">Loading…</p>
+    <table id="gingerMintsListTable" style="display:none">
+      <thead><tr><th>Date</th><th></th><th>Collection</th><th>Name</th><th>Token ID</th><th>Minted by</th></tr></thead>
+      <tbody id="gingerMintsListBody"></tbody>
+    </table>
+    <div id="gingerMintsGrid" class="nft-card-grid"></div>
+  </div>
 </div>
 
 <div class="tab-panel" id="panel-wallet" hidden>
@@ -2172,6 +2279,14 @@ function parseMetadataURI(uri) {
         name: typeof meta.name === "string" ? meta.name : null,
         description: typeof meta.description === "string" ? meta.description : null,
         externalUrl: typeof meta.external_url === "string" ? meta.external_url : null,
+        attributes: Array.isArray(meta.attributes)
+          ? meta.attributes
+              .filter((a) => a && typeof a === "object")
+              .map((a) => ({
+                traitType: typeof a.trait_type === "string" ? a.trait_type : "Trait",
+                value: a.value == null ? "" : String(a.value),
+              }))
+          : null,
       };
     } catch {
       return null;
@@ -2262,6 +2377,246 @@ function renderWalletNftGallery(collections) {
       </div>
     </div>
   `).join("");
+}
+
+// ---------- NFT Collections: Ginger NFT Mints sub-tab ----------
+// Both collections are betanet-only (same creator, two realms) — always
+// queried against betanet regardless of the network selector above, same
+// pattern as Suggestions being pinned to testnet. Live, not precomputed:
+// unlike the main Collections table (which reads the 30-min site-wide
+// cache), this is a narrow, scoped query — exactly the shape the
+// betanet CORS proxy was built for — so there's no reason to make this
+// one wait on the batch cycle too.
+// Lord Ginge Genesis (gingernft) dropped — barely used (1 minted) and not
+// what this feature is meant to track. maxSupply is off-chain (the
+// contract itself has no MaxSupply()/Cap() — confirmed directly), so it's
+// hardcoded from the collection's own announced total rather than guessed.
+const GINGER_COLLECTIONS = [
+  { path: "gno.land/r/g1n500fmqx8m6tgts85kmn43htegkv0eewkdm4lg/gingernft2", name: "Lord G's - Ginge Gnomie", maxSupply: 111 },
+];
+// Well above the collection's own 111 cap — effectively "show everything"
+// while still keeping a safety ceiling in place.
+const GINGER_MINTS_DISPLAY_LIMIT = 500;
+
+async function fetchCollectionMintEvents(net, collectionPath) {
+  const query = `query {
+    getTransactions(where: {
+      success: { eq: true },
+      messages: { value: { MsgCall: { pkg_path: { eq: "${collectionPath}" } } } }
+    }, order: { heightAndIndex: DESC }) {
+      hash
+      block_height
+      response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+    }
+  }`;
+  const data = await graphqlQuery(net, query);
+  const mints = [];
+  for (const tx of data.getTransactions || []) {
+    for (const ev of tx.response?.events || []) {
+      if (ev.__typename !== "GnoEvent" || ev.type !== "Mint") continue;
+      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+      if (!attrs.tokenId) continue;
+      mints.push({ hash: tx.hash, blockHeight: tx.block_height, tokenId: attrs.tokenId, to: attrs.to || null });
+    }
+  }
+  return mints;
+}
+
+function renderGingerMintsGrid(mints) {
+  const grid = document.getElementById("gingerMintsGrid");
+  if (!mints.length) {
+    grid.innerHTML = "";
+    return;
+  }
+  grid.innerHTML = mints.map((m) => `
+    <div class="nft-card clickable" data-token-id="${escapeHtml(m.tokenId)}">
+      ${looksLikeRenderableImage(m.image)
+        ? `<img class="nft-card-image" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+        : `<div class="nft-card-image-placeholder">No image found</div>`}
+      <div class="nft-card-body">
+        <div class="nft-card-title">${escapeHtml(m.name || m.collectionName)} #${escapeHtml(m.tokenId)}</div>
+        <div class="nft-card-meta">${escapeHtml(m.collectionName)}</div>
+        <div class="nft-card-meta">${m.blockTime ? formatDate(m.blockTime) : `block ${m.blockHeight}`}</div>
+        <div class="nft-card-meta">Minted by ${m.to
+          ? `<a href="${gnoscanAccountUrl(m.to, "betanet")}" target="_blank" rel="noopener">${truncateAddress(m.to)}</a>`
+          : "—"}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderGingerMintsList(mints) {
+  const tbody = document.getElementById("gingerMintsListBody");
+  tbody.innerHTML = mints.map((m) => `
+    <tr class="clickable" data-token-id="${escapeHtml(m.tokenId)}">
+      <td>${m.blockTime ? formatDate(m.blockTime) : `block ${m.blockHeight}`}</td>
+      <td>${looksLikeRenderableImage(m.image)
+        ? `<img class="mint-row-thumb" src="${escapeHtml(m.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+        : ""}</td>
+      <td>${escapeHtml(m.collectionName)}</td>
+      <td>${escapeHtml(m.name || m.collectionName)}</td>
+      <td>${escapeHtml(m.tokenId)}</td>
+      <td>${m.to
+        ? `<a href="${gnoscanAccountUrl(m.to, "betanet")}" target="_blank" rel="noopener">${truncateAddress(m.to)}</a>`
+        : "—"}</td>
+    </tr>
+  `).join("");
+}
+
+let gingerMintsByToken = new Map();
+function renderGingerMints(mints) {
+  gingerMintsByToken = new Map(mints.map((m) => [m.tokenId, m]));
+  renderGingerMintsGrid(mints);
+  renderGingerMintsList(mints);
+  applyGingerMintsView();
+}
+
+function openNftDetailModal(m) {
+  document.getElementById("nftDetailImage").style.display = "";
+  document.getElementById("nftDetailImage").src = looksLikeRenderableImage(m.image) ? m.image : "";
+  // m.name (when present) is the token's own metadata name, which often
+  // already carries its own number (e.g. "Ginge Gnomie #105") — a
+  // different sequence than the on-chain token ID, so the two must never
+  // be concatenated into one confusing "#105 #93".
+  document.getElementById("nftDetailTitle").textContent = m.name || `${m.collectionName} #${m.tokenId}`;
+  document.getElementById("nftDetailCollection").innerHTML =
+    `${escapeHtml(m.collectionName)} · <a href="https://${escapeHtml(m.collectionPath)}" target="_blank" rel="noopener">view realm on gno.land ↗</a>`;
+  document.getElementById("nftDetailMeta").innerHTML =
+    `Token ID ${escapeHtml(m.tokenId)}` +
+    ` · Minted by ${m.to ? `<a href="${gnoscanAccountUrl(m.to, "betanet")}" target="_blank" rel="noopener">${truncateAddress(m.to)}</a>` : "—"}` +
+    ` · ${m.blockTime ? formatDate(m.blockTime) : `block ${m.blockHeight}`}` +
+    ` · <a href="${gnoscanTxUrl(m.hash, "betanet")}" target="_blank" rel="noopener">view tx ↗</a>`;
+  document.getElementById("nftDetailDescription").textContent = m.description || "";
+  document.getElementById("nftDetailDescription").style.display = m.description ? "" : "none";
+  const traitsEl = document.getElementById("nftDetailTraits");
+  traitsEl.innerHTML = (m.attributes || []).map((a) => `
+    <div class="nft-detail-trait"><strong>${escapeHtml(a.traitType)}</strong>${escapeHtml(a.value)}</div>
+  `).join("");
+  document.getElementById("nftDetailModal").hidden = false;
+}
+
+function closeNftDetailModal() {
+  document.getElementById("nftDetailModal").hidden = true;
+  document.getElementById("nftDetailImage").src = "";
+}
+
+document.getElementById("nftDetailModal").addEventListener("click", (e) => {
+  if (e.target.closest(".nft-detail-close") || e.target.classList.contains("nft-detail-backdrop")) {
+    closeNftDetailModal();
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("nftDetailModal").hidden) closeNftDetailModal();
+});
+["gingerMintsGrid", "gingerMintsListBody"].forEach((id) => {
+  document.getElementById(id).addEventListener("click", (e) => {
+    if (e.target.closest("a")) return; // let address/tx links navigate on their own
+    const el = e.target.closest("[data-token-id]");
+    if (!el) return;
+    const m = gingerMintsByToken.get(el.dataset.tokenId);
+    if (m) openNftDetailModal(m);
+  });
+});
+
+// The collection has no MaxSupply()/Cap() getter on-chain (checked
+// directly) — maxSupply comes from GINGER_COLLECTIONS instead (the
+// collection's own announced total), not something derivable from the
+// chain itself.
+function renderGingerMintStats(counts) {
+  const el = document.getElementById("gingerMintStats");
+  el.innerHTML = counts.map((c) => {
+    const pct = c.maxSupply ? Math.min(100, (c.count / c.maxSupply) * 100) : null;
+    const remaining = c.maxSupply != null ? Math.max(0, c.maxSupply - c.count) : null;
+    return `
+    <div class="ginger-mint-stat-card">
+      <div class="ginger-mint-stat-name">${escapeHtml(c.name)}</div>
+      <div class="ginger-mint-stat-value">${c.count.toLocaleString()}${c.maxSupply ? ` <span>of ${c.maxSupply.toLocaleString()} minted</span>` : ` <span>minted</span>`}</div>
+      ${pct != null ? `
+        <div class="ginger-mint-stat-bar"><div class="ginger-mint-stat-bar-fill" style="width:${pct}%"></div></div>
+        <div class="ginger-mint-stat-remaining">${remaining.toLocaleString()} left</div>
+      ` : ""}
+    </div>
+  `;
+  }).join("");
+}
+
+const GINGER_VIEW_STORAGE_KEY = "gnoObserverGingerMintsView";
+let gingerMintsView = "list";
+try {
+  const savedGingerView = localStorage.getItem(GINGER_VIEW_STORAGE_KEY);
+  if (savedGingerView === "grid" || savedGingerView === "list") gingerMintsView = savedGingerView;
+} catch {}
+
+function applyGingerMintsView() {
+  document.getElementById("gingerMintsGrid").style.display = gingerMintsView === "grid" ? "grid" : "none";
+  const table = document.getElementById("gingerMintsListTable");
+  table.style.display = gingerMintsView === "list" && table.querySelector("tbody").children.length ? "table" : "none";
+  document.getElementById("gingerMintsViewList").classList.toggle("active", gingerMintsView === "list");
+  document.getElementById("gingerMintsViewGrid").classList.toggle("active", gingerMintsView === "grid");
+}
+
+function setGingerMintsView(view) {
+  gingerMintsView = view;
+  try { localStorage.setItem(GINGER_VIEW_STORAGE_KEY, view); } catch {}
+  applyGingerMintsView();
+}
+
+document.getElementById("gingerMintsViewList").addEventListener("click", () => setGingerMintsView("list"));
+document.getElementById("gingerMintsViewGrid").addEventListener("click", () => setGingerMintsView("grid"));
+applyGingerMintsView();
+
+let gingerMintsLoaded = false;
+async function loadGingerMints() {
+  if (gingerMintsLoaded) return;
+  gingerMintsLoaded = true;
+  const statusEl = document.getElementById("gingerMintsStatus");
+  clearStatusAlert(statusEl);
+  statusEl.textContent = "Loading mint history for Lord G's - Ginge Gnomie…";
+
+  const net = NETWORKS.betanet;
+  try {
+    const perCollection = await Promise.all(
+      GINGER_COLLECTIONS.map((c) => fetchCollectionMintEvents(net, c.path))
+    );
+    const allMints = [];
+    GINGER_COLLECTIONS.forEach((c, i) => {
+      for (const m of perCollection[i]) allMints.push({ ...m, collectionPath: c.path, collectionName: c.name });
+    });
+    allMints.sort((a, b) => b.blockHeight - a.blockHeight);
+
+    renderGingerMintStats(GINGER_COLLECTIONS.map((c, i) => ({ name: c.name, count: perCollection[i].length, maxSupply: c.maxSupply })));
+
+    const totalFound = allMints.length;
+    const shown = allMints.slice(0, GINGER_MINTS_DISPLAY_LIMIT);
+    if (shown.length) {
+      statusEl.textContent = `Loading images and names for ${shown.length} mint${shown.length === 1 ? "" : "s"}…`;
+    }
+    await mapLimit(shown, 6, async (m) => {
+      try {
+        const meta = await fetchOwnedTokenMetadata(net, m.collectionPath, m.tokenId);
+        m.image = meta.image;
+        m.name = meta.name;
+        m.description = meta.description;
+        m.attributes = meta.attributes;
+      } catch {
+        m.image = null;
+        m.name = null;
+        m.description = null;
+        m.attributes = null;
+      }
+    });
+
+    const heights = [...new Set(shown.map((m) => m.blockHeight))];
+    const blockTimes = heights.length ? await fetchBlockTimes(net, heights) : new Map();
+    for (const m of shown) m.blockTime = blockTimes.get(m.blockHeight) || null;
+
+    renderGingerMints(shown);
+    statusEl.textContent = `${totalFound} mint${totalFound === 1 ? "" : "s"} found` +
+      (totalFound > shown.length ? ` — showing the most recent ${shown.length}` : "") + ".";
+  } catch (err) {
+    gingerMintsLoaded = false; // allow retry on next open
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
+  }
 }
 
 let walletScanInFlight = false;
@@ -4106,6 +4461,16 @@ document.querySelectorAll("#panel-deps .subtab").forEach(btn => {
     document.querySelectorAll("#panel-deps .subtab-panel").forEach(p => { p.hidden = true; });
     btn.classList.add("active");
     document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
+  });
+});
+
+document.querySelectorAll("#panel-nfts .subtab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#panel-nfts .subtab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#panel-nfts .subtab-panel").forEach(p => { p.hidden = true; });
+    btn.classList.add("active");
+    document.getElementById("subpanel-" + btn.dataset.subtab).hidden = false;
+    if (btn.dataset.subtab === "nfts-ginger-mints") loadGingerMints();
   });
 });
 
