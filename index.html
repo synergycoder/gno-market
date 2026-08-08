@@ -331,6 +331,13 @@
     border-radius: 8px; padding: 0.5rem 0.6rem; box-shadow: var(--shadow); font-size: 0.78rem;
     display: flex; gap: 0.5rem; align-items: center; pointer-events: none; max-width: 220px;
   }
+  /* Same root cause as the More-menu dropdown and NFT detail modal bugs
+     earlier this session: an unconditional author `display: flex` beats
+     the browser's own `[hidden] { display: none }` regardless of
+     specificity, so setting .hidden=true in JS was never enough on its
+     own. Confirmed live: hidden property was true, computed display was
+     still "flex". */
+  .ginger-mints-chart-tooltip[hidden] { display: none; }
   .ginger-mints-chart-tooltip img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--border-soft); }
   .ginger-mints-chart-tooltip .ginger-mints-chart-tooltip-meta { color: var(--text-muted); }
 
