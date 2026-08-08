@@ -1,6 +1,6 @@
 {
   "network": "testnet",
-  "generatedAt": "2026-08-08T11:50:53.324Z",
+  "generatedAt": "2026-08-08T14:06:25.569Z",
   "lastHeight": 495430,
   "tokens": [
     {
@@ -2208,7 +2208,7 @@
       "uniqueCallers": 34,
       "lastBlockHeight": 509711,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": "Approve"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoswap/router",
@@ -2216,7 +2216,7 @@
       "uniqueCallers": 37,
       "lastBlockHeight": 509711,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": "ExactInSwapRoute"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoswap/position",
@@ -2718,7 +2718,7 @@
       "uniqueCallers": 34,
       "lastBlockHeight": 509711,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": "Approve"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoswap/router",
@@ -2726,7 +2726,7 @@
       "uniqueCallers": 37,
       "lastBlockHeight": 509711,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": "ExactInSwapRoute"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnoswap/position",
@@ -11776,7 +11776,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999993059000000,
+      "balance": 999999993027000000,
       "genesis": true
     },
     {
@@ -11966,7 +11966,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 300343124,
+      "balance": 330343124,
       "genesis": false
     },
     {
@@ -13201,6 +13201,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "8FpAp2fF93Qi2HZsKz7+iy3LT/L5KbHvgUT3r18JG/I=",
+      "blockHeight": 512202,
+      "blockTime": "2026-08-08T12:58:15.81597698Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 15000000
+    },
     {
       "hash": "jmJ7xjh4chbF7vw+GeplSppDLRNZS2rUKga69a8hMVo=",
       "blockHeight": 509694,
@@ -18159,7 +18166,7 @@
           "g1zkdhk0x2fy2dd32m90jg9msfjz32tyhf3m3dxq",
           "g1uejl6mhm3arz8ta6meqd8mlq83nq04e5dtwrvf"
         ],
-        "topFunc": "Approve",
+        "topFunc": null,
         "firstBlockHeight": 181255,
         "lastBlockHeight": 509711,
         "lastBlockTime": "2026-08-05T11:30:29.130550257Z"
@@ -18392,7 +18399,7 @@
           "g1zkdhk0x2fy2dd32m90jg9msfjz32tyhf3m3dxq",
           "g1uejl6mhm3arz8ta6meqd8mlq83nq04e5dtwrvf"
         ],
-        "topFunc": "ExactInSwapRoute",
+        "topFunc": null,
         "firstBlockHeight": 181684,
         "lastBlockHeight": 509711,
         "lastBlockTime": "2026-08-05T11:30:29.130550257Z"
@@ -18860,7 +18867,7 @@
       "g1uxu0ncc0mg9wlrrfu6en2dkwsnm4hyd3x6gtk9",
       "g1e2e96p5h0smccq4qlq5kjjl07zy2yhpljhjrm2"
     ],
-    "lastHeight": 509694
+    "lastHeight": 512202
   },
   "tokenHolders": {
     "balances": {
@@ -19152,6 +19159,6 @@
     "whaleWatchCount": 293,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 140,
-    "faucetDripCount": 487
+    "faucetDripCount": 488
   }
 }
