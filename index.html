@@ -2648,36 +2648,49 @@ function renderGingerMintsChart(mints) {
 // contents) means there's always exactly one live listener, checking
 // e.target fresh on every event instead of trusting a specific circle's
 // lifecycle.
+function setGingerDotHoverState(idx, on) {
+  const dot = document.querySelector(`#gingerMintsChart .ginger-mints-chart-dot[data-idx="${idx}"]`);
+  if (!dot) return;
+  dot.classList.toggle("hovered", on);
+  dot.setAttribute("r", on ? "5" : "3");
+}
+
 (function wireGingerChartHover() {
   const svg = document.getElementById("gingerMintsChart");
-  function setHoverState(idx, on) {
-    const dot = svg.querySelector(`.ginger-mints-chart-dot[data-idx="${idx}"]`);
-    if (!dot) return;
-    dot.classList.toggle("hovered", on);
-    dot.setAttribute("r", on ? "5" : "3");
-  }
   svg.addEventListener("mouseover", (e) => {
     const hit = e.target.closest(".ginger-mints-chart-dot-hit");
     if (!hit) return;
     const point = gingerChartPoints[+hit.dataset.idx];
     if (!point) return;
-    setHoverState(hit.dataset.idx, true);
+    setGingerDotHoverState(hit.dataset.idx, true);
     showGingerChartTooltip(e, point.m);
   });
   svg.addEventListener("mousemove", (e) => {
     if (e.target.closest(".ginger-mints-chart-dot-hit")) positionGingerChartTooltip(e);
   });
-  svg.addEventListener("mouseout", (e) => {
-    const hit = e.target.closest(".ginger-mints-chart-dot-hit");
-    if (!hit) return;
-    setHoverState(hit.dataset.idx, false);
-    hideGingerChartTooltip();
-  });
-  // Catch-all in case a fast mouse movement skips a mouseout on the way
-  // out entirely (leaving the whole chart in one motion) — same fix
-  // pattern as the More-menu dropdown's outside-click close.
-  svg.addEventListener("mouseleave", hideGingerChartTooltip);
 })();
+
+// Reported live: hovering a dot then moving away sometimes left the
+// tooltip stuck open regardless of a mouseout/mouseleave-based approach
+// (tried first, still reproduced) — those events depend on the browser
+// correctly tracking element-enter/leave transitions across an SVG full
+// of small overlapping shapes, and evidently that wasn't reliable enough
+// in practice. This replaces that entirely with a ground-truth check on
+// every mouse move anywhere on the page: is the cursor ACTUALLY over a
+// dot's hit-circle right now, per elementFromPoint? If not, hide —
+// independent of whatever enter/leave event sequence did or didn't fire.
+document.addEventListener("mousemove", (e) => {
+  const tip = document.getElementById("gingerMintsChartTooltip");
+  if (tip.hidden) return;
+  const hit = document.elementFromPoint(e.clientX, e.clientY)?.closest(".ginger-mints-chart-dot-hit");
+  if (!hit) {
+    hideGingerChartTooltip();
+    document.querySelectorAll("#gingerMintsChart .ginger-mints-chart-dot.hovered").forEach((d) => {
+      d.classList.remove("hovered");
+      d.setAttribute("r", "3");
+    });
+  }
+});
 
 // Scroll and click are the other two ways the user reported the tooltip
 // getting stuck: position:fixed doesn't track the page's scroll position
