@@ -369,6 +369,21 @@
     "gno.land/r/tests/vm": [
       "gno.land/p/demo/nestedpkg",
       "gno.land/r/tests/vm/subtests"
+    ],
+    "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv2": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/ammmath",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/ammmath",
+      "gno.land/p/nt/avl/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/nt/ufmt/v0"
     ]
   },
   "txPackages": {
@@ -404,6 +419,28 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-08-09T05:34:45.532651023Z"
+    },
+    "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv2": {
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv2",
+      "blockHeight": 28208,
+      "hash": "FV43dBwcGCRTdDUfAOSlckTd0fdnMUzSbvbElfLYkEg=",
+      "creator": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-09T08:39:03.676539477Z"
+    },
+    "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3": {
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
+      "blockHeight": 28801,
+      "hash": "maEExjepXxT+azl2MckFkb8qIoT6goL7b+9McYwHs/w=",
+      "creator": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-09T09:10:42.002749349Z"
     }
   },
   "swapActivity": {
@@ -502,8 +539,15 @@
         "blockTime": "2026-08-09T07:55:31.005021415Z",
         "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
         "amount": 300000000
+      },
+      {
+        "hash": "bvvge/a6O0QgIR77xUP0LBVpXXko3+Z4lJGd8DpojXk=",
+        "blockHeight": 29417,
+        "blockTime": "2026-08-09T09:43:34.473814745Z",
+        "to": "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 27392
+    "lastHeight": 29417
   }
 }
