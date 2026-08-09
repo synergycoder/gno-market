@@ -1,6 +1,6 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-09T06:47:36.857Z",
+  "generatedAt": "2026-08-09T08:00:46.156Z",
   "lastHeight": 24762,
   "tokens": [
     {
@@ -47,7 +47,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 25610,
       "lastBlockTime": "2026-08-09T06:20:12.487726231Z",
-      "topFunc": "Buy"
+      "topFunc": null
     }
   ],
   "governanceRealms": [
@@ -80,7 +80,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999996988000000,
+      "balance": 999999996687000000,
       "genesis": true
     },
     {
@@ -159,6 +159,11 @@
       "genesis": false
     },
     {
+      "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
       "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
       "balance": 100000000,
       "genesis": false
@@ -220,6 +225,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "PLwmAKAKHlBxq5FhwNpSJiuWZoaS2wrfWBaLxFpOmzw=",
+      "blockHeight": 27392,
+      "blockTime": "2026-08-09T07:55:31.005021415Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
     {
       "hash": "X35l6m2TNGCiGQflltxfYqxF5vTAg30PP2UG62yTqN0=",
       "blockHeight": 25901,
@@ -747,7 +759,7 @@
         "callers": [
           "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr"
         ],
-        "topFunc": "Buy",
+        "topFunc": null,
         "firstBlockHeight": 24766,
         "lastBlockHeight": 25610,
         "lastBlockTime": "2026-08-09T06:20:12.487726231Z"
@@ -776,9 +788,10 @@
       "g1ydvzv2y3mshkp4f03yghcglv4cuh0gmt45saxw",
       "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
       "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
-      "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel"
+      "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+      "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr"
     ],
-    "lastHeight": 25901
+    "lastHeight": 27392
   },
   "tokenHolders": {
     "balances": {
@@ -797,9 +810,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 29,
+    "whaleWatchCount": 30,
     "popularDependencyCount": 54,
     "crossRealmEdgeCount": 39,
-    "faucetDripCount": 12
+    "faucetDripCount": 13
   }
 }
