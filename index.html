@@ -1290,6 +1290,17 @@ const NETWORKS = {
     rpcUrl: "https://rpc.topaz.testnets.gno.land",
     indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
   },
+  // The current/latest gno.land testnet as of Aug 2026 — topaz-1 above is
+  // now described as "the previous gno.land testnet" on gno.land's own
+  // faucet hub (faucet.gno.land). Both RPC and indexer confirmed live and
+  // CORS-open directly (access-control-allow-origin: *), same as topaz —
+  // no proxy needed, unlike betanet's indexer below.
+  sapphire: {
+    label: "sapphire-1 (testnet)",
+    chainId: "sapphire-1",
+    rpcUrl: "https://rpc.sapphire.testnets.gno.land",
+    indexerUrl: "https://indexer.sapphire.testnets.gno.land/graphql/query",
+  },
   betanet: {
     label: "gnoland1 (betanet)",
     chainId: "gnoland1",

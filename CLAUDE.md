@@ -2,7 +2,7 @@
 
 Read-only static-HTML dashboard (no build step, no backend — see
 `index.html`) showing GRC20 tokens and detected NFT collections across
-gno.land testnet/betanet.
+gno.land's networks: topaz-1 and sapphire-1 (testnets) and betanet.
 
 ## Shared knowledge base
 

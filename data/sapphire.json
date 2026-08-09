@@ -1,0 +1,805 @@
+{
+  "network": "sapphire",
+  "generatedAt": "2026-08-09T06:47:36.857Z",
+  "lastHeight": 24762,
+  "tokens": [
+    {
+      "name": "wrapped GNOT",
+      "path": "gno.land/r/gnoland/wugnot",
+      "symbol": "wugnot",
+      "image": null,
+      "description": null,
+      "totalSupply": 0,
+      "holderCount": 0
+    }
+  ],
+  "nftRealms": [],
+  "recentDeployed": [
+    {
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/pad",
+      "blockHeight": 24762,
+      "blockTime": "2026-08-09T05:34:45.532651023Z",
+      "hash": "4OWdQU6SZ4AUUNLU1FKdHjDppCuOEAtAj0mfsWQS2TE=",
+      "creator": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/ammmath",
+      "blockHeight": 24698,
+      "blockTime": "2026-08-09T05:31:19.695069468Z",
+      "hash": "wIZOFS4K2IX5mYjapVQNrixFzGEZu3plUuc4vs3O/f8=",
+      "creator": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/aeddi/smoke",
+      "blockHeight": 7112,
+      "blockTime": "2026-08-08T13:51:05.752520655Z",
+      "hash": "Vs+/6WHyt2AmN1CjiLU8uZCBesK6jGOMNQKICX+TukU=",
+      "creator": "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
+      "kind": "Realm"
+    }
+  ],
+  "trendingRealms": [
+    {
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/pad",
+      "calls": 5,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 25610,
+      "lastBlockTime": "2026-08-09T06:20:12.487726231Z",
+      "topFunc": "Buy"
+    }
+  ],
+  "governanceRealms": [
+    {
+      "path": "gno.land/r/gov/dao",
+      "calls": 0,
+      "uniqueCallers": 0,
+      "lastBlockHeight": null,
+      "lastBlockTime": null,
+      "topFunc": null
+    }
+  ],
+  "socialRealms": [
+    {
+      "path": "gno.land/r/gnoland/boards2/v1",
+      "calls": 0,
+      "uniqueCallers": 0,
+      "lastBlockHeight": null,
+      "lastBlockTime": null,
+      "topFunc": null
+    }
+  ],
+  "defiRealms": [],
+  "gnoswapSwaps": [],
+  "whaleWatch": [
+    {
+      "address": "g1k28nhw04v54602jkdfrnu25gq07nyc2rehz9vl",
+      "balance": 1000000000000000000,
+      "genesis": true
+    },
+    {
+      "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
+      "balance": 999999996988000000,
+      "genesis": true
+    },
+    {
+      "address": "g15tjaykkykxa7e8nmtagm2swkphchj4j6rnukes",
+      "balance": 999969689060000000,
+      "genesis": true
+    },
+    {
+      "address": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "balance": 10000000000000,
+      "genesis": false
+    },
+    {
+      "address": "g10n6fcxm0zr3pl9gz0q4nacwvlfkjzya97rlxxz",
+      "balance": 10000000000000,
+      "genesis": false
+    },
+    {
+      "address": "g1kg87wr06tmw7uvlyk4yrj3r2pzmt2j83d47nu7",
+      "balance": 10000000000000,
+      "genesis": false
+    },
+    {
+      "address": "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
+      "balance": 100252113900,
+      "genesis": false
+    },
+    {
+      "address": "g1nqnrt3aldzhu6zzeg75yw97wvavqy7wr77g56q",
+      "balance": 100000000000,
+      "genesis": false
+    },
+    {
+      "address": "g1manfred47kzduec920z88wfr64ylksmdcedlf5",
+      "balance": 100000000000,
+      "genesis": true
+    },
+    {
+      "address": "g1x7k4628w93a7wzdhqc06atzx0v50rnshweuxu0",
+      "balance": 10000000000,
+      "genesis": false
+    },
+    {
+      "address": "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1g9txa0t3k5tuam4ag6tyf842zw4mqlkk7nth7k",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1ydvzv2y3mshkp4f03yghcglv4cuh0gmt45saxw",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "balance": 100000000,
+      "genesis": false
+    },
+    {
+      "address": "g1zlvkhekhwcyx90z4265k275dfhxe20e3pv32fh",
+      "balance": 100000000,
+      "genesis": false
+    },
+    {
+      "address": "g1fh5cwqgwqhl3yazlygnd80dwhzanzsyx4ut0st",
+      "balance": 100000000,
+      "genesis": false
+    },
+    {
+      "address": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "balance": 75996854,
+      "genesis": false
+    },
+    {
+      "address": "g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g1r929wt2qplfawe4lvqv9zuwfdcz4vxdun7qh8l",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g1g3lsfxhvaqgdv4ccemwpnms4fv6t3aq3p5z6u7",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g1g73v2anukg4ej7axwqpthsatzrxjsh0wk797da",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g125em6arxsnj49vx35f0n0z34putv5ty3376fg5",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g1kfd9f5zlvcvy6aammcmqswa7cyjpu2nyt9qfen",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g15ge0ae9077eh40erwrn2eq0xw6wupwqthpv34l",
+      "balance": 0,
+      "genesis": true
+    },
+    {
+      "address": "g1rp7cmetn27eqlpjpc4vuusf8kaj746tysc0qgh",
+      "balance": 0,
+      "genesis": true
+    }
+  ],
+  "faucetDrips": [
+    {
+      "hash": "X35l6m2TNGCiGQflltxfYqxF5vTAg30PP2UG62yTqN0=",
+      "blockHeight": 25901,
+      "blockTime": "2026-08-09T06:35:48.486956992Z",
+      "to": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+      "amount": 300000000
+    },
+    {
+      "hash": "jSn3FUs0+35bCFinfRDSSmoTrsQV4r8MNAE3tFfxHZI=",
+      "blockHeight": 24531,
+      "blockTime": "2026-08-09T05:22:22.641605263Z",
+      "to": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "amount": 300000000
+    },
+    {
+      "hash": "VQ+kUE9j3xcMFES1nb6KA65qC++gTPMm3GCMIe13PmM=",
+      "blockHeight": 23650,
+      "blockTime": "2026-08-09T04:35:17.297948834Z",
+      "to": "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
+      "amount": 300000000
+    },
+    {
+      "hash": "YMva8E5LJxrBsXqB43g7eD3oWu4zWsWQEXiyn6VwOg4=",
+      "blockHeight": 22698,
+      "blockTime": "2026-08-09T03:44:29.449589515Z",
+      "to": "g1ydvzv2y3mshkp4f03yghcglv4cuh0gmt45saxw",
+      "amount": 300000000
+    },
+    {
+      "hash": "hInTdaAqn/UuIR02K9AH1q7/WrWqmtBA5z+0/DzZiko=",
+      "blockHeight": 15042,
+      "blockTime": "2026-08-08T20:55:51.240723566Z",
+      "to": "g1fh5cwqgwqhl3yazlygnd80dwhzanzsyx4ut0st",
+      "amount": 100000000
+    },
+    {
+      "hash": "4AxajbID4LxdnN75MRMVN0IipHSAxV0uBWrQNthpOOo=",
+      "blockHeight": 13967,
+      "blockTime": "2026-08-08T19:58:15.957988773Z",
+      "to": "g1zlvkhekhwcyx90z4265k275dfhxe20e3pv32fh",
+      "amount": 100000000
+    },
+    {
+      "hash": "tKzUq4bes+9fVVIbC4Rax3/1Sb4GVJPlfQY2cC+lugc=",
+      "blockHeight": 12169,
+      "blockTime": "2026-08-08T18:21:57.451825392Z",
+      "to": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+      "amount": 300000000
+    },
+    {
+      "hash": "yLWML7KQOlYnd6YeHXsS1yLpdEpGocOIgAEH0bdpMkM=",
+      "blockHeight": 11835,
+      "blockTime": "2026-08-08T18:04:04.910656995Z",
+      "to": "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs",
+      "amount": 300000000
+    },
+    {
+      "hash": "yea7/HYmMyqGPwEEfZHusjpJEx/6MkRuTxRdLN0v618=",
+      "blockHeight": 11798,
+      "blockTime": "2026-08-08T18:02:06.137252407Z",
+      "to": "g1g9txa0t3k5tuam4ag6tyf842zw4mqlkk7nth7k",
+      "amount": 300000000
+    },
+    {
+      "hash": "TDXyFzm161U5pX2rh3fVLZFtZTD8QNEFSxuLwyrKkZU=",
+      "blockHeight": 10801,
+      "blockTime": "2026-08-08T17:08:39.667448705Z",
+      "to": "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
+      "amount": 300000000
+    },
+    {
+      "hash": "6qiKq4ntTPXSyZl6r6R63RMBSAy8I/cPMteaMJmg2cg=",
+      "blockHeight": 10131,
+      "blockTime": "2026-08-08T16:32:44.555998082Z",
+      "to": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "amount": 100000000
+    },
+    {
+      "hash": "jqi8nJm+21zGuSeF34daRf3et76cSyV+kt8mtj8pWnQ=",
+      "blockHeight": 9846,
+      "blockTime": "2026-08-08T16:17:29.380568427Z",
+      "to": "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
+      "amount": 300000000
+    }
+  ],
+  "faucetAddress": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
+  "tokenDecimals": {
+    "gno.land/r/gnoland/wugnot": 6
+  },
+  "tokenRegistry": [],
+  "popularDependencies": [
+    {
+      "path": "gno.land/p/nt/ufmt/v0",
+      "dependentCount": 18,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao",
+      "dependentCount": 14,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/nt/bptree/v0",
+      "dependentCount": 9,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/md",
+      "dependentCount": 8,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/mux/v0",
+      "dependentCount": 6,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/sys/users",
+      "dependentCount": 6,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0",
+      "dependentCount": 5,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/seqid/v0",
+      "dependentCount": 5,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/demo/tokens/grc20",
+      "dependentCount": 4,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/memberstore",
+      "dependentCount": 4,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/r/demo/defi/grc20reg",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/mdtable",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/sys/params",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/txlink",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/realmpath",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/impl",
+      "dependentCount": 3,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/sys/validators",
+      "dependentCount": 3,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0/pager",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/avl/v0/rotree",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/ownable/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/sys/validators/v3",
+      "dependentCount": 2,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/nt/treasury/v0",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/helplink",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/bptree/v0/pager",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/moul/addrset",
+      "dependentCount": 2,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/fqname/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/coinsort",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/ctg",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/ammmath",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/demo/blog",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gnops/valopers",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/authz",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/combinederr/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/ownable/v0/exts/authorizable",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/aeddi/panictoerr",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/gov/dao/v3/treasury",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/demo/svg",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/piechart",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/tablesort",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/samcrew/urlfilter",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoland/boards",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoland/boards/exts/permissions",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/markdown/foreign/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/gnoland/boards/exts/hub",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/jeronimoalbi/mdform",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/jeronimoalbi/pager",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/leon/svgbtn",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/mdalert/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/demo/profile",
+      "dependentCount": 1,
+      "kind": "Realm"
+    },
+    {
+      "path": "gno.land/p/moul/fifo",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/poa/v0",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/nt/bptree/v0/rotree",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/demo/nestedpkg",
+      "dependentCount": 1,
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/r/tests/vm/subtests",
+      "dependentCount": 1,
+      "kind": "Realm"
+    }
+  ],
+  "crossRealmEdges": [
+    {
+      "from": "gno.land/r/demo/defi/grc20factory",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnoland/coins",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoland/blog",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gnoland/wugnot",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/gnops/valopers"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/sys/params"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers/proposal",
+      "to": "gno.land/r/sys/validators/v3"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers",
+      "to": "gno.land/r/sys/params"
+    },
+    {
+      "from": "gno.land/r/gnops/valopers",
+      "to": "gno.land/r/sys/validators/v3"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao/v3/impl"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/init",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/loader",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/loader",
+      "to": "gno.land/r/gov/dao/v3/impl"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/loader",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/gov/dao/v3/treasury"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/impl",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/treasury",
+      "to": "gno.land/r/demo/defi/grc20reg"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/treasury",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/cla",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/gov/dao/v3/memberstore",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao/v3/impl"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/gov/dao/v3/memberstore"
+    },
+    {
+      "from": "gno.land/r/sys/names",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/gnoland/boards2/v1",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/sys/params",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/namereg/v1",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/namereg/v1",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/sys/namereg/v1",
+      "to": "gno.land/r/demo/profile"
+    },
+    {
+      "from": "gno.land/r/sys/users/init",
+      "to": "gno.land/r/sys/users"
+    },
+    {
+      "from": "gno.land/r/sys/validators/v2",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/validators/v3",
+      "to": "gno.land/r/sys/params"
+    },
+    {
+      "from": "gno.land/r/sys/validators/v3",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/sys/users",
+      "to": "gno.land/r/gov/dao"
+    },
+    {
+      "from": "gno.land/r/tests/vm",
+      "to": "gno.land/r/tests/vm/subtests"
+    }
+  ],
+  "callActivity": {
+    "byPath": {
+      "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/pad": {
+        "calls": 5,
+        "callers": [
+          "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr"
+        ],
+        "topFunc": "Buy",
+        "firstBlockHeight": 24766,
+        "lastBlockHeight": 25610,
+        "lastBlockTime": "2026-08-09T06:20:12.487726231Z"
+      }
+    },
+    "lastHeight": 25610
+  },
+  "bankSendActivity": {
+    "addresses": [
+      "g15tjaykkykxa7e8nmtagm2swkphchj4j6rnukes",
+      "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
+      "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "g10n6fcxm0zr3pl9gz0q4nacwvlfkjzya97rlxxz",
+      "g1kg87wr06tmw7uvlyk4yrj3r2pzmt2j83d47nu7",
+      "g1nqnrt3aldzhu6zzeg75yw97wvavqy7wr77g56q",
+      "g1x7k4628w93a7wzdhqc06atzx0v50rnshweuxu0",
+      "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
+      "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "g1manfred47kzduec920z88wfr64ylksmdcedlf5",
+      "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
+      "g1g9txa0t3k5tuam4ag6tyf842zw4mqlkk7nth7k",
+      "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs",
+      "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+      "g1zlvkhekhwcyx90z4265k275dfhxe20e3pv32fh",
+      "g1fh5cwqgwqhl3yazlygnd80dwhzanzsyx4ut0st",
+      "g1ydvzv2y3mshkp4f03yghcglv4cuh0gmt45saxw",
+      "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
+      "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+      "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel"
+    ],
+    "lastHeight": 25901
+  },
+  "tokenHolders": {
+    "balances": {
+      "gno.land/r/gnoland/wugnot|wugnot": {}
+    },
+    "lastHeight": 25610
+  },
+  "stats": {
+    "tokenCount": 1,
+    "nftRealmCount": 0,
+    "totalRealmsScanned": 30,
+    "txPackageCount": 3,
+    "genesisOnlyCount": 28,
+    "trendingRealmCount": 1,
+    "governanceRealmCount": 1,
+    "socialRealmCount": 1,
+    "defiRealmCount": 0,
+    "gnoswapSwapCount": 0,
+    "whaleWatchCount": 29,
+    "popularDependencyCount": 54,
+    "crossRealmEdgeCount": 39,
+    "faucetDripCount": 12
+  }
+}

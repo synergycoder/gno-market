@@ -28,6 +28,18 @@ const NETWORKS = {
     rpcUrl: "https://rpc.topaz.testnets.gno.land",
     indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
   },
+  // The current/latest gno.land testnet as of Aug 2026 — see the matching
+  // comment in index.html's own NETWORKS for the "previous testnet" note
+  // and CORS confirmation. buildNetwork() below is fully parameterized by
+  // netKey/net, so this network gets every generic scan (tokens, NFTs,
+  // deployed packages, trending, governance, social, swaps, whale watch)
+  // for free — no other code changes needed for the generic path.
+  sapphire: {
+    label: "sapphire-1 (testnet)",
+    chainId: "sapphire-1",
+    rpcUrl: "https://rpc.sapphire.testnets.gno.land",
+    indexerUrl: "https://indexer.sapphire.testnets.gno.land/graphql/query",
+  },
   betanet: {
     label: "gnoland1 (betanet)",
     chainId: "gnoland1",
