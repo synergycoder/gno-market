@@ -617,6 +617,29 @@
   }
   .suggest-form-row button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
   .suggest-form-row button:disabled { opacity: 0.5; cursor: default; }
+  .pixel-layout { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start; margin-top: 1rem; }
+  .pixel-board-col { max-width: 560px; flex: 1; min-width: 280px; }
+  .pixel-coord-readout {
+    font-family: ui-monospace, monospace; font-size: 0.85rem; color: var(--text-muted);
+    min-height: 1.3em; margin-bottom: 0.4rem;
+  }
+  .pixel-zoom-controls { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
+  .pixel-zoom-controls button {
+    width: 28px; height: 28px; padding: 0; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .pixel-zoom-controls button:hover { background: var(--border-soft); border-color: var(--accent-2); }
+  .pixel-board-wrap { border: 1px solid var(--border); width: 100%; max-height: 65vh; overflow: auto; background: var(--bg-elevated); }
+  .pixel-board { display: grid; width: max-content; }
+  .pixel-board .pixel-cell { border: 1px solid var(--border-soft); cursor: pointer; }
+  .pixel-board .pixel-cell:hover { outline: 2px solid var(--accent); outline-offset: -2px; z-index: 1; }
+  .pixel-board.busy .pixel-cell { cursor: wait; pointer-events: none; opacity: 0.7; }
+  .pixel-side { min-width: 200px; }
+  .pixel-palette { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.1rem; }
+  .pixel-swatch { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; border: 2px solid var(--border); }
+  .pixel-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--accent); }
+  .pixel-stat { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .pixel-stat b { color: var(--text); }
 
   .suggestion-card {
     display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
@@ -749,6 +772,7 @@
   <button class="tab" data-tab="nfts" role="tab"><span class="tab-icon">🖼️</span>NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab"><span class="tab-icon">👛</span>Scan Wallet</button>
   <button class="tab" data-tab="trending" role="tab"><span class="tab-icon">🔥</span>Trending</button>
+  <button class="tab" data-tab="pixels" role="tab"><span class="tab-icon">🎨</span>Pixel Canvas</button>
   <div class="tab-more-wrap">
     <button class="tab-more-btn" id="tabMoreBtn" type="button" aria-haspopup="true" aria-expanded="false">
       <span id="tabMoreLabel">More</span><span class="tab-more-caret">▾</span>
@@ -939,6 +963,43 @@
     <tbody id="trendingBody"></tbody>
   </table>
   <p class="status">Click any realm row to preview its on-chain Render() output.</p>
+</div>
+
+<div class="tab-panel" id="panel-pixels" hidden>
+  <h2>🎨 Pixel Canvas</h2>
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">A collaborative on-chain canvas, r/place-style — pick a color, click a cell. Every
+    pixel is a real signed transaction against the <code>pixelgame</code> realm's <code>SetPixel(x, y,
+    colorIndex)</code>, which takes no address parameter: the pixel always belongs to whoever signs it, read
+    straight from the chain (<code>PreviousRealm().Address()</code> at call time), not something this page
+    assigns. The board expands on its own as it fills, growing evenly on all sides so existing art stays
+    centered. Lives on <strong>sapphire-1 only</strong>, regardless of which network is selected
+    above.</span><button class="text-collapsible-toggle" type="button">More</button></p>
+
+  <p id="pixelStatus" class="status">Loading…</p>
+
+  <div id="pixelApp" style="display:none">
+    <div class="pixel-layout">
+      <div class="pixel-board-col">
+        <div class="pixel-coord-readout" id="pixelCoordReadout">Hover a cell to see its coordinates</div>
+        <div class="pixel-zoom-controls">
+          <button id="pixelZoomOut" type="button" title="Zoom out">&minus;</button>
+          <span id="pixelZoomLabel">8px/cell</span>
+          <button id="pixelZoomIn" type="button" title="Zoom in">+</button>
+        </div>
+        <div class="pixel-board-wrap"><div class="pixel-board" id="pixelBoard"></div></div>
+      </div>
+      <div class="pixel-side">
+        <button class="adena-connect-btn" id="pixelConnectBtn" type="button">Connect Adena</button>
+        <div class="pixel-stat" style="margin-top:0.75rem">Selected color</div>
+        <div class="pixel-palette" id="pixelPalette"></div>
+        <div class="pixel-stat" id="pixelTotalStat"></div>
+        <div class="pixel-stat" id="pixelOccupiedStat"></div>
+        <div class="pixel-stat" id="pixelExpansionsStat"></div>
+        <div class="pixel-stat" id="pixelCooldownStat"></div>
+        <p id="pixelPlaceStatus" class="status"></p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="tab-panel" id="panel-governance" hidden>
@@ -1508,6 +1569,7 @@ function activateTab(tabName) {
   panel.hidden = false;
   if (tabName === "suggestions") loadSuggestions();
   if (tabName === "nfts") loadNftImagesForTab();
+  if (tabName === "pixels") loadPixelCanvas();
 
   const moreBtn = document.getElementById("tabMoreBtn");
   const isMoreTab = MORE_MENU_TABS.has(tabName);
@@ -3934,6 +3996,207 @@ function truncateMiddle(str, keep = 14) {
 // paths, a different kind of string where 6+6 would be nearly useless).
 function truncateAddress(addr) {
   return truncateMiddle(addr, 6);
+}
+
+// ---------- Pixel Canvas: collaborative on-chain canvas, sapphire-1 only ----------
+//
+// Not yet deployed as of this writing -- update PIXEL_REALM_PATH once it
+// is. loadPixelCanvas() below shows a friendly "not deployed yet"
+// message rather than a raw error if the very first query fails, since
+// a real network/CORS problem would also break every other tab's
+// queries the same way (a much louder, more obvious signal) rather than
+// just this one tab quietly failing.
+const PIXEL_REALM_PATH = "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixelgame";
+
+function parseGnoEvalAllNumbers(raw) {
+  if (!raw) return [];
+  return [...raw.matchAll(/-?\d+(?=\s+int64\))/g)].map(m => Number(m[0]));
+}
+
+// Snapshot()/PaletteCSV() return a plain Gno string, printed like
+// `("0000..." string)`. JSON's string-escaping is a safe superset of
+// what these values ever contain (digits, commas, hex colors), so
+// re-wrapping the captured contents in real quotes and handing them to
+// JSON.parse undoes gno's own escaping without a separate parser --
+// same trick this project's own server-side console uses.
+function parseGnoEvalString(raw) {
+  const m = /^\("((?:[^"\\]|\\.)*)"\s+string\)/.exec((raw || "").trim());
+  if (!m) return null;
+  try { return JSON.parse('"' + m[1] + '"'); } catch { return null; }
+}
+
+let pixelGridWidth = 0, pixelGridHeight = 0, pixelOriginX = 0, pixelOriginY = 0;
+let pixelPaletteColors = [];
+let pixelSelectedColor = 0;
+const pixelCellEls = [];
+let pixelLoadInFlight = false;
+let pixelPlaceInFlight = false;
+let pixelDeployedOnChain = null; // null = not checked yet, true/false once known
+
+const PIXEL_ZOOM_MIN = 3, PIXEL_ZOOM_MAX = 32, PIXEL_ZOOM_STEP = 3;
+let pixelCellPx = 8;
+
+function applyPixelZoom() {
+  const board = document.getElementById("pixelBoard");
+  board.style.gridTemplateColumns = `repeat(${pixelGridWidth}, ${pixelCellPx}px)`;
+  board.style.gridTemplateRows = `repeat(${pixelGridHeight}, ${pixelCellPx}px)`;
+  document.getElementById("pixelZoomLabel").textContent = `${pixelCellPx}px/cell`;
+}
+
+document.getElementById("pixelZoomIn").addEventListener("click", () => {
+  pixelCellPx = Math.min(PIXEL_ZOOM_MAX, pixelCellPx + PIXEL_ZOOM_STEP);
+  applyPixelZoom();
+});
+document.getElementById("pixelZoomOut").addEventListener("click", () => {
+  pixelCellPx = Math.max(PIXEL_ZOOM_MIN, pixelCellPx - PIXEL_ZOOM_STEP);
+  applyPixelZoom();
+});
+
+function buildPixelBoard(w, h) {
+  const board = document.getElementById("pixelBoard");
+  const coordReadout = document.getElementById("pixelCoordReadout");
+  board.innerHTML = "";
+  pixelCellEls.length = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const absX = pixelOriginX + x;
+      const absY = pixelOriginY + y;
+      const cell = document.createElement("div");
+      cell.className = "pixel-cell";
+      cell.title = `(${absX}, ${absY})`;
+      cell.addEventListener("mouseenter", () => { coordReadout.textContent = `(${absX}, ${absY})`; });
+      cell.addEventListener("click", () => placePixelViaAdena(absX, absY));
+      board.appendChild(cell);
+      pixelCellEls.push(cell);
+    }
+  }
+  board.addEventListener("mouseleave", () => {
+    coordReadout.textContent = "Hover a cell to see its coordinates";
+  });
+  applyPixelZoom();
+}
+
+function buildPixelPalette() {
+  const el = document.getElementById("pixelPalette");
+  el.innerHTML = "";
+  pixelPaletteColors.forEach((hex, i) => {
+    const sw = document.createElement("div");
+    sw.className = "pixel-swatch" + (i === pixelSelectedColor ? " selected" : "");
+    sw.style.background = hex;
+    sw.title = hex;
+    sw.addEventListener("click", () => { pixelSelectedColor = i; buildPixelPalette(); });
+    el.appendChild(sw);
+  });
+}
+
+function paintPixelSnapshot(snapshot) {
+  for (let i = 0; i < snapshot.length && i < pixelCellEls.length; i++) {
+    const c = Number(snapshot[i]);
+    pixelCellEls[i].style.background = pixelPaletteColors[c] || "#000";
+  }
+}
+
+async function loadPixelCanvas() {
+  if (pixelLoadInFlight) return;
+  pixelLoadInFlight = true;
+  const statusEl = document.getElementById("pixelStatus");
+  const appEl = document.getElementById("pixelApp");
+  try {
+    const net = NETWORKS.sapphire; // pixel canvas always lives on sapphire-1
+    const boundsRaw = await abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.Bounds()`);
+    const [minX, maxX, minY, maxY] = parseGnoEvalAllNumbers(boundsRaw);
+    pixelOriginX = minX; pixelOriginY = minY;
+    const w = maxX - minX + 1, h = maxY - minY + 1;
+
+    const [snapshotRaw, paletteRaw, totalRaw, occupiedRaw, expansionsRaw] = await Promise.all([
+      abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.Snapshot()`),
+      abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.PaletteCSV()`),
+      abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.TotalPlacements()`),
+      abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.OccupiedCells()`),
+      abciQuery(net, "vm/qeval", `${PIXEL_REALM_PATH}.ExpansionsCount()`),
+    ]);
+    const snapshot = parseGnoEvalString(snapshotRaw) || "";
+    pixelPaletteColors = (parseGnoEvalString(paletteRaw) || "").split(",").filter(Boolean);
+    const total = parseGnoEvalNumber(totalRaw);
+    const occupied = parseGnoEvalNumber(occupiedRaw);
+    const expansions = parseGnoEvalNumber(expansionsRaw);
+
+    pixelDeployedOnChain = true;
+    statusEl.style.display = "none";
+    appEl.style.display = "";
+
+    if (w !== pixelGridWidth || h !== pixelGridHeight || pixelCellEls.length === 0) {
+      pixelGridWidth = w; pixelGridHeight = h;
+      buildPixelBoard(w, h);
+    }
+    buildPixelPalette();
+    paintPixelSnapshot(snapshot);
+
+    document.getElementById("pixelTotalStat").innerHTML = `<b>${total}</b> total placements`;
+    document.getElementById("pixelOccupiedStat").innerHTML =
+      `<b>${occupied}</b> / ${w * h} cells painted (board is ${w}×${h})`;
+    document.getElementById("pixelExpansionsStat").innerHTML = `<b>${expansions}</b> expansion(s) so far`;
+
+    const cooldownEl = document.getElementById("pixelCooldownStat");
+    if (headerWalletAddress) {
+      const cdRaw = await abciQuery(
+        net, "vm/qeval", `${PIXEL_REALM_PATH}.CooldownRemaining(${JSON.stringify(headerWalletAddress)})`
+      );
+      const cd = parseGnoEvalNumber(cdRaw);
+      cooldownEl.textContent = cd > 0 ? `Cooldown: ${cd} block(s) remaining` : "Ready to place";
+    } else {
+      cooldownEl.textContent = "Connect Adena to place a pixel.";
+    }
+  } catch (err) {
+    if (pixelDeployedOnChain === null) {
+      pixelDeployedOnChain = false;
+      statusEl.textContent = "Pixel Canvas hasn't been deployed to sapphire-1 yet — check back soon.";
+      statusEl.style.display = "";
+    } else {
+      statusEl.textContent = "Error loading pixel canvas: " + err.message;
+      statusEl.style.display = "";
+    }
+  } finally {
+    pixelLoadInFlight = false;
+  }
+}
+
+async function placePixelViaAdena(x, y) {
+  if (pixelPlaceInFlight) return;
+  const boardEl = document.getElementById("pixelBoard");
+  const statusEl = document.getElementById("pixelPlaceStatus");
+  pixelPlaceInFlight = true;
+  boardEl.classList.add("busy");
+  statusEl.textContent = `Connecting to Adena to place (${x}, ${y})…`;
+  try {
+    const address = await ensureAdenaConnected();
+    // networkInfo explicitly targets sapphire-1 regardless of whichever
+    // chain Adena itself currently has selected -- this realm only
+    // exists on sapphire-1, and the existing Suggestions feature (which
+    // relies on the user having manually pointed Adena at testnet
+    // themselves) is exactly the failure mode this avoids.
+    const res = await window.adena.DoContract({
+      messages: [{
+        type: "/vm.m_call",
+        value: {
+          caller: address,
+          send: "",
+          pkg_path: PIXEL_REALM_PATH,
+          func: "SetPixel",
+          args: [String(x), String(y), String(pixelSelectedColor)],
+        },
+      }],
+      networkInfo: { chainId: NETWORKS.sapphire.chainId, rpcUrl: NETWORKS.sapphire.rpcUrl },
+    });
+    if (res.status !== "success") throw new Error(res.message || "Transaction was not approved.");
+    statusEl.textContent = "Placed! Refreshing…";
+    setTimeout(loadPixelCanvas, 2000);
+  } catch (err) {
+    statusEl.textContent = "Failed: " + err.message;
+  } finally {
+    pixelPlaceInFlight = false;
+    boardEl.classList.remove("busy");
+  }
 }
 
 function safeUrl(url) {
