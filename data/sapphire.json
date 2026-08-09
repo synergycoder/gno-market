@@ -1,6 +1,6 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-09T10:05:30.160Z",
+  "generatedAt": "2026-08-09T11:54:47.921Z",
   "lastHeight": 28801,
   "tokens": [
     {
@@ -80,7 +80,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 29107,
       "lastBlockTime": "2026-08-09T09:27:02.076649811Z",
-      "topFunc": "Buy"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv2",
@@ -88,7 +88,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 28257,
       "lastBlockTime": "2026-08-09T08:41:40.704351035Z",
-      "topFunc": "Init"
+      "topFunc": null
     }
   ],
   "governanceRealms": [
@@ -121,7 +121,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999996386000000,
+      "balance": 999999996085000000,
       "genesis": true
     },
     {
@@ -165,6 +165,11 @@
       "genesis": false
     },
     {
+      "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "balance": 600000000,
+      "genesis": false
+    },
+    {
       "address": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
       "balance": 325119309,
       "genesis": false
@@ -196,11 +201,6 @@
     },
     {
       "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
-      "balance": 300000000,
-      "genesis": false
-    },
-    {
-      "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
       "balance": 300000000,
       "genesis": false
     },
@@ -271,6 +271,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "PeH69GjpsRwXjQK3MdbLuuu1IuKlxepvKvYRTCfU/bg=",
+      "blockHeight": 31776,
+      "blockTime": "2026-08-09T11:49:27.778500545Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
     {
       "hash": "bvvge/a6O0QgIR77xUP0LBVpXXko3+Z4lJGd8DpojXk=",
       "blockHeight": 29417,
@@ -827,7 +834,7 @@
         "callers": [
           "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr"
         ],
-        "topFunc": "Init",
+        "topFunc": null,
         "firstBlockHeight": 28212,
         "lastBlockHeight": 28257,
         "lastBlockTime": "2026-08-09T08:41:40.704351035Z"
@@ -837,7 +844,7 @@
         "callers": [
           "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr"
         ],
-        "topFunc": "Buy",
+        "topFunc": null,
         "firstBlockHeight": 28804,
         "lastBlockHeight": 29107,
         "lastBlockTime": "2026-08-09T09:27:02.076649811Z"
@@ -870,7 +877,7 @@
       "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
       "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8"
     ],
-    "lastHeight": 29417
+    "lastHeight": 31776
   },
   "tokenHolders": {
     "balances": {
@@ -895,6 +902,6 @@
     "whaleWatchCount": 31,
     "popularDependencyCount": 54,
     "crossRealmEdgeCount": 40,
-    "faucetDripCount": 14
+    "faucetDripCount": 15
   }
 }
