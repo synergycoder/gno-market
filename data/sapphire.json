@@ -1,6 +1,6 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-09T15:59:18.455Z",
+  "generatedAt": "2026-08-09T17:19:40.200Z",
   "lastHeight": 34077,
   "tokens": [
     {
@@ -137,7 +137,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999995683000000,
+      "balance": 999999995582000000,
       "genesis": true
     },
     {
@@ -241,6 +241,11 @@
       "genesis": false
     },
     {
+      "address": "g13qy23jzsry5yvqcw3kzuttvqxu6lx3wxwvupcy",
+      "balance": 100000000,
+      "genesis": false
+    },
+    {
       "address": "g1gwzcghkflapl8vxwv32agvfe3h292jfld5pshq",
       "balance": 10000000,
       "genesis": false
@@ -302,6 +307,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "nBYbdpDVFFa57U/+hcvmi6TU/wZDm5j3EKdDPzdHgCw=",
+      "blockHeight": 37553,
+      "blockTime": "2026-08-09T16:57:48.438083669Z",
+      "to": "g13qy23jzsry5yvqcw3kzuttvqxu6lx3wxwvupcy",
+      "amount": 100000000
+    },
     {
       "hash": "DgliQ2LYYoW+MSPAjBwy0vHtc97Bz3Nydcrq1fAccZ8=",
       "blockHeight": 34733,
@@ -934,9 +946,10 @@
       "g1k28nhw04v54602jkdfrnu25gq07nyc2rehz9vl",
       "g1gwzcghkflapl8vxwv32agvfe3h292jfld5pshq",
       "g1v6v9nfv9nt2685s6s5tkvf02fak9x0007527tj",
-      "g18nvp63jzt6n0ggvtmzry4367l2l4v2nem8y2t8"
+      "g18nvp63jzt6n0ggvtmzry4367l2l4v2nem8y2t8",
+      "g13qy23jzsry5yvqcw3kzuttvqxu6lx3wxwvupcy"
     ],
-    "lastHeight": 34733
+    "lastHeight": 37553
   },
   "tokenHolders": {
     "balances": {
@@ -958,9 +971,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 34,
+    "whaleWatchCount": 35,
     "popularDependencyCount": 54,
     "crossRealmEdgeCount": 40,
-    "faucetDripCount": 17
+    "faucetDripCount": 18
   }
 }
