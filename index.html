@@ -207,6 +207,25 @@
     border: 1px solid var(--warning-border); border-radius: 6px;
     padding: 0.6rem 0.9rem; font-weight: 500;
   }
+  /* Lives inside .site-header (not after it) specifically so it inherits
+     the header's own sticky positioning -- "persistent" per the ask
+     means staying visible while scrolling, not just showing once at the
+     top, and a second independently-sticky element right below the
+     header would need a fragile height-dependent top offset instead. */
+  .promo-banner {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: var(--badge-bg); border: 1px solid var(--accent); border-radius: 8px;
+    padding: 0.5rem 0.8rem; font-size: 0.85rem;
+  }
+  .promo-banner .promo-link { color: var(--text); text-decoration: none; flex: 1 1 auto; text-align: center; }
+  .promo-banner .promo-link:hover { text-decoration: underline; }
+  .promo-banner strong { color: var(--accent-strong); }
+  .promo-banner .promo-arrow { color: var(--accent-strong); font-weight: 700; }
+  .promo-dismiss {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 0.9rem; padding: 0.1rem 0.3rem; border-radius: 4px; flex: 0 0 auto;
+  }
+  .promo-dismiss:hover { color: var(--text); background: var(--border-soft); }
   .status-alert::before { content: "⚠️ "; }
   a { color: var(--accent-2); }
 
@@ -761,6 +780,12 @@
         <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
       </button>
     </div>
+  </div>
+  <div class="promo-banner" id="pixelsPromoBanner">
+    <a class="promo-link" href="https://pixels.gno.observer/" target="_blank" rel="noopener">
+      🎨 <strong>New:</strong> Help paint the community pixel canvas — GNO Pixels is live. Try it <span class="promo-arrow">→</span>
+    </a>
+    <button type="button" class="promo-dismiss" id="pixelsPromoDismiss" title="Dismiss">✕</button>
   </div>
 </header>
 <p class="sub">Live view of gno.land chain activity.</p>
@@ -1342,6 +1367,23 @@ document.getElementById("themeToggle").addEventListener("click", () => {
   const next = currentRenderedTheme() === "light" ? "dark" : "light";
   applyTheme(next);
   try { localStorage.setItem(THEME_STORAGE_KEY, next); } catch {}
+});
+
+// Temporary cross-promo for the standalone GNO Pixels project -- dismiss
+// is remembered per-browser so it doesn't nag a visitor who's already
+// seen and closed it, same pattern as everything else here that
+// persists a small UI preference.
+const PIXELS_PROMO_DISMISSED_KEY = "gnoObserver:pixelsPromoDismissed";
+try {
+  if (localStorage.getItem(PIXELS_PROMO_DISMISSED_KEY) === "1") {
+    document.getElementById("pixelsPromoBanner").style.display = "none";
+  }
+} catch {
+  // storage unavailable -- banner just stays visible every visit
+}
+document.getElementById("pixelsPromoDismiss").addEventListener("click", () => {
+  document.getElementById("pixelsPromoBanner").style.display = "none";
+  try { localStorage.setItem(PIXELS_PROMO_DISMISSED_KEY, "1"); } catch {}
 });
 
 const NETWORKS = {
