@@ -1,6 +1,6 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-10T20:16:48.929Z",
+  "generatedAt": "2026-08-10T22:24:10.747Z",
   "lastHeight": 63110,
   "tokens": [
     {
@@ -264,11 +264,11 @@
   "trendingRealms": [
     {
       "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels",
-      "calls": 756,
+      "calls": 783,
       "uniqueCallers": 14,
-      "lastBlockHeight": 65330,
+      "lastBlockHeight": 68761,
       "lastBlockTime": "2026-08-10T04:50:05.594495359Z",
-      "topFunc": "SetPixel"
+      "topFunc": "SetPixels"
     },
     {
       "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixelsandbox",
@@ -284,7 +284,7 @@
       "uniqueCallers": 2,
       "lastBlockHeight": 66181,
       "lastBlockTime": "2026-08-10T09:22:15.527432293Z",
-      "topFunc": "Buy"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv4",
@@ -587,11 +587,6 @@
       "genesis": false
     },
     {
-      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
-      "balance": 103936162,
-      "genesis": false
-    },
-    {
       "address": "g1zlvkhekhwcyx90z4265k275dfhxe20e3pv32fh",
       "balance": 100000000,
       "genesis": false
@@ -668,12 +663,17 @@
     },
     {
       "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
-      "balance": 44656433,
+      "balance": 45856433,
       "genesis": false
     },
     {
       "address": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
       "balance": 27242127,
+      "genesis": false
+    },
+    {
+      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
+      "balance": 10779424,
       "genesis": false
     },
     {
@@ -1744,7 +1744,7 @@
         "lastBlockTime": "2026-08-09T18:26:21.324274828Z"
       },
       "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels": {
-        "calls": 756,
+        "calls": 783,
         "callers": [
           "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
           "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
@@ -1761,9 +1761,9 @@
           "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd",
           "g1xvunup2m747gu6yr5qpmpehal5tr654cl0qtmk"
         ],
-        "topFunc": "SetPixel",
+        "topFunc": "SetPixels",
         "firstBlockHeight": 46112,
-        "lastBlockHeight": 65330,
+        "lastBlockHeight": 68761,
         "lastBlockTime": "2026-08-10T04:50:05.594495359Z"
       },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv4": {
@@ -1886,7 +1886,7 @@
           "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
           "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu"
         ],
-        "topFunc": "Buy",
+        "topFunc": null,
         "firstBlockHeight": 55977,
         "lastBlockHeight": 66181,
         "lastBlockTime": "2026-08-10T09:22:15.527432293Z"
@@ -1914,7 +1914,7 @@
         "lastBlockTime": "2026-08-10T17:11:24.305006266Z"
       }
     },
-    "lastHeight": 66181
+    "lastHeight": 68761
   },
   "bankSendActivity": {
     "addresses": [
@@ -2004,7 +2004,7 @@
         "g1tertp3pyxdcd2h8vdwj89dn0t7tj80h8v6aqw6": 999990
       }
     },
-    "lastHeight": 66181
+    "lastHeight": 68761
   },
   "stats": {
     "tokenCount": 6,
