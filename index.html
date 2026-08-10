@@ -212,20 +212,23 @@
      means staying visible while scrolling, not just showing once at the
      top, and a second independently-sticky element right below the
      header would need a fragile height-dependent top offset instead. */
+  /* Deliberately NOT gno-observer's own --accent/--badge-bg -- the ask
+     was for something that visibly breaks from the site's own (fairly
+     muted) terracotta theme and grabs attention, so this borrows GNO
+     Pixels' own brand purple instead of blending in. Fixed colors
+     rather than theme variables since "flamboyant" is the point, in
+     both light and dark mode. */
   .promo-banner {
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    background: var(--badge-bg); border: 1px solid var(--accent); border-radius: 8px;
-    padding: 0.5rem 0.8rem; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+    background: linear-gradient(90deg, #6c5ce7, #a855f7);
+    border: 1px solid #8274ef; border-radius: 8px;
+    padding: 0.9rem 1.1rem; font-size: 0.9rem; color: #fff;
   }
-  .promo-banner .promo-link { color: var(--text); text-decoration: none; flex: 1 1 auto; text-align: center; }
+  .promo-banner .promo-icon { width: 28px; height: 28px; flex: 0 0 auto; image-rendering: pixelated; border-radius: 5px; }
+  .promo-banner .promo-link { color: #fff; text-decoration: none; flex: 1 1 auto; text-align: center; font-weight: 600; }
   .promo-banner .promo-link:hover { text-decoration: underline; }
-  .promo-banner strong { color: var(--accent-strong); }
-  .promo-banner .promo-arrow { color: var(--accent-strong); font-weight: 700; }
-  .promo-dismiss {
-    background: none; border: none; color: var(--text-muted); cursor: pointer;
-    font-size: 0.9rem; padding: 0.1rem 0.3rem; border-radius: 4px; flex: 0 0 auto;
-  }
-  .promo-dismiss:hover { color: var(--text); background: var(--border-soft); }
+  .promo-banner strong { text-decoration: underline; }
+  .promo-banner .promo-arrow { font-weight: 700; }
   .status-alert::before { content: "⚠️ "; }
   a { color: var(--accent-2); }
 
@@ -782,10 +785,10 @@
     </div>
   </div>
   <div class="promo-banner" id="pixelsPromoBanner">
+    <img src="https://pixels.gno.observer/gnome-icon.svg" alt="" class="promo-icon">
     <a class="promo-link" href="https://pixels.gno.observer/" target="_blank" rel="noopener">
       🎨 <strong>New:</strong> Help paint the community pixel canvas — GNO Pixels is live. Try it <span class="promo-arrow">→</span>
     </a>
-    <button type="button" class="promo-dismiss" id="pixelsPromoDismiss" title="Dismiss">✕</button>
   </div>
 </header>
 <p class="sub">Live view of gno.land chain activity.</p>
@@ -797,7 +800,11 @@
   <button class="tab" data-tab="nfts" role="tab"><span class="tab-icon">🖼️</span>NFT Collections</button>
   <button class="tab" data-tab="wallet" role="tab"><span class="tab-icon">👛</span>Scan Wallet</button>
   <button class="tab" data-tab="trending" role="tab"><span class="tab-icon">🔥</span>Trending</button>
-  <button class="tab" data-tab="pixels" role="tab"><span class="tab-icon">🎨</span>Pixel Canvas</button>
+  <!-- Pixel Canvas tab removed for now -- it embedded an old prototype
+       realm (pixelgame, no fees, no official design) that predates the
+       real, standalone GNO Pixels project now linked via the promo
+       banner above. Panel markup/JS (#panel-pixels and friends) is
+       left in place, just unreachable, in case this needs reviving. -->
   <div class="tab-more-wrap">
     <button class="tab-more-btn" id="tabMoreBtn" type="button" aria-haspopup="true" aria-expanded="false">
       <span id="tabMoreLabel">More</span><span class="tab-more-caret">▾</span>
@@ -1369,22 +1376,9 @@ document.getElementById("themeToggle").addEventListener("click", () => {
   try { localStorage.setItem(THEME_STORAGE_KEY, next); } catch {}
 });
 
-// Temporary cross-promo for the standalone GNO Pixels project -- dismiss
-// is remembered per-browser so it doesn't nag a visitor who's already
-// seen and closed it, same pattern as everything else here that
-// persists a small UI preference.
-const PIXELS_PROMO_DISMISSED_KEY = "gnoObserver:pixelsPromoDismissed";
-try {
-  if (localStorage.getItem(PIXELS_PROMO_DISMISSED_KEY) === "1") {
-    document.getElementById("pixelsPromoBanner").style.display = "none";
-  }
-} catch {
-  // storage unavailable -- banner just stays visible every visit
-}
-document.getElementById("pixelsPromoDismiss").addEventListener("click", () => {
-  document.getElementById("pixelsPromoBanner").style.display = "none";
-  try { localStorage.setItem(PIXELS_PROMO_DISMISSED_KEY, "1"); } catch {}
-});
+// Temporary cross-promo for the standalone GNO Pixels project --
+// deliberately no dismiss control: this stays visible on every visit,
+// not a one-time nag.
 
 const NETWORKS = {
   testnet: {
