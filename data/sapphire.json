@@ -1,8 +1,17 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-09T23:05:19.559Z",
-  "lastHeight": 38295,
+  "generatedAt": "2026-08-10T05:14:30.031Z",
+  "lastHeight": 45990,
   "tokens": [
+    {
+      "name": "JAEJAE",
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
+      "symbol": "JAE",
+      "image": null,
+      "description": null,
+      "totalSupply": null,
+      "holderCount": 1
+    },
     {
       "name": "Test",
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
@@ -10,20 +19,28 @@
       "image": null,
       "description": null,
       "totalSupply": null,
-      "holderCount": 1
+      "holderCount": 2
     },
     {
       "name": "wrapped GNOT",
       "path": "gno.land/r/gnoland/wugnot",
       "symbol": "wugnot",
-      "image": null,
-      "description": null,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
+      "description": "This is a GRC20 token issued on sapphire-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
       "totalSupply": 0,
       "holderCount": 0
     }
   ],
   "nftRealms": [],
   "recentDeployed": [
+    {
+      "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels",
+      "blockHeight": 45990,
+      "blockTime": "2026-08-10T00:28:29.267091476Z",
+      "hash": "H0Nay9mDb7dY44hlnEpWy0W9aGtp71Z8unNEglOYIhQ=",
+      "creator": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+      "kind": "Realm"
+    },
     {
       "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixelsandbox",
       "blockHeight": 38295,
@@ -91,19 +108,27 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels",
+      "calls": 165,
+      "uniqueCallers": 4,
+      "lastBlockHeight": 50890,
+      "lastBlockTime": "2026-08-10T04:50:05.594495359Z",
+      "topFunc": "ImportHistoricalPixel"
+    },
+    {
+      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
+      "calls": 9,
+      "uniqueCallers": 2,
+      "lastBlockHeight": 48690,
+      "lastBlockTime": "2026-08-09T09:27:02.076649811Z",
+      "topFunc": "Buy"
+    },
+    {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/pad",
       "calls": 5,
       "uniqueCallers": 1,
       "lastBlockHeight": 25610,
       "lastBlockTime": "2026-08-09T06:20:12.487726231Z",
-      "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
-      "calls": 5,
-      "uniqueCallers": 1,
-      "lastBlockHeight": 29107,
-      "lastBlockTime": "2026-08-09T09:27:02.076649811Z",
       "topFunc": null
     },
     {
@@ -153,7 +178,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999994277000000,
+      "balance": 999999992772000000,
       "genesis": true
     },
     {
@@ -198,7 +223,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 1000000000,
+      "balance": 1300000000,
       "genesis": false
     },
     {
@@ -207,8 +232,13 @@
       "genesis": false
     },
     {
+      "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "balance": 400000000,
+      "genesis": false
+    },
+    {
       "address": "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
-      "balance": 325119309,
+      "balance": 313685017,
       "genesis": false
     },
     {
@@ -227,11 +257,6 @@
       "genesis": false
     },
     {
-      "address": "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
-      "balance": 300000000,
-      "genesis": false
-    },
-    {
       "address": "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8",
       "balance": 300000000,
       "genesis": false
@@ -242,13 +267,23 @@
       "genesis": false
     },
     {
-      "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
-      "balance": 260517865,
+      "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
+      "balance": 300000000,
       "genesis": false
     },
     {
-      "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
-      "balance": 100000000,
+      "address": "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3",
+      "balance": 291584229,
+      "genesis": false
+    },
+    {
+      "address": "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl",
+      "balance": 286447779,
+      "genesis": false
+    },
+    {
+      "address": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "balance": 248893316,
       "genesis": false
     },
     {
@@ -267,8 +302,8 @@
       "genesis": false
     },
     {
-      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
-      "balance": 31026096,
+      "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+      "balance": 24585397,
       "genesis": false
     },
     {
@@ -284,6 +319,11 @@
     {
       "address": "g1v6v9nfv9nt2685s6s5tkvf02fak9x0007527tj",
       "balance": 9575000,
+      "genesis": false
+    },
+    {
+      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
+      "balance": 4575111,
       "genesis": false
     },
     {
@@ -338,6 +378,41 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "mV29mvfpDFArY+93y7lZwwWMA7mmLgxWt2OmiVXiwJM=",
+      "blockHeight": 50746,
+      "blockTime": "2026-08-10T04:42:24.397235692Z",
+      "to": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "amount": 300000000
+    },
+    {
+      "hash": "gUb2uYqSD6dX0CSOfJc9B42q9g1LBhIGACFFgjHCgg0=",
+      "blockHeight": 50546,
+      "blockTime": "2026-08-10T04:31:43.429113748Z",
+      "to": "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3",
+      "amount": 300000000
+    },
+    {
+      "hash": "jT8MiqBfXx3SQspQMTFQ6KAlN51SXlR7JNk74Q46qmo=",
+      "blockHeight": 49736,
+      "blockTime": "2026-08-10T03:48:29.858649837Z",
+      "to": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "amount": 300000000
+    },
+    {
+      "hash": "8+xcyTdDX7ypTRh4jnXoJTL6jnJGruQO5Jjx22lg4lI=",
+      "blockHeight": 48527,
+      "blockTime": "2026-08-10T02:43:58.459960318Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
+    {
+      "hash": "qrXzoJWzg/13vdE4FCJQpIO/rXDGDZm22zBHuJ+SWh8=",
+      "blockHeight": 48351,
+      "blockTime": "2026-08-10T02:34:34.794757974Z",
+      "to": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
+      "amount": 300000000
+    },
     {
       "hash": "HVGT6+MdU3mrqplqjP5nosG1h7vhCgf5oNYwCWmWA5o=",
       "blockHeight": 44201,
@@ -505,11 +580,103 @@
     "gno.land/r/gnoland/wugnot": 6,
     "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3": null
   },
-  "tokenRegistry": [],
+  "tokenRegistry": [
+    {
+      "path": "gno.land/r/demo/defi/foo20",
+      "symbol": "FOO",
+      "decimals": 4,
+      "image": null,
+      "name": "Foo"
+    },
+    {
+      "path": "gno.land/r/gnoland/wugnot",
+      "symbol": "wugnot",
+      "decimals": 0,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
+      "name": "wrapped GNOT"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_btc",
+      "symbol": "BTC",
+      "decimals": 8,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_btc.svg",
+      "name": "Bitcoin"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_atone",
+      "symbol": "ATONE",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_atone.svg",
+      "name": "AtomOne"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_photon",
+      "symbol": "PHOTON",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_photon.svg",
+      "name": "Photon"
+    },
+    {
+      "path": "gno.land/r/gnoswap/gns",
+      "symbol": "GNS",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_gnoswap_gns.svg",
+      "name": "GnoSwap"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_atom",
+      "symbol": "ATOM",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_atom.svg",
+      "name": "Cosmos"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_sol",
+      "symbol": "SOL",
+      "decimals": 9,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_sol.svg",
+      "name": "Solana"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_trx",
+      "symbol": "TRX",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_trx.svg",
+      "name": "Tron"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_usdc",
+      "symbol": "USDC",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_usdc.svg",
+      "name": "Usd Coin"
+    },
+    {
+      "path": "gno.land/r/gnoswap/test_token/test_dai",
+      "symbol": "DAI",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/test_dai.svg",
+      "name": "Dai"
+    },
+    {
+      "path": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm",
+      "symbol": "SepoliaETH",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_ibc_union_apps_ucs03_zkgm_sepoliaeth.svg",
+      "name": "Sepolia Ether"
+    },
+    {
+      "path": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm",
+      "symbol": "USDT",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_onbloc_ibc_union_apps_ucs03_zkgm_usdt.svg",
+      "name": "Tether USD"
+    }
+  ],
   "popularDependencies": [
     {
       "path": "gno.land/p/nt/ufmt/v0",
-      "dependentCount": 21,
+      "dependentCount": 22,
       "kind": "Package"
     },
     {
@@ -518,17 +685,17 @@
       "kind": "Realm"
     },
     {
+      "path": "gno.land/p/nt/avl/v0",
+      "dependentCount": 9,
+      "kind": "Package"
+    },
+    {
       "path": "gno.land/p/nt/bptree/v0",
       "dependentCount": 9,
       "kind": "Package"
     },
     {
       "path": "gno.land/p/moul/md",
-      "dependentCount": 8,
-      "kind": "Package"
-    },
-    {
-      "path": "gno.land/p/nt/avl/v0",
       "dependentCount": 8,
       "kind": "Package"
     },
@@ -963,13 +1130,14 @@
         "lastBlockTime": "2026-08-09T08:41:40.704351035Z"
       },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3": {
-        "calls": 5,
+        "calls": 9,
         "callers": [
-          "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr"
+          "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
+          "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl"
         ],
-        "topFunc": null,
+        "topFunc": "Buy",
         "firstBlockHeight": 28804,
-        "lastBlockHeight": 29107,
+        "lastBlockHeight": 48690,
         "lastBlockTime": "2026-08-09T09:27:02.076649811Z"
       },
       "gno.land/r/g1v6v9nfv9nt2685s6s5tkvf02fak9x0007527tj/tally": {
@@ -993,9 +1161,22 @@
         "firstBlockHeight": 38815,
         "lastBlockHeight": 40502,
         "lastBlockTime": "2026-08-09T18:26:21.324274828Z"
+      },
+      "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels": {
+        "calls": 165,
+        "callers": [
+          "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
+          "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
+          "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+          "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3"
+        ],
+        "topFunc": "ImportHistoricalPixel",
+        "firstBlockHeight": 46112,
+        "lastBlockHeight": 50890,
+        "lastBlockTime": "2026-08-10T04:50:05.594495359Z"
       }
     },
-    "lastHeight": 40502
+    "lastHeight": 50890
   },
   "bankSendActivity": {
     "addresses": [
@@ -1028,33 +1209,40 @@
       "g13qy23jzsry5yvqcw3kzuttvqxu6lx3wxwvupcy",
       "g1ty7p2rserl85dlah60hmlxe6m7lf7nhcglsstk",
       "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
-      "g1nyedlnn35a6wjae9ewy25mq0cqam3v9ln6klta"
+      "g1nyedlnn35a6wjae9ewy25mq0cqam3v9ln6klta",
+      "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
+      "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
+      "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3"
     ],
-    "lastHeight": 44201
+    "lastHeight": 50746
   },
   "tokenHolders": {
     "balances": {
+      "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3|JAE": {
+        "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl": 201417053
+      },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3|TEST": {
-        "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr": 522257442
+        "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr": 522257442,
+        "g16p08xxtyt320hjju7769lzguxlvzszwpg8duwl": 52947862
       },
       "gno.land/r/gnoland/wugnot|wugnot": {}
     },
-    "lastHeight": 40502
+    "lastHeight": 50890
   },
   "stats": {
-    "tokenCount": 2,
+    "tokenCount": 3,
     "nftRealmCount": 0,
-    "totalRealmsScanned": 34,
-    "txPackageCount": 7,
+    "totalRealmsScanned": 35,
+    "txPackageCount": 8,
     "genesisOnlyCount": 28,
-    "trendingRealmCount": 5,
+    "trendingRealmCount": 6,
     "governanceRealmCount": 1,
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 38,
+    "whaleWatchCount": 41,
     "popularDependencyCount": 54,
     "crossRealmEdgeCount": 40,
-    "faucetDripCount": 23
+    "faucetDripCount": 28
   }
 }
