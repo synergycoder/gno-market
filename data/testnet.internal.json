@@ -1063,7 +1063,10 @@
       "gno.land/p/nt/avl/v0",
       "gno.land/p/nt/ufmt/v0"
     ],
-    "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask": []
+    "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask": [],
+    "gno.land/r/nym-balloon123/tree": [
+      "gno.land/p/nt/avl/v0"
+    ]
   },
   "txPackages": {
     "gno.land/p/aib/encoding": {
@@ -3917,6 +3920,17 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-08-10T07:59:23.743271553Z"
+    },
+    "gno.land/r/nym-balloon123/tree": {
+      "path": "gno.land/r/nym-balloon123/tree",
+      "blockHeight": 559711,
+      "hash": "Sxi24SE4Y0yjQkHLf/OuXEtwI6MBusLwRVWYvZZD6VY=",
+      "creator": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-10T12:33:44.971032072Z"
     }
   },
   "swapActivity": {
@@ -13940,9 +13954,59 @@
         "amountIn": "21200",
         "amountOut": "9778609",
         "blockTime": "2026-08-10T02:51:03.957639272Z"
+      },
+      "Gvm0lXO9Vt0ld9XTqawl3Bw4GhIa/cupWDR2tX2px7I=#0": {
+        "hash": "Gvm0lXO9Vt0ld9XTqawl3Bw4GhIa/cupWDR2tX2px7I=",
+        "blockHeight": 557974,
+        "caller": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+        "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "948433357",
+        "amountOut": "7050258656",
+        "blockTime": "2026-08-10T10:50:15.659337947Z"
+      },
+      "UNK4Ptb7fu/h7qDkDuKRtndO4gHut3JK/NSEZ/vxFmk=#0": {
+        "hash": "UNK4Ptb7fu/h7qDkDuKRtndO4gHut3JK/NSEZ/vxFmk=",
+        "blockHeight": 557983,
+        "caller": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+        "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+        "tokenOut": "gno.land/r/gnoland/wugnot.wugnot",
+        "amountIn": "12442160149",
+        "amountOut": "1540788043",
+        "blockTime": "2026-08-10T10:50:48.700139819Z"
+      },
+      "etO/EKbUr4TW+8gvt8dh6JFJUjM5nam0mznrugA9F7U=#0": {
+        "hash": "etO/EKbUr4TW+8gvt8dh6JFJUjM5nam0mznrugA9F7U=",
+        "blockHeight": 558174,
+        "caller": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "1000000",
+        "amountOut": "8050823",
+        "blockTime": "2026-08-10T11:02:16.320384609Z"
+      },
+      "3bfBM6sJ0Hh127uNGCJDMO8DO/G3pWTPTkpo/j/cmhU=#0": {
+        "hash": "3bfBM6sJ0Hh127uNGCJDMO8DO/G3pWTPTkpo/j/cmhU=",
+        "blockHeight": 560315,
+        "caller": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+        "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+        "tokenOut": "gno.land/r/gnoland/wugnot.wugnot",
+        "amountIn": "452233280",
+        "amountOut": "56057815",
+        "blockTime": "2026-08-10T13:09:41.381248963Z"
+      },
+      "C04UITzJHhyw5cjisy335/55OIe46+eXGB8QZTL7bHs=#0": {
+        "hash": "C04UITzJHhyw5cjisy335/55OIe46+eXGB8QZTL7bHs=",
+        "blockHeight": 560326,
+        "caller": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "30000000",
+        "amountOut": "241515304",
+        "blockTime": "2026-08-10T13:10:21.895797762Z"
       }
     },
-    "lastHeight": 549987
+    "lastHeight": 560326
   },
   "faucetDripsActivity": {
     "drips": [
@@ -17571,8 +17635,36 @@
         "blockTime": "2026-08-10T09:53:59.541854627Z",
         "to": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
         "amount": 5000000
+      },
+      {
+        "hash": "k7hGIw+TjaYUyluPm0ZSUiPXXfFKMelYs9U8IlihzWQ=",
+        "blockHeight": 557482,
+        "blockTime": "2026-08-10T10:21:00.134408635Z",
+        "to": "g1vmgsu70q2lec4z5xjjkapf8xsyf9g4kml9ahcz",
+        "amount": 5000000
+      },
+      {
+        "hash": "kKyD+nYIphSoFX0Kfx0hAXFaFz+c+4e/ylyoKEM+eg8=",
+        "blockHeight": 558034,
+        "blockTime": "2026-08-10T10:53:52.465287256Z",
+        "to": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+        "amount": 15000000
+      },
+      {
+        "hash": "omA+WZAa3EttWI5rMD5Mp/pVto+YRCCqLfOATinMuF8=",
+        "blockHeight": 558874,
+        "blockTime": "2026-08-10T11:43:52.212903456Z",
+        "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "amount": 15000000
+      },
+      {
+        "hash": "PZv8aOyBOzbnRWq01Ej96xTtMZniJqOvTvVpM1yg6Hg=",
+        "blockHeight": 560300,
+        "blockTime": "2026-08-10T13:08:50.455701706Z",
+        "to": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+        "amount": 15000000
       }
     ],
-    "lastHeight": 557028
+    "lastHeight": 560300
   }
 }
