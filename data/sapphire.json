@@ -1,6 +1,6 @@
 {
   "network": "sapphire",
-  "generatedAt": "2026-08-10T17:43:22.005Z",
+  "generatedAt": "2026-08-10T20:16:48.929Z",
   "lastHeight": 63110,
   "tokens": [
     {
@@ -264,9 +264,9 @@
   "trendingRealms": [
     {
       "path": "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels",
-      "calls": 732,
-      "uniqueCallers": 13,
-      "lastBlockHeight": 63191,
+      "calls": 756,
+      "uniqueCallers": 14,
+      "lastBlockHeight": 65330,
       "lastBlockTime": "2026-08-10T04:50:05.594495359Z",
       "topFunc": "SetPixel"
     },
@@ -280,9 +280,9 @@
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv7",
-      "calls": 21,
+      "calls": 22,
       "uniqueCallers": 2,
-      "lastBlockHeight": 62009,
+      "lastBlockHeight": 66181,
       "lastBlockTime": "2026-08-10T09:22:15.527432293Z",
       "topFunc": "Buy"
     },
@@ -292,7 +292,7 @@
       "uniqueCallers": 4,
       "lastBlockHeight": 60443,
       "lastBlockTime": "2026-08-10T08:02:35.861200284Z",
-      "topFunc": "SwapBuy"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv3",
@@ -340,7 +340,7 @@
       "uniqueCallers": 3,
       "lastBlockHeight": 63401,
       "lastBlockTime": "2026-08-10T12:23:13.7095002Z",
-      "topFunc": "UpdateSigningKey"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv2",
@@ -356,7 +356,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 61211,
       "lastBlockTime": "2026-08-10T07:26:56.274442083Z",
-      "topFunc": "Transfer"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/points",
@@ -420,7 +420,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 63115,
       "lastBlockTime": "2026-08-10T17:11:24.305006266Z",
-      "topFunc": "Increment"
+      "topFunc": null
     }
   ],
   "governanceRealms": [
@@ -453,7 +453,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999987548000000,
+      "balance": 999999987146000000,
       "genesis": true
     },
     {
@@ -498,7 +498,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 1600000000,
+      "balance": 1900000000,
       "genesis": false
     },
     {
@@ -523,7 +523,7 @@
     },
     {
       "address": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
-      "balance": 332936481,
+      "balance": 331409856,
       "genesis": false
     },
     {
@@ -642,6 +642,11 @@
       "genesis": false
     },
     {
+      "address": "g1xvunup2m747gu6yr5qpmpehal5tr654cl0qtmk",
+      "balance": 94959647,
+      "genesis": false
+    },
+    {
       "address": "g1re3wh4z63r0ne8uqw9qkgtn5j2zzq7s3780xt4",
       "balance": 91455043,
       "genesis": false
@@ -663,12 +668,12 @@
     },
     {
       "address": "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
-      "balance": 42256433,
+      "balance": 44656433,
       "genesis": false
     },
     {
       "address": "g1w93f099t4pp9jamyghp88p60fvkg39dxz2qzrc",
-      "balance": 38747662,
+      "balance": 27242127,
       "genesis": false
     },
     {
@@ -753,6 +758,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "hAcCjiDbI5U7U/JH0Ym7r4O8bCbcEMC+kzbHo9inebI=",
+      "blockHeight": 64947,
+      "blockTime": "2026-08-10T18:50:44.549984694Z",
+      "to": "g1xvunup2m747gu6yr5qpmpehal5tr654cl0qtmk",
+      "amount": 100000000
+    },
+    {
+      "hash": "8/Tkw8/N+TQ7k+s8VSFu709vMLkQbOkWkbX4yzL5iT0=",
+      "blockHeight": 64525,
+      "blockTime": "2026-08-10T18:27:47.242599816Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
     {
       "hash": "WIU4c5mZZJJU7YhPrcEupeSU7HS/Jae07Vh9rkEeevM=",
       "blockHeight": 63276,
@@ -1725,7 +1744,7 @@
         "lastBlockTime": "2026-08-09T18:26:21.324274828Z"
       },
       "gno.land/r/g188mapat33awn7r9uk08l0jc9my0n07fpmspxel/pixels": {
-        "calls": 732,
+        "calls": 756,
         "callers": [
           "g188mapat33awn7r9uk08l0jc9my0n07fpmspxel",
           "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
@@ -1739,11 +1758,12 @@
           "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
           "g15qnf6turgmunhkvxrx0skvgw3apcwdp86tvnds",
           "g1q7tn3yp0aux44z6nqefdv6wx788w8dyyl60aqk",
-          "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd"
+          "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd",
+          "g1xvunup2m747gu6yr5qpmpehal5tr654cl0qtmk"
         ],
         "topFunc": "SetPixel",
         "firstBlockHeight": 46112,
-        "lastBlockHeight": 63191,
+        "lastBlockHeight": 65330,
         "lastBlockTime": "2026-08-10T04:50:05.594495359Z"
       },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv4": {
@@ -1754,7 +1774,7 @@
           "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
           "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu"
         ],
-        "topFunc": "SwapBuy",
+        "topFunc": null,
         "firstBlockHeight": 52959,
         "lastBlockHeight": 60443,
         "lastBlockTime": "2026-08-10T08:02:35.861200284Z"
@@ -1794,7 +1814,7 @@
         "callers": [
           "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5"
         ],
-        "topFunc": "Transfer",
+        "topFunc": null,
         "firstBlockHeight": 53829,
         "lastBlockHeight": 61211,
         "lastBlockTime": "2026-08-10T07:26:56.274442083Z"
@@ -1861,14 +1881,14 @@
         "lastBlockTime": "2026-08-10T08:55:46.616640051Z"
       },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv7": {
-        "calls": 21,
+        "calls": 22,
         "callers": [
           "g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr",
           "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu"
         ],
         "topFunc": "Buy",
         "firstBlockHeight": 55977,
-        "lastBlockHeight": 62009,
+        "lastBlockHeight": 66181,
         "lastBlockTime": "2026-08-10T09:22:15.527432293Z"
       },
       "gno.land/r/gnops/valopers": {
@@ -1878,7 +1898,7 @@
           "g1qynsu9dwj9lq0m5fkje7jh6qy3md80ztqnshhm",
           "g1n9y62agq998jt8w59az60xcqlftjknjg2grhn4"
         ],
-        "topFunc": "UpdateSigningKey",
+        "topFunc": null,
         "firstBlockHeight": 58939,
         "lastBlockHeight": 63401,
         "lastBlockTime": "2026-08-10T12:23:13.7095002Z"
@@ -1888,13 +1908,13 @@
         "callers": [
           "g1rvzx735nu32qt85wxl06y8gekztfdmpuxy67ux"
         ],
-        "topFunc": "Increment",
+        "topFunc": null,
         "firstBlockHeight": 63115,
         "lastBlockHeight": 63115,
         "lastBlockTime": "2026-08-10T17:11:24.305006266Z"
       }
     },
-    "lastHeight": 63401
+    "lastHeight": 66181
   },
   "bankSendActivity": {
     "addresses": [
@@ -1950,9 +1970,10 @@
       "g1tertp3pyxdcd2h8vdwj89dn0t7tj80h8v6aqw6",
       "g1wryt0g4g7h8eldzankzpx55kraljjepxh9ukkd",
       "g1rvzx735nu32qt85wxl06y8gekztfdmpuxy67ux",
-      "g1n9y62agq998jt8w59az60xcqlftjknjg2grhn4"
+      "g1n9y62agq998jt8w59az60xcqlftjknjg2grhn4",
+      "g1xvunup2m747gu6yr5qpmpehal5tr654cl0qtmk"
     ],
-    "lastHeight": 63276
+    "lastHeight": 64947
   },
   "tokenHolders": {
     "balances": {
@@ -1975,7 +1996,7 @@
         "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu": 214388034
       },
       "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/padv7|PIDOR": {
-        "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu": 784214853
+        "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu": 786610934
       },
       "gno.land/r/gnoland/wugnot|wugnot": {
         "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5": 0,
@@ -1983,7 +2004,7 @@
         "g1tertp3pyxdcd2h8vdwj89dn0t7tj80h8v6aqw6": 999990
       }
     },
-    "lastHeight": 63401
+    "lastHeight": 66181
   },
   "stats": {
     "tokenCount": 6,
@@ -1996,9 +2017,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 61,
+    "whaleWatchCount": 62,
     "popularDependencyCount": 54,
     "crossRealmEdgeCount": 44,
-    "faucetDripCount": 52
+    "faucetDripCount": 54
   }
 }
