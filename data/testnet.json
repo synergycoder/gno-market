@@ -1,6 +1,6 @@
 {
   "network": "testnet",
-  "generatedAt": "2026-08-11T00:05:28.765Z",
+  "generatedAt": "2026-08-11T04:55:58.686Z",
   "lastHeight": 567812,
   "tokens": [
     {
@@ -36,7 +36,7 @@
       "symbol": "GNS",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_gnoswap_gns.svg",
       "description": "This is a GRC20 token issued on topaz-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 110077653832252,
+      "totalSupply": 110358611301689,
       "holderCount": 43
     },
     {
@@ -2355,19 +2355,19 @@
   "trendingRealms": [
     {
       "path": "gno.land/r/gnoswap/common",
-      "calls": 1914,
+      "calls": 1950,
       "uniqueCallers": 34,
-      "lastBlockHeight": 560326,
+      "lastBlockHeight": 571421,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": null
+      "topFunc": "Approve"
     },
     {
       "path": "gno.land/r/gnoswap/router",
-      "calls": 1007,
+      "calls": 1043,
       "uniqueCallers": 37,
-      "lastBlockHeight": 560326,
+      "lastBlockHeight": 571421,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": null
+      "topFunc": "ExactInSingleSwapRoute"
     },
     {
       "path": "gno.land/r/gnoswap/position",
@@ -2506,6 +2506,14 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask",
+      "calls": 8,
+      "uniqueCallers": 2,
+      "lastBlockHeight": 571903,
+      "lastBlockTime": "2026-08-10T08:58:04.479464315Z",
+      "topFunc": "CreateTask"
+    },
+    {
       "path": "gno.land/r/g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard/nftminter",
       "calls": 7,
       "uniqueCallers": 1,
@@ -2543,14 +2551,6 @@
       "uniqueCallers": 2,
       "lastBlockHeight": 450263,
       "lastBlockTime": "2026-08-05T22:59:51.961599024Z",
-      "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask",
-      "calls": 5,
-      "uniqueCallers": 2,
-      "lastBlockHeight": 556096,
-      "lastBlockTime": "2026-08-10T08:58:04.479464315Z",
       "topFunc": null
     },
     {
@@ -2945,19 +2945,19 @@
   "defiRealms": [
     {
       "path": "gno.land/r/gnoswap/common",
-      "calls": 1914,
+      "calls": 1950,
       "uniqueCallers": 34,
-      "lastBlockHeight": 560326,
+      "lastBlockHeight": 571421,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": null
+      "topFunc": "Approve"
     },
     {
       "path": "gno.land/r/gnoswap/router",
-      "calls": 1007,
+      "calls": 1043,
       "uniqueCallers": 37,
-      "lastBlockHeight": 560326,
+      "lastBlockHeight": 571421,
       "lastBlockTime": "2026-08-05T11:30:29.130550257Z",
-      "topFunc": null
+      "topFunc": "ExactInSingleSwapRoute"
     },
     {
       "path": "gno.land/r/gnoswap/position",
@@ -3073,6 +3073,366 @@
     }
   ],
   "gnoswapSwaps": [
+    {
+      "hash": "PYq+n1jxufZ2HDvqOFsdUSUlfqbCMlxQYRixjhwBqjA=",
+      "blockHeight": 571421,
+      "blockTime": "2026-08-11T00:06:40.619176361Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "39989807790",
+      "amountOut": "49849763481"
+    },
+    {
+      "hash": "PYq+n1jxufZ2HDvqOFsdUSUlfqbCMlxQYRixjhwBqjA=",
+      "blockHeight": 571421,
+      "blockTime": "2026-08-11T00:06:40.619176361Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "12723573842",
+      "amountOut": "49814954075"
+    },
+    {
+      "hash": "PYq+n1jxufZ2HDvqOFsdUSUlfqbCMlxQYRixjhwBqjA=",
+      "blockHeight": 571421,
+      "blockTime": "2026-08-11T00:06:40.619176361Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "336446206619",
+      "amountOut": "49564648402"
+    },
+    {
+      "hash": "PYq+n1jxufZ2HDvqOFsdUSUlfqbCMlxQYRixjhwBqjA=",
+      "blockHeight": 571421,
+      "blockTime": "2026-08-11T00:06:40.619176361Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "263940809235",
+      "amountOut": "48982940271"
+    },
+    {
+      "hash": "r7TZQlmP2lOt7BFhQjGUQTWinEPInLvSfPxJpYsEVgA=",
+      "blockHeight": 571417,
+      "blockTime": "2026-08-11T00:06:22.694758568Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "39989807790"
+    },
+    {
+      "hash": "r7TZQlmP2lOt7BFhQjGUQTWinEPInLvSfPxJpYsEVgA=",
+      "blockHeight": 571417,
+      "blockTime": "2026-08-11T00:06:22.694758568Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "12723573842"
+    },
+    {
+      "hash": "r7TZQlmP2lOt7BFhQjGUQTWinEPInLvSfPxJpYsEVgA=",
+      "blockHeight": 571417,
+      "blockTime": "2026-08-11T00:06:22.694758568Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "336446206619"
+    },
+    {
+      "hash": "r7TZQlmP2lOt7BFhQjGUQTWinEPInLvSfPxJpYsEVgA=",
+      "blockHeight": 571417,
+      "blockTime": "2026-08-11T00:06:22.694758568Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "263940809235"
+    },
+    {
+      "hash": "+cLg319Z6ArilPCc6epPP411R52lpHTYC1PrAHUk9eA=",
+      "blockHeight": 571412,
+      "blockTime": "2026-08-11T00:06:04.066792261Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "40004318540"
+    },
+    {
+      "hash": "+cLg319Z6ArilPCc6epPP411R52lpHTYC1PrAHUk9eA=",
+      "blockHeight": 571412,
+      "blockTime": "2026-08-11T00:06:04.066792261Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "12730524461"
+    },
+    {
+      "hash": "+cLg319Z6ArilPCc6epPP411R52lpHTYC1PrAHUk9eA=",
+      "blockHeight": 571412,
+      "blockTime": "2026-08-11T00:06:04.066792261Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "336621505113"
+    },
+    {
+      "hash": "+cLg319Z6ArilPCc6epPP411R52lpHTYC1PrAHUk9eA=",
+      "blockHeight": 571412,
+      "blockTime": "2026-08-11T00:06:04.066792261Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "265157030710"
+    },
+    {
+      "hash": "mqFbuWrNYzZiIoVjmPzYEu+m+NevKMcIA82/sPtKA14=",
+      "blockHeight": 571409,
+      "blockTime": "2026-08-11T00:05:53.956076835Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "40018836861",
+      "amountOut": "49849766747"
+    },
+    {
+      "hash": "mqFbuWrNYzZiIoVjmPzYEu+m+NevKMcIA82/sPtKA14=",
+      "blockHeight": 571409,
+      "blockTime": "2026-08-11T00:05:53.956076835Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "12737480487",
+      "amountOut": "49814961459"
+    },
+    {
+      "hash": "mqFbuWrNYzZiIoVjmPzYEu+m+NevKMcIA82/sPtKA14=",
+      "blockHeight": 571409,
+      "blockTime": "2026-08-11T00:05:53.956076835Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "336796912480",
+      "amountOut": "49564650558"
+    },
+    {
+      "hash": "mqFbuWrNYzZiIoVjmPzYEu+m+NevKMcIA82/sPtKA14=",
+      "blockHeight": 571409,
+      "blockTime": "2026-08-11T00:05:53.956076835Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "266379711378",
+      "amountOut": "48983220084"
+    },
+    {
+      "hash": "pdcsQaxeU9iWwgwnzP8wy8nHbQc/AR9yNbX4Z6jEf/I=",
+      "blockHeight": 571407,
+      "blockTime": "2026-08-11T00:05:47.035674546Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "40018836861"
+    },
+    {
+      "hash": "pdcsQaxeU9iWwgwnzP8wy8nHbQc/AR9yNbX4Z6jEf/I=",
+      "blockHeight": 571407,
+      "blockTime": "2026-08-11T00:05:47.035674546Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "12737480487"
+    },
+    {
+      "hash": "pdcsQaxeU9iWwgwnzP8wy8nHbQc/AR9yNbX4Z6jEf/I=",
+      "blockHeight": 571407,
+      "blockTime": "2026-08-11T00:05:47.035674546Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "336796912480"
+    },
+    {
+      "hash": "pdcsQaxeU9iWwgwnzP8wy8nHbQc/AR9yNbX4Z6jEf/I=",
+      "blockHeight": 571407,
+      "blockTime": "2026-08-11T00:05:47.035674546Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "266379711378"
+    },
+    {
+      "hash": "/g1k9zuAZzB+UuOfvYeSWNS9g1EaYwHua/70JxF4RkA=",
+      "blockHeight": 571405,
+      "blockTime": "2026-08-11T00:05:39.824192998Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "40033362760",
+      "amountOut": "49849768382"
+    },
+    {
+      "hash": "/g1k9zuAZzB+UuOfvYeSWNS9g1EaYwHua/70JxF4RkA=",
+      "blockHeight": 571405,
+      "blockTime": "2026-08-11T00:05:39.824192998Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "12744441926",
+      "amountOut": "49814965155"
+    },
+    {
+      "hash": "/g1k9zuAZzB+UuOfvYeSWNS9g1EaYwHua/70JxF4RkA=",
+      "blockHeight": 571405,
+      "blockTime": "2026-08-11T00:05:39.824192998Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "336972428801",
+      "amountOut": "49564651661"
+    },
+    {
+      "hash": "/g1k9zuAZzB+UuOfvYeSWNS9g1EaYwHua/70JxF4RkA=",
+      "blockHeight": 571405,
+      "blockTime": "2026-08-11T00:05:39.824192998Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "267608892319",
+      "amountOut": "48983364777"
+    },
+    {
+      "hash": "qaiDbMNQ21W/cTM416eWAnGd3qLHzQoTeu2SHsVvRck=",
+      "blockHeight": 571402,
+      "blockTime": "2026-08-11T00:05:28.946500555Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "40033362760"
+    },
+    {
+      "hash": "qaiDbMNQ21W/cTM416eWAnGd3qLHzQoTeu2SHsVvRck=",
+      "blockHeight": 571402,
+      "blockTime": "2026-08-11T00:05:28.946500555Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "12744441926"
+    },
+    {
+      "hash": "qaiDbMNQ21W/cTM416eWAnGd3qLHzQoTeu2SHsVvRck=",
+      "blockHeight": 571402,
+      "blockTime": "2026-08-11T00:05:28.946500555Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "336972428801"
+    },
+    {
+      "hash": "qaiDbMNQ21W/cTM416eWAnGd3qLHzQoTeu2SHsVvRck=",
+      "blockHeight": 571402,
+      "blockTime": "2026-08-11T00:05:28.946500555Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "267608892319"
+    },
+    {
+      "hash": "NVlXfOv+1CZMo4UWCx/Y9lFkIsAt4y61VYid17iI1VY=",
+      "blockHeight": 571399,
+      "blockTime": "2026-08-11T00:05:18.89049501Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "40047896242",
+      "amountOut": "49849770018"
+    },
+    {
+      "hash": "NVlXfOv+1CZMo4UWCx/Y9lFkIsAt4y61VYid17iI1VY=",
+      "blockHeight": 571399,
+      "blockTime": "2026-08-11T00:05:18.89049501Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "12751408782",
+      "amountOut": "49814968852"
+    },
+    {
+      "hash": "NVlXfOv+1CZMo4UWCx/Y9lFkIsAt4y61VYid17iI1VY=",
+      "blockHeight": 571399,
+      "blockTime": "2026-08-11T00:05:18.89049501Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "337148054168",
+      "amountOut": "49564652783"
+    },
+    {
+      "hash": "NVlXfOv+1CZMo4UWCx/Y9lFkIsAt4y61VYid17iI1VY=",
+      "blockHeight": 571399,
+      "blockTime": "2026-08-11T00:05:18.89049501Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/gnoswap/gns.GNS",
+      "tokenOut": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "amountIn": "268844614878",
+      "amountOut": "48983512661"
+    },
+    {
+      "hash": "lPtRuwbo+8msCXcEpN0CsPD05i7ztZjotq7nCsjIicg=",
+      "blockHeight": 571395,
+      "blockTime": "2026-08-11T00:05:05.393292723Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "40047896242"
+    },
+    {
+      "hash": "lPtRuwbo+8msCXcEpN0CsPD05i7ztZjotq7nCsjIicg=",
+      "blockHeight": 571395,
+      "blockTime": "2026-08-11T00:05:05.393292723Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "12751408782"
+    },
+    {
+      "hash": "lPtRuwbo+8msCXcEpN0CsPD05i7ztZjotq7nCsjIicg=",
+      "blockHeight": 571395,
+      "blockTime": "2026-08-11T00:05:05.393292723Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "337148054168"
+    },
+    {
+      "hash": "lPtRuwbo+8msCXcEpN0CsPD05i7ztZjotq7nCsjIicg=",
+      "blockHeight": 571395,
+      "blockTime": "2026-08-11T00:05:05.393292723Z",
+      "caller": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
+      "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+      "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+      "amountIn": "50000000000",
+      "amountOut": "268844614878"
+    },
     {
       "hash": "C04UITzJHhyw5cjisy335/55OIe46+eXGB8QZTL7bHs=",
       "blockHeight": 560326,
@@ -13187,7 +13547,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999992537000000,
+      "balance": 999999992521000000,
       "genesis": true
     },
     {
@@ -13327,7 +13687,7 @@
     },
     {
       "address": "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k",
-      "balance": 99323743944,
+      "balance": 99300068244,
       "genesis": false
     },
     {
@@ -13377,7 +13737,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 338727011,
+      "balance": 353727011,
       "genesis": false
     },
     {
@@ -13411,13 +13771,13 @@
       "genesis": false
     },
     {
-      "address": "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
-      "balance": 39156394,
+      "address": "g1qgr7980ry7f6rqr9cs6d45y09k5u6dzhjksksn",
+      "balance": 38997500,
       "genesis": false
     },
     {
-      "address": "g1qgr7980ry7f6rqr9cs6d45y09k5u6dzhjksksn",
-      "balance": 38997500,
+      "address": "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
+      "balance": 37983153,
       "genesis": false
     },
     {
@@ -13731,11 +14091,6 @@
       "genesis": false
     },
     {
-      "address": "g14m0n559xdj00qwvp6ck0xesprrq26kgprgjt4j",
-      "balance": 12705900,
-      "genesis": false
-    },
-    {
       "address": "g1n9y62agq998jt8w59az60xcqlftjknjg2grhn4",
       "balance": 12659100,
       "genesis": false
@@ -13803,11 +14158,6 @@
     {
       "address": "g1f363suf6h7trgyshs5gmf80f2ee9lfzjs3hr03",
       "balance": 12572500,
-      "genesis": false
-    },
-    {
-      "address": "g1ppvaadzu0smzqyrgvw73hjdrhvlu43l7g7tw3f",
-      "balance": 12567800,
       "genesis": false
     },
     {
@@ -14486,11 +14836,6 @@
       "genesis": false
     },
     {
-      "address": "g1zwyzfwxq896jt2yquf34lfqp0p0grsmlxzncvf",
-      "balance": 723600,
-      "genesis": false
-    },
-    {
       "address": "g1px2y5wuj8y0tfq59unwy90qrw7j5evsa9zs3vk",
       "balance": 564800,
       "genesis": false
@@ -14566,46 +14911,6 @@
       "genesis": false
     },
     {
-      "address": "g1jv3xmamldewq6uya4rk0f4dq90a4awl7qsvf2c",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g10a6lnzpdnlk7hwzs64u3l68t4ah23nee4n7kc2",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g13wntuukzuy2fazteucjrkgr26q9zcr3y3u5czm",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g1c3gsacmtjjhdc62uahv9wrf2fjckg28lvxwaqe",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g1maedajkhzg7qpr4zwae2f0xyu9lj2248pl9kku",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g1p9lewme9je95g5vez5ak5mwh3ndysf4dfx5xmd",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g1uxu0ncc0mg9wlrrfu6en2dkwsnm4hyd3x6gtk9",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
-      "address": "g1e2e96p5h0smccq4qlq5kjjl07zy2yhpljhjrm2",
-      "balance": 500000,
-      "genesis": false
-    },
-    {
       "address": "g10xhynczda6d9usa5u9487ly4mlnqew9qucj7te",
       "balance": 498639,
       "genesis": false
@@ -14652,6 +14957,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "yaVtkNzFdbMMMto3Srro2aoPVAthhERXy/HpXdafItE=",
+      "blockHeight": 575436,
+      "blockTime": "2026-08-11T04:03:44.556226011Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 15000000
+    },
     {
       "hash": "eRXO0MOJu/O7TAPfrFdTA7eJouIMw0XboXe22EAhz1M=",
       "blockHeight": 565682,
@@ -19832,7 +20144,7 @@
         "lastBlockTime": "2026-07-30T08:05:49.513666187Z"
       },
       "gno.land/r/gnoswap/common": {
-        "calls": 1914,
+        "calls": 1950,
         "callers": [
           "g17290cwvmrapvp869xfnhhawa8sm9edpufzat7d",
           "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
@@ -19869,9 +20181,9 @@
           "g1zkdhk0x2fy2dd32m90jg9msfjz32tyhf3m3dxq",
           "g1uejl6mhm3arz8ta6meqd8mlq83nq04e5dtwrvf"
         ],
-        "topFunc": null,
+        "topFunc": "Approve",
         "firstBlockHeight": 181255,
-        "lastBlockHeight": 560326,
+        "lastBlockHeight": 571421,
         "lastBlockTime": "2026-08-05T11:30:29.130550257Z"
       },
       "gno.land/r/gnoswap/pool": {
@@ -20062,7 +20374,7 @@
         "lastBlockTime": "2026-08-05T11:19:59.16914127Z"
       },
       "gno.land/r/gnoswap/router": {
-        "calls": 1007,
+        "calls": 1043,
         "callers": [
           "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
           "g17290cwvmrapvp869xfnhhawa8sm9edpufzat7d",
@@ -20102,9 +20414,9 @@
           "g1zkdhk0x2fy2dd32m90jg9msfjz32tyhf3m3dxq",
           "g1uejl6mhm3arz8ta6meqd8mlq83nq04e5dtwrvf"
         ],
-        "topFunc": null,
+        "topFunc": "ExactInSingleSwapRoute",
         "firstBlockHeight": 181684,
-        "lastBlockHeight": 560326,
+        "lastBlockHeight": 571421,
         "lastBlockTime": "2026-08-05T11:30:29.130550257Z"
       },
       "gno.land/r/gnoswap/gov/staker": {
@@ -20371,14 +20683,14 @@
         "lastBlockTime": "2026-08-09T23:09:29.780821788Z"
       },
       "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask": {
-        "calls": 5,
+        "calls": 8,
         "callers": [
           "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
           "g1gg9e7kzadevkjyrzpaxaz66ujzf2thjpzfvfd6"
         ],
-        "topFunc": null,
+        "topFunc": "CreateTask",
         "firstBlockHeight": 555354,
-        "lastBlockHeight": 556096,
+        "lastBlockHeight": 571903,
         "lastBlockTime": "2026-08-10T08:58:04.479464315Z"
       },
       "gno.land/r/g1n27703259g9ts046dqzly6h6ynp2cuf6hfez3c/solarmint": {
@@ -20393,7 +20705,7 @@
         "lastBlockTime": "2026-08-10T21:56:23.442170838Z"
       }
     },
-    "lastHeight": 569218
+    "lastHeight": 571903
   },
   "bankSendActivity": {
     "addresses": [
@@ -20684,7 +20996,7 @@
       "g1vmgsu70q2lec4z5xjjkapf8xsyf9g4kml9ahcz",
       "g1n27703259g9ts046dqzly6h6ynp2cuf6hfez3c"
     ],
-    "lastHeight": 568542
+    "lastHeight": 575436
   },
   "tokenHolders": {
     "balances": {
@@ -20739,12 +21051,12 @@
       },
       "gno.land/r/gnoswap/gns|GNS": {
         "g17290cwvmrapvp869xfnhhawa8sm9edpufzat7d": -91897422682149,
-        "g1dexaf6aqkkyr9yfy9d5up69lsn7ra80af34g5v": 73262890104627,
-        "g1r340tuven27z8wq50u8d20eqrsj470082682tp": -62893111609,
+        "g1dexaf6aqkkyr9yfy9d5up69lsn7ra80af34g5v": 72603449788683,
+        "g1r340tuven27z8wq50u8d20eqrsj470082682tp": -57966174489,
         "g177jkk4xx79uledh9xedqkq4ht4ef9t6amxwjeq": 10,
-        "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3": 5917186916153,
-        "g1mjvd83nnjee3z2g7683er55me9f09688pd4mj9": 1606138654287,
-        "g13lpjmjhl2du7whed3wxe4n5508txxja6ezxeg7": 489288283162,
+        "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3": 6127851507963,
+        "g1mjvd83nnjee3z2g7683er55me9f09688pd4mj9": 1662315878768,
+        "g13lpjmjhl2du7whed3wxe4n5508txxja6ezxeg7": 503332589278,
         "g1vc883gshu5z7ytk5cdynhc8c2dh67pdp4cszkp": 0,
         "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h": 283428191,
         "g1em9s40nfrwd2aqn9ypjv7d9x9z9c8uk5uxrza9": 14490635362622,
@@ -20758,7 +21070,7 @@
         "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh": 3,
         "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt": 8108132,
         "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5": 18145063,
-        "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k": 3282814549916,
+        "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k": 3937327928740,
         "g1a2kttttdtqnu60wcpjtuhyfstn72j6qvx48lxl": 7,
         "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr": 206587087,
         "g1dkl350ucvdk42h8xz4xgq9rfltnr8pxh7qxw83": 11916946,
@@ -20928,13 +21240,13 @@
         "g1kcdd3n0d472g2p5l8svyg9t0wq6h5857nq992f": -324456789,
         "g18tml4dnf8rmexdgkcj8ukgdjtcsz8kk0rww4aw": -10000000,
         "g17290cwvmrapvp869xfnhhawa8sm9edpufzat7d": -60793496352127,
-        "g1dexaf6aqkkyr9yfy9d5up69lsn7ra80af34g5v": 57673766299929,
+        "g1dexaf6aqkkyr9yfy9d5up69lsn7ra80af34g5v": 57879724678138,
         "g1vc883gshu5z7ytk5cdynhc8c2dh67pdp4cszkp": 0,
-        "g1r340tuven27z8wq50u8d20eqrsj470082682tp": -4896663497,
+        "g1r340tuven27z8wq50u8d20eqrsj470082682tp": -3705601072,
         "g1em9s40nfrwd2aqn9ypjv7d9x9z9c8uk5uxrza9": 20260570222,
         "g1d9etfuh7zrkawx256j6dpckmrll8nz5pxe64gr": 995000000000,
         "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh": 4986619,
-        "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k": 1876122328026,
+        "g17m8hlvm3k0agngz8vw29etpcjd2yvcel6pvt3k": 1668972887392,
         "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3": 129999377804,
         "g1xherc2kvp0n6rwc2xjt0qn46un7d40ty9azrtz": 3014869,
         "g134f34axeecssse9tgjm9397tnrjmdc93xcdgql": 10000000000,
@@ -20962,7 +21274,7 @@
         "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren": 0
       }
     },
-    "lastHeight": 569218
+    "lastHeight": 571903
   },
   "stats": {
     "tokenCount": 12,
@@ -20974,10 +21286,10 @@
     "governanceRealmCount": 9,
     "socialRealmCount": 7,
     "defiRealmCount": 16,
-    "gnoswapSwapCount": 1007,
-    "whaleWatchCount": 301,
+    "gnoswapSwapCount": 1043,
+    "whaleWatchCount": 290,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 140,
-    "faucetDripCount": 524
+    "faucetDripCount": 525
   }
 }

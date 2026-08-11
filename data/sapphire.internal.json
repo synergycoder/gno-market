@@ -444,7 +444,336 @@
     "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/profile": [
       "gno.land/p/nt/avl/v0"
     ],
-    "gno.land/r/g1rvzx735nu32qt85wxl06y8gekztfdmpuxy67ux/ambassadorweek": []
+    "gno.land/r/g1rvzx735nu32qt85wxl06y8gekztfdmpuxy67ux/ambassadorweek": [],
+    "gno.land/r/gnoswap/access": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac"
+    ],
+    "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask": [],
+    "gno.land/r/gnoswap/gnft": [
+      "gno.land/p/gnoswap/deps/tokens/grc721",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoswap/common": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/community_pool": [
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/halt"
+    ],
+    "gno.land/r/gnoswap/gns": [
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoswap/emission": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/halt"
+    ],
+    "gno.land/r/gnoswap/gov/xgns": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/p/gnoswap/rbac"
+    ],
+    "gno.land/r/gnoswap/halt": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/onbloc/json",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/gov/governance": [
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/gov/governance/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/common",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/gov/governance",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/community_pool",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/r/gnoswap/launchpad",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/r/gnoswap/position",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/r/gnoswap/router",
+      "gno.land/r/gnoswap/staker"
+    ],
+    "gno.land/r/gnoswap/pool": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/version_manager",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/launchpad": [
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/gov/staker": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/gov/staker/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/gov/governance",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/common",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/p/onbloc/json"
+    ],
+    "gno.land/r/gnoswap/launchpad/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/launchpad",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/gov/staker",
+      "gno.land/r/gnoswap/gov/xgns",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/p/gnoswap/consts"
+    ],
+    "gno.land/r/gnoswap/position": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/pool/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/protocol_fee"
+    ],
+    "gno.land/r/gnoswap/protocol_fee": [
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/rbac": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/referral": [
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/nt/bptree/v0"
+    ],
+    "gno.land/r/gnoswap/protocol_fee/v1": [
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/p/nt/bptree/v0"
+    ],
+    "gno.land/r/gnoswap/router": [
+      "gno.land/p/gnoswap/store",
+      "gno.land/p/gnoswap/version_manager",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/test_token/test_atone": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/position/v1": [
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/r/gnoswap/position",
+      "gno.land/p/gnoswap/deps/tokens/grc721",
+      "gno.land/r/gnoswap/gnft",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/staker"
+    ],
+    "gno.land/r/gnoswap/test_token/test_atom": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_btc": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_dai": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_photon": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_sol": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/test_token/test_trx": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/staker": [
+      "gno.land/p/gnoswap/deps/tokens/grc721",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/gnft",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/p/gnoswap/consts",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/p/gnoswap/store",
+      "gno.land/r/gnoswap/access"
+    ],
+    "gno.land/r/gnoswap/router/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/pool",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/access",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/r/gnoswap/router",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/r/gnoswap/protocol_fee/v1",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/r/gnoswap/pool/v1"
+    ],
+    "gno.land/r/gnoswap/test_token/test_usdc": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/gnoswap/staker/v1": [
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/gnoswap/gnsmath",
+      "gno.land/r/gnoswap/staker",
+      "gno.land/p/gnoswap/utils",
+      "gno.land/p/gnoswap/int256",
+      "gno.land/p/gnoswap/uint256",
+      "gno.land/r/gnoswap/access",
+      "gno.land/r/gnoswap/halt",
+      "gno.land/p/gnoswap/rbac",
+      "gno.land/r/gnoswap/common",
+      "gno.land/r/gnoswap/emission",
+      "gno.land/r/gnoswap/gns",
+      "gno.land/r/gnoswap/protocol_fee",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/r/gnoswap/rbac",
+      "gno.land/r/gnoswap/position",
+      "gno.land/r/gnoswap/referral",
+      "gno.land/p/gnoswap/deps/tokens/grc721"
+    ]
   },
   "txPackages": {
     "gno.land/r/aeddi/smoke": {
@@ -721,11 +1050,516 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-08-10T17:11:08.123539399Z"
+    },
+    "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask": {
+      "path": "gno.land/r/g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn/gnotask",
+      "blockHeight": 71470,
+      "hash": "ed8zQyHINiqJM88qSnz6VPQHi/Dzy2Wjr6lICNFSOxA=",
+      "creator": "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T00:46:08.506492916Z"
+    },
+    "gno.land/p/gnoswap/deps/tokens/grc721": {
+      "path": "gno.land/p/gnoswap/deps/tokens/grc721",
+      "blockHeight": 72751,
+      "hash": "tWf/dFgtkZrYpwzOgjOw+acBpfUDJ0GU1bB6/o6kt4M=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:55:54.192122307Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_atom": {
+      "path": "gno.land/r/gnoswap/test_token/test_atom",
+      "blockHeight": 72752,
+      "hash": "HzM5o3LqBfeqdG5J80jffH/XSCI6JQgAgFFdM6018Zo=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:55:57.55478021Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_atone": {
+      "path": "gno.land/r/gnoswap/test_token/test_atone",
+      "blockHeight": 72753,
+      "hash": "YdsVrDmrrRouTchWM3fudMHEfbPuPKNycbz+nqzN2X8=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:00.782936826Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_btc": {
+      "path": "gno.land/r/gnoswap/test_token/test_btc",
+      "blockHeight": 72754,
+      "hash": "pLwVmxd8+aIjQaQu0DUEc9mgwxdJOevE8Tn1l7GuMjM=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:04.044171169Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_dai": {
+      "path": "gno.land/r/gnoswap/test_token/test_dai",
+      "blockHeight": 72755,
+      "hash": "/mA5Gg/X1ohhNCcpcfsvnJioSznMkyDQrpKRoqCUplw=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:07.379574157Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_photon": {
+      "path": "gno.land/r/gnoswap/test_token/test_photon",
+      "blockHeight": 72756,
+      "hash": "Sh5isAEAG92phFTL/aKU5vYX/DRU012wbO5C5Ds7e0A=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:10.840865588Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_sol": {
+      "path": "gno.land/r/gnoswap/test_token/test_sol",
+      "blockHeight": 72757,
+      "hash": "JqzwpnUeBDhLtsk0NOPRBfTZvjCdVALqn54buKQJisw=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:14.255374977Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_trx": {
+      "path": "gno.land/r/gnoswap/test_token/test_trx",
+      "blockHeight": 72758,
+      "hash": "kIRHPQ1+aYvp3YoOSXqxZKMBDkUr/xnIv0DBIPz7yTA=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:17.49736798Z"
+    },
+    "gno.land/r/gnoswap/test_token/test_usdc": {
+      "path": "gno.land/r/gnoswap/test_token/test_usdc",
+      "blockHeight": 72759,
+      "hash": "X+wQG/DZAZ5YYXxJ+JLIBoqYt9orWMWmlnTOGVOSEic=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:20.768613034Z"
+    },
+    "gno.land/p/gnoswap/uint256": {
+      "path": "gno.land/p/gnoswap/uint256",
+      "blockHeight": 72760,
+      "hash": "Vt8mIooPKsewNzpOPcpyNbps3kHDhpMA6uiKsdLa5J8=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:24.106858139Z"
+    },
+    "gno.land/p/gnoswap/int256": {
+      "path": "gno.land/p/gnoswap/int256",
+      "blockHeight": 72761,
+      "hash": "te8QMFUvtDmSoAcXlYP8w0QaV9bQvfws7fTpGAKvv3o=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:27.709378656Z"
+    },
+    "gno.land/p/gnoswap/consts": {
+      "path": "gno.land/p/gnoswap/consts",
+      "blockHeight": 72762,
+      "hash": "PaASyMdO4Hlf9L7+SBOCOk0OkZeW0GXR+ClU53dfcVs=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:31.137702756Z"
+    },
+    "gno.land/p/gnoswap/gnsmath": {
+      "path": "gno.land/p/gnoswap/gnsmath",
+      "blockHeight": 72763,
+      "hash": "lIUZxvsmoHUvbobUTvnUc869qZtYSskdlAA9vJzZZZY=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:34.376864622Z"
+    },
+    "gno.land/p/gnoswap/rbac": {
+      "path": "gno.land/p/gnoswap/rbac",
+      "blockHeight": 72764,
+      "hash": "lz/7NBpeCzrkOlmsmsQWmUZ0jadjORAX8OYDC9aI6Sg=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:37.763146804Z"
+    },
+    "gno.land/p/gnoswap/store": {
+      "path": "gno.land/p/gnoswap/store",
+      "blockHeight": 72765,
+      "hash": "5vPFy64NbHvjCvCa1eZQVfxvR+arSqe+LHoFggH3/cs=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:41.256218134Z"
+    },
+    "gno.land/p/gnoswap/version_manager": {
+      "path": "gno.land/p/gnoswap/version_manager",
+      "blockHeight": 72766,
+      "hash": "6jAkFIMY9Mt42PpcW9/r20QbIYoKbWIYNMBgfJGlxas=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:44.668751237Z"
+    },
+    "gno.land/p/gnoswap/utils": {
+      "path": "gno.land/p/gnoswap/utils",
+      "blockHeight": 72767,
+      "hash": "JWMePhAIdGt+Sgm4jMqiHI7pDtpmM0sgdR3i1XDG3Lk=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:48.053166777Z"
+    },
+    "gno.land/r/gnoswap/access": {
+      "path": "gno.land/r/gnoswap/access",
+      "blockHeight": 72768,
+      "hash": "pd6Cls4WdQrSVKWjehzsSSapwxPUqkxMFN8C52xN1Eo=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:51.282448459Z"
+    },
+    "gno.land/r/gnoswap/rbac": {
+      "path": "gno.land/r/gnoswap/rbac",
+      "blockHeight": 72769,
+      "hash": "jIq3BVoZHw29z7t7Bpyix9aG8xcbh9coZlflTXMON9M=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:54.586820904Z"
+    },
+    "gno.land/r/gnoswap/halt": {
+      "path": "gno.land/r/gnoswap/halt",
+      "blockHeight": 72770,
+      "hash": "UPXmJtz9aA1sRjfFOmXkzX3UeUjeu+ot2dTykv/O1sI=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:56:57.965016273Z"
+    },
+    "gno.land/r/gnoswap/common": {
+      "path": "gno.land/r/gnoswap/common",
+      "blockHeight": 72771,
+      "hash": "4LarDdSXB23nkoWwqBh7YNqsBsAr0zA6Sl6MwYDDp20=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:01.337805479Z"
+    },
+    "gno.land/r/gnoswap/gns": {
+      "path": "gno.land/r/gnoswap/gns",
+      "blockHeight": 72772,
+      "hash": "2f+TfAus9p0ZWoa4H7gc9KaL6eQsuhnSaAc0ExeM7IU=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:04.647721286Z"
+    },
+    "gno.land/r/gnoswap/gnft": {
+      "path": "gno.land/r/gnoswap/gnft",
+      "blockHeight": 72773,
+      "hash": "lWE8xbVTAORdrEKQ57abo6MYB5AaxXHJBFVBzlPWyto=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:08.003540164Z"
+    },
+    "gno.land/r/gnoswap/gov/xgns": {
+      "path": "gno.land/r/gnoswap/gov/xgns",
+      "blockHeight": 72774,
+      "hash": "9ThV75QbTVDKtrlWEsNCJjDkjZk+NZU/4GoyccRnf8E=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:11.292347876Z"
+    },
+    "gno.land/r/gnoswap/protocol_fee": {
+      "path": "gno.land/r/gnoswap/protocol_fee",
+      "blockHeight": 72775,
+      "hash": "5mBh7h7TeCIe4+XDnFbb4kK+ON209Zgo2xk28Rsj5q0=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:14.639091516Z"
+    },
+    "gno.land/r/gnoswap/emission": {
+      "path": "gno.land/r/gnoswap/emission",
+      "blockHeight": 72776,
+      "hash": "gpC1JgYl1Bii+rk8nFXYZgED7+VKtQav0dmzMTMNP5M=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:18.115248584Z"
+    },
+    "gno.land/r/gnoswap/pool": {
+      "path": "gno.land/r/gnoswap/pool",
+      "blockHeight": 72777,
+      "hash": "ATlMDyMZbw09Kc6564yggRLtognRT/hKEqyrUhCOY6I=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:21.486913324Z"
+    },
+    "gno.land/r/gnoswap/position": {
+      "path": "gno.land/r/gnoswap/position",
+      "blockHeight": 72778,
+      "hash": "UGXtOLFzyKCzZ8uz1gfLaCpd7o1lpag02uHk9B0LTFI=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:24.957438137Z"
+    },
+    "gno.land/r/gnoswap/router": {
+      "path": "gno.land/r/gnoswap/router",
+      "blockHeight": 72779,
+      "hash": "PgH7SGxGnE//C+8JrQ6dxaCtw/u6IglUWNJRh+wi1ok=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:28.257784024Z"
+    },
+    "gno.land/r/gnoswap/staker": {
+      "path": "gno.land/r/gnoswap/staker",
+      "blockHeight": 72780,
+      "hash": "fR718CV3m3Ke++V99EdX9tr1az3DchCIywWZtw3HKFo=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:31.743978351Z"
+    },
+    "gno.land/r/gnoswap/community_pool": {
+      "path": "gno.land/r/gnoswap/community_pool",
+      "blockHeight": 72781,
+      "hash": "EWB31y8ZxFhKPwho3+DcBtv0iNWSSnkogpu8urYGF2U=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:35.398831155Z"
+    },
+    "gno.land/r/gnoswap/gov/staker": {
+      "path": "gno.land/r/gnoswap/gov/staker",
+      "blockHeight": 72782,
+      "hash": "Dr7ZQ7Rq8dbIAn3ImS0LkAQUn6e5HiymCzkcwG+uBNc=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:39.056000743Z"
+    },
+    "gno.land/r/gnoswap/gov/governance": {
+      "path": "gno.land/r/gnoswap/gov/governance",
+      "blockHeight": 72783,
+      "hash": "hOYbme81nL5WiExXG+YIz8jVeI9eVjnXolWcrMjW/T0=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": true,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:42.468858089Z"
+    },
+    "gno.land/r/gnoswap/launchpad": {
+      "path": "gno.land/r/gnoswap/launchpad",
+      "blockHeight": 72784,
+      "hash": "GDg0W6IgpnrD2z43c4ScSnXPXfJ8fSHjlK2xt95CD/k=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:45.826986016Z"
+    },
+    "gno.land/r/gnoswap/referral": {
+      "path": "gno.land/r/gnoswap/referral",
+      "blockHeight": 72785,
+      "hash": "Le1cGZqktnkkno37Jomy1kuC3oiHbsFUWuDdZ6cs4TM=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:49.365032288Z"
+    },
+    "gno.land/r/gnoswap/protocol_fee/v1": {
+      "path": "gno.land/r/gnoswap/protocol_fee/v1",
+      "blockHeight": 72786,
+      "hash": "j1Qj0yjmwvdV2VQkntLMsD9/5a/VbDU+lasFkBE3t5M=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:52.729030693Z"
+    },
+    "gno.land/r/gnoswap/pool/v1": {
+      "path": "gno.land/r/gnoswap/pool/v1",
+      "blockHeight": 72787,
+      "hash": "kbobozNbISu5PHUb80JSGNW5EaMcQt2d2PyRj657LqA=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:56.09919225Z"
+    },
+    "gno.land/r/gnoswap/position/v1": {
+      "path": "gno.land/r/gnoswap/position/v1",
+      "blockHeight": 72788,
+      "hash": "FpfUfLsJKrVW+2vBkH8N8XQYhmJxBO6D7usUN/UcF2g=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": "GRC721",
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:57:59.459068874Z"
+    },
+    "gno.land/r/gnoswap/staker/v1": {
+      "path": "gno.land/r/gnoswap/staker/v1",
+      "blockHeight": 72789,
+      "hash": "6HrXDipN2A4IVZQILrfJ4K58Xk8DQhvL4ry6EiD3xlE=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:58:02.848866828Z"
+    },
+    "gno.land/r/gnoswap/router/v1": {
+      "path": "gno.land/r/gnoswap/router/v1",
+      "blockHeight": 72790,
+      "hash": "QLy92fsz4z1xZrRsw3quRSjjvw5YPzwVomTZLm/997o=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:58:06.373507032Z"
+    },
+    "gno.land/r/gnoswap/gov/governance/v1": {
+      "path": "gno.land/r/gnoswap/gov/governance/v1",
+      "blockHeight": 72791,
+      "hash": "CJzsqjLUHA0IpwAm/FWY5NrsZpOApYbDsrBr4/RP+j4=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": true,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:58:10.209340833Z"
+    },
+    "gno.land/r/gnoswap/gov/staker/v1": {
+      "path": "gno.land/r/gnoswap/gov/staker/v1",
+      "blockHeight": 72792,
+      "hash": "0eqUX4uHu+JeHAgMTaWyrCd82denBPWHDH/Tw5ak/cE=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:58:14.063158268Z"
+    },
+    "gno.land/r/gnoswap/launchpad/v1": {
+      "path": "gno.land/r/gnoswap/launchpad/v1",
+      "blockHeight": 72793,
+      "hash": "x0u37Ck60SsSm0N7/oEcIV+QiD0RTUJZyIZ7jgb1nTs=",
+      "creator": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T01:58:17.501192317Z"
     }
   },
   "swapActivity": {
-    "swaps": {},
-    "lastHeight": 0
+    "swaps": {
+      "Y9o/hBQEwdtmJJntsgqDVb5GmkgVyaV+hd/wnyK8nh8=#0": {
+        "hash": "Y9o/hBQEwdtmJJntsgqDVb5GmkgVyaV+hd/wnyK8nh8=",
+        "blockHeight": 75173,
+        "caller": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/test_token/test_usdc.USDC",
+        "amountIn": "2000000000",
+        "amountOut": "1995071251",
+        "blockTime": "2026-08-11T04:08:06.602873281Z"
+      },
+      "4ZENRhhKfgu+PLqH/WIGNt4ZKgt9Cgtzzy4LIN73ZwI=#0": {
+        "hash": "4ZENRhhKfgu+PLqH/WIGNt4ZKgt9Cgtzzy4LIN73ZwI=",
+        "blockHeight": 76014,
+        "caller": "g169d3un6y4sqxxmzwt7le3l5pawlfrhg5aa3xvp",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "10000000",
+        "amountOut": "997256",
+        "blockTime": "2026-08-11T04:53:56.658716005Z"
+      }
+    },
+    "lastHeight": 76014
   },
   "faucetDripsActivity": {
     "drips": [
@@ -1113,8 +1947,106 @@
         "blockTime": "2026-08-10T23:59:41.826211888Z",
         "to": "g1h92t4e4jtl58rmgcjxwnpks2qhtwx6slq2l9cf",
         "amount": 100000000
+      },
+      {
+        "hash": "wlYTUsffsmxnVMb6VnyjTvQc3NwtfW9L18S2MXiIhas=",
+        "blockHeight": 70742,
+        "blockTime": "2026-08-11T00:06:30.060045502Z",
+        "to": "g1h92t4e4jtl58rmgcjxwnpks2qhtwx6slq2l9cf",
+        "amount": 100000000
+      },
+      {
+        "hash": "kR2uIZcrBkyJweI2hqOksEoHj4Jqorjg0TTHfKa5hQI=",
+        "blockHeight": 71053,
+        "blockTime": "2026-08-11T00:23:26.137239538Z",
+        "to": "g1c5txl47ea73x9g535lefzs8u6engjrsswvvfch",
+        "amount": 100000000
+      },
+      {
+        "hash": "1KOWggf+FdNGBFOtWiLCBPjEYOGA2aesIsDhtMRDjX8=",
+        "blockHeight": 71094,
+        "blockTime": "2026-08-11T00:25:40.100466789Z",
+        "to": "g1x4zvyxlwauaanupr43fjm4l3kltk5h6lzgpvwn",
+        "amount": 300000000
+      },
+      {
+        "hash": "r8SjTfEFD90nyY9xjNGsXH2smhh73CqfSS3EtCZffmA=",
+        "blockHeight": 72362,
+        "blockTime": "2026-08-11T01:34:42.290180653Z",
+        "to": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
+        "amount": 300000000
+      },
+      {
+        "hash": "RWetk9PsnEeJUKe6Ot7Vu1Da8daOh2tjy5r9WMvJdh8=",
+        "blockHeight": 72983,
+        "blockTime": "2026-08-11T02:08:41.402462358Z",
+        "to": "g1ppvaadzu0smzqyrgvw73hjdrhvlu43l7g7tw3f",
+        "amount": 100000000
+      },
+      {
+        "hash": "FsKMl84znZACLJqG7zHBNZ86P9/QsQ4uiZO61BzhpEo=",
+        "blockHeight": 74077,
+        "blockTime": "2026-08-11T03:08:22.519496017Z",
+        "to": "g1etf3rd7dqghksj8r5yunkgmvpupdfszdjhuzju",
+        "amount": 300000000
+      },
+      {
+        "hash": "TRlyR7L00loL5kg/LDK/DVCYu58Ey31Vx0bDP/FO3lA=",
+        "blockHeight": 74120,
+        "blockTime": "2026-08-11T03:10:42.905487311Z",
+        "to": "g169d3un6y4sqxxmzwt7le3l5pawlfrhg5aa3xvp",
+        "amount": 300000000
+      },
+      {
+        "hash": "auif9Bd5L8KFkIAVxOpXRjgB2xyIteGyZ2Kueuic5L0=",
+        "blockHeight": 74686,
+        "blockTime": "2026-08-11T03:41:32.539423881Z",
+        "to": "g14m0n559xdj00qwvp6ck0xesprrq26kgprgjt4j",
+        "amount": 300000000
+      },
+      {
+        "hash": "jRIsUxpPT7uCLmEulFFGqawe2yxdI666WkWCrkgonL4=",
+        "blockHeight": 75013,
+        "blockTime": "2026-08-11T03:59:21.255953799Z",
+        "to": "g1qd974fj0wgkmj5ah2euqygs7w86tgsskme6n05",
+        "amount": 300000000
+      },
+      {
+        "hash": "6W3Q2CXQirXg6ydHFq5U1PbAZ2wMpBwzwMVt/Wmx8lU=",
+        "blockHeight": 75075,
+        "blockTime": "2026-08-11T04:02:46.135553167Z",
+        "to": "g1jaxzh9epmtachaf6tx6ftxgq6pndcctxrf68tr",
+        "amount": 300000000
+      },
+      {
+        "hash": "th05cMpKfyw7mkbYDyyBlnlPX+CyDPSMG3rxGsuDGvg=",
+        "blockHeight": 75103,
+        "blockTime": "2026-08-11T04:04:17.668095018Z",
+        "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "amount": 300000000
+      },
+      {
+        "hash": "5BPu2g4oxoToj1WKwdCTaobilbmHJpK8ScbAdBAH5es=",
+        "blockHeight": 75658,
+        "blockTime": "2026-08-11T04:34:31.389834083Z",
+        "to": "g1y4l44w8fwl8tj473y49l3ay3k2nad0pdhchn3d",
+        "amount": 100000000
+      },
+      {
+        "hash": "dxJ+2uVGfdwiq2l6lrEstBtCfLckqFCTsMujrlLNaLw=",
+        "blockHeight": 75661,
+        "blockTime": "2026-08-11T04:34:41.250407164Z",
+        "to": "g15g0la8fyn4mvulrw39vmngs3z9vzhefkyyef9y",
+        "amount": 300000000
+      },
+      {
+        "hash": "iqhOXM3ARZOg4XdI+4OOv0zLtL0IYN4dxMGAhKz/qkk=",
+        "blockHeight": 75903,
+        "blockTime": "2026-08-11T04:47:52.355210735Z",
+        "to": "g1a5nsknqz603w8tq6us6pdhqq0yjs0k59hs9e0j",
+        "amount": 100000000
       }
     ],
-    "lastHeight": 70617
+    "lastHeight": 75903
   }
 }
