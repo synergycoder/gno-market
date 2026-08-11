@@ -1206,6 +1206,210 @@ async function fetchGnoswapSwaps(net, prevState) {
   return { swaps, lastHeight: newHeight, newCount };
 }
 
+// ---------- Sapphire Rush: GnoSwap's community challenge leaderboards (sapphire-1 only) ----------
+// GnoSwap Beta launched on sapphire-1 and is running a $3,000 community
+// challenge (Aug 11 - Sep 1, 2026) across 6 prize categories, announced on
+// X/Discord. Two of the six (Content Creators, Lucky Draw) are pure
+// X/Twitter engagement and random draws -- there is no on-chain data for
+// either, so only the other four are computed here. This is NOT GnoSwap's
+// own official leaderboard or source of truth for prize determination --
+// it's an independent, best-effort reading of the same on-chain data, and
+// each category below notes exactly what approximation it makes and why.
+//
+// Contract structure (all confirmed live against sapphire-1, Aug 2026 --
+// see gno.observer's own investigation, not assumed from any doc):
+//   - gno.land/r/gnoswap/gns: standard GRC20, already tracked via the
+//     normal token-holder scan (it's in the public token registry).
+//   - gno.land/r/gnoswap/gov/xgns: also a plain GRC20 (same underlying
+//     grc20 library as GNS, confirmed by reading its source), but NOT in
+//     the public registry, so it needs its own holder scan here.
+//   - gno.land/r/gnoswap/launchpad: deposits are enumerable only by ID
+//     (GetDepositCount()/GetDeposit(id)), not by address -- there is no
+//     GetDepositsByAddress. GetDeposit(id) returns *Deposit with fields
+//     depositor, id, projectID, tier, depositAmount, withdrawnHeight, ...
+//     in that order (confirmed from deposit.gno's own struct definition).
+//     0 deposits exist as of this writing, so this is written correctly
+//     per the documented struct but not yet exercised against a real one.
+//   - gno.land/r/gnoswap/position: LP positions are GRC721-style NFTs,
+//     sequential IDs 1..GetPositionCount() (73 exist as of this writing).
+//     GetPositionPoolKey/GetPositionOwner/GetPositionToken1Balance all
+//     confirmed live per-position.
+//   - gno.land/r/gnoswap/staker: GetDepositOwner(positionId) is who
+//     STAKED a position (can differ from the position NFT's current
+//     holder if it changed hands) -- this is who rewards actually accrue
+//     to, matching "Create a position and stake it" in the challenge's
+//     own methodology. GetDepositCollectedInternalReward(positionId)
+//     gives the GNS reward claimed so far.
+//   - The ETH/USDC 0.3% pool (IBC Specialists' target) is
+//     gno.land/r/gnoswap/test_token/test_usdc.USDC:gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.ETH:3000
+//     -- token0=USDC, token1=ETH (bridged via bridge.onbloc.xyz), found
+//     by listing every pool via GetPoolPaths and matching the "ETH" token
+//     path the challenge announcement points to (bridge.onbloc.xyz).
+//
+// All amounts are stored raw (on-chain integer units) -- the client
+// formats them using the same tokenDecimals map every other tab already
+// uses, rather than duplicating decimal handling here.
+
+const GNOSWAP_GNS_PATH = "gno.land/r/gnoswap/gns";
+const GNOSWAP_XGNS_PATH = "gno.land/r/gnoswap/gov/xgns";
+const GNOSWAP_LAUNCHPAD_PATH = "gno.land/r/gnoswap/launchpad";
+const GNOSWAP_STAKER_PATH = "gno.land/r/gnoswap/staker";
+const GNOSWAP_POSITION_PATH = "gno.land/r/gnoswap/position";
+const GNOSWAP_USDC_PATH = "gno.land/r/gnoswap/test_token/test_usdc";
+const IBC_ETH_POOL_PATH = "gno.land/r/gnoswap/test_token/test_usdc.USDC:gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.ETH:3000";
+
+function parseQevalInt(raw) {
+  const m = /\((-?\d+)/.exec((raw || "").trim());
+  return m ? Number(m[1]) : 0;
+}
+
+function parseQevalAddressOrString(raw) {
+  // Matches both ("g1..." .uverse.address) and ("..." string) -- the
+  // quoted value is what's wanted either way, the type tag differs.
+  const m = /^\("([^"]*)"/.exec((raw || "").trim());
+  return m ? m[1] : null;
+}
+
+// GetDeposit(id) -> (*Deposit, error); Deposit{depositor address, id
+// string, projectID string, tier int64, depositAmount int64,
+// withdrawnHeight int64, ...}. Only the fields needed here are parsed --
+// same "first line only" rule as everywhere else qeval is used (a
+// (value, error) return still renders both on separate lines).
+function parseLaunchpadDeposit(raw) {
+  const firstLine = (raw || "").trim().split("\n")[0];
+  const m = /^\(&\(struct\{\("([^"]*)" [^)]*\),\("([^"]*)" string\),\("([^"]*)" string\),\((-?\d+) int64\),\((-?\d+) int64\),\((-?\d+) int64\)/.exec(firstLine);
+  if (!m) return null;
+  return { depositor: m[1], depositAmount: Number(m[4]), withdrawnHeight: Number(m[5]) };
+}
+
+async function fetchLaunchpadLockedGns(net) {
+  let count = 0;
+  try {
+    count = parseQevalInt(await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDepositCount()`));
+  } catch {
+    return {};
+  }
+  if (!count) return {};
+  const locked = {};
+  await mapLimit(Array.from({ length: count }, (_, i) => String(i + 1)), 8, async (depositId) => {
+    try {
+      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDeposit("${depositId}")`);
+      const deposit = parseLaunchpadDeposit(raw);
+      if (!deposit || deposit.withdrawnHeight > 0) return; // withdrawn -- no longer locked
+      locked[deposit.depositor] = (locked[deposit.depositor] || 0) + deposit.depositAmount;
+    } catch {
+      // best-effort -- skip unreadable deposits rather than failing the whole scan
+    }
+  });
+  return locked;
+}
+
+// Volume is only counted on the USDC side of a swap (a stable, ~$1 unit)
+// -- there's no price oracle wired up here, so a swap between two
+// non-USDC tokens (e.g. ATOM<->BTC) isn't counted at all rather than
+// guessed at with a made-up conversion rate. This undercounts total
+// activity but never fabricates a number.
+function swapUsdcVolume(swap) {
+  if ((swap.tokenIn || "").startsWith(GNOSWAP_USDC_PATH)) return Number(swap.amountIn) || 0;
+  if ((swap.tokenOut || "").startsWith(GNOSWAP_USDC_PATH)) return Number(swap.amountOut) || 0;
+  return 0;
+}
+
+async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevState) {
+  const gnsBalances = tokenHolderBalances[`${GNOSWAP_GNS_PATH}|GNS`] || {};
+  const { balances: xgnsHolderResult } = await fetchTokenHolders(
+    net, [{ path: GNOSWAP_XGNS_PATH, symbol: "xGNS" }], prevState?.xgnsHolders
+  );
+  const xgnsBalances = xgnsHolderResult[`${GNOSWAP_XGNS_PATH}|xGNS`] || {};
+  const launchpadLocked = await fetchLaunchpadLockedGns(net);
+
+  const whaleTotals = {};
+  for (const map of [gnsBalances, xgnsBalances, launchpadLocked]) {
+    for (const [addr, bal] of Object.entries(map)) {
+      if (bal > 0) whaleTotals[addr] = (whaleTotals[addr] || 0) + bal;
+    }
+  }
+  const gnsWhales = Object.entries(whaleTotals)
+    .map(([address, totalGns]) => ({ address, totalGns }))
+    .sort((a, b) => b.totalGns - a.totalGns)
+    .slice(0, 5);
+
+  const swapTotals = {};
+  for (const s of Object.values(swaps || {})) {
+    if (!s.caller) continue;
+    if (!swapTotals[s.caller]) swapTotals[s.caller] = { swapCount: 0, usdcVolume: 0 };
+    swapTotals[s.caller].swapCount++;
+    swapTotals[s.caller].usdcVolume += swapUsdcVolume(s);
+  }
+  const powerTraders = Object.entries(swapTotals)
+    .map(([address, v]) => ({ address, swapCount: v.swapCount, usdcVolume: v.usdcVolume }))
+    .sort((a, b) => b.usdcVolume - a.usdcVolume)
+    .slice(0, 10);
+
+  let positionCount = 0;
+  try {
+    positionCount = parseQevalInt(await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionCount()`));
+  } catch {
+    // leave at 0 -- LP Strategists/IBC Specialists just come back empty
+  }
+
+  const lpRewardsByOwner = {};
+  const ibcEthByOwner = {};
+  await mapLimit(Array.from({ length: positionCount }, (_, i) => i + 1), 8, async (positionId) => {
+    try {
+      const poolKey = parseQevalAddressOrString(
+        await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionPoolKey(uint64(${positionId}))`)
+      );
+      if (poolKey === IBC_ETH_POOL_PATH) {
+        const owner = parseQevalAddressOrString(
+          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionOwner(uint64(${positionId}))`)
+        );
+        const ethAmount = parseQevalInt(
+          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionToken1Balance(uint64(${positionId}))`)
+        );
+        if (owner && ethAmount > 0) ibcEthByOwner[owner] = (ibcEthByOwner[owner] || 0) + ethAmount;
+      }
+    } catch {
+      // best-effort -- skip this position for IBC purposes
+    }
+
+    try {
+      // GetDepositOwner returns "" for a position that was never staked --
+      // safe to call unconditionally rather than pre-checking staked status.
+      const stakedOwner = parseQevalAddressOrString(
+        await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositOwner(uint64(${positionId}))`)
+      );
+      if (stakedOwner && stakedOwner.startsWith("g1")) {
+        const reward = parseQevalInt(
+          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositCollectedInternalReward(uint64(${positionId}))`)
+        );
+        if (reward > 0) lpRewardsByOwner[stakedOwner] = (lpRewardsByOwner[stakedOwner] || 0) + reward;
+      }
+    } catch {
+      // best-effort -- skip this position for LP Strategists purposes
+    }
+  });
+
+  const lpStrategists = Object.entries(lpRewardsByOwner)
+    .map(([address, gnsRewardsClaimed]) => ({ address, gnsRewardsClaimed }))
+    .sort((a, b) => b.gnsRewardsClaimed - a.gnsRewardsClaimed)
+    .slice(0, 5);
+
+  const ibcSpecialists = Object.entries(ibcEthByOwner)
+    .map(([address, ethSupplied]) => ({ address, ethSupplied }))
+    .sort((a, b) => b.ethSupplied - a.ethSupplied)
+    .slice(0, 5);
+
+  return {
+    gnsWhales,
+    powerTraders,
+    lpStrategists,
+    ibcSpecialists,
+    positionsScanned: positionCount,
+    xgnsHolders: xgnsHolderResult, // persisted as prevState for next run's incremental scan
+  };
+}
+
 // ---------- genesis-funded addresses ----------
 // Checked deeply (per an explicit ask) for any way to enumerate every
 // address with a balance, beyond just ones already seen in transaction
@@ -1345,6 +1549,10 @@ async function buildNetwork(netKey, net) {
   const internalPath = path.join(DATA_DIR, `${netKey}.internal.json`);
   const nftImagesPath = path.join(DATA_DIR, `${netKey}-nft-images.json`);
   const gingerMintsPath = path.join(DATA_DIR, `${netKey}-ginger-mints.json`);
+  // No netKey prefix here (unlike gingerMintsPath) -- this is only ever
+  // computed for netKey === "sapphire", so "sapphire-sapphire-rush.json"
+  // would just be a redundant name.
+  const sapphireRushPath = path.join(DATA_DIR, `sapphire-rush.json`);
   // Two files: outPath is what every visitor downloads (client-shipped
   // fields only); internalPath holds incremental-cache state the client
   // never reads (raw per-realm import lists, the full swap/faucet-drip
@@ -1370,6 +1578,9 @@ async function buildNetwork(netKey, net) {
   }
   const prevGingerMints = netKey === "betanet"
     ? await readFile(gingerMintsPath, "utf-8").then(JSON.parse).catch(() => null)
+    : null;
+  const prevSapphireRush = netKey === "sapphire"
+    ? await readFile(sapphireRushPath, "utf-8").then(JSON.parse).catch(() => null)
     : null;
 
   const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry, faucetResult] = await Promise.all([
@@ -1525,6 +1736,13 @@ async function buildNetwork(netKey, net) {
     console.log(`ginger mints: ${result.mints.length} total (${result.newlyFetched} newly fetched this run)`);
   }
 
+  let sapphireRush = null;
+  if (netKey === "sapphire") {
+    const result = await fetchSapphireRush(net, tokens, tokenHolderBalances, swapsResult.swaps, prevSapphireRush);
+    sapphireRush = { generatedAt: new Date().toISOString(), ...result };
+    console.log(`sapphire rush: ${result.gnsWhales.length} GNS whales, ${result.powerTraders.length} power traders, ${result.lpStrategists.length} LP strategists, ${result.ibcSpecialists.length} IBC specialists (${result.positionsScanned} positions scanned)`);
+  }
+
   const output = {
     network: netKey,
     generatedAt: new Date().toISOString(),
@@ -1589,10 +1807,12 @@ async function buildNetwork(netKey, net) {
   await writeFile(internalPath, JSON.stringify(internalState, null, 2));
   await writeFile(nftImagesPath, JSON.stringify(nftImages, null, 2));
   if (gingerMints) await writeFile(gingerMintsPath, JSON.stringify(gingerMints, null, 2));
+  if (sapphireRush) await writeFile(sapphireRushPath, JSON.stringify(sapphireRush, null, 2));
   console.log(`wrote ${outPath}`);
   console.log(`wrote ${internalPath}`);
   console.log(`wrote ${nftImagesPath}`);
   if (gingerMints) console.log(`wrote ${gingerMintsPath}`);
+  if (sapphireRush) console.log(`wrote ${sapphireRushPath}`);
 }
 
 async function main() {

@@ -419,6 +419,14 @@
     border: 1px solid var(--border); border-radius: 8px;
   }
   .whale-legend h3 { margin: 0 0 0.6rem; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .sapphire-rush-section {
+    margin: 1.4rem 0; padding: 1rem 1.2rem; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  .sapphire-rush-section h3 { margin: 0 0 0.5rem; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  .sapphire-rush-sub { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); }
+  .sapphire-rush-section .status-alert { margin-bottom: 0.8rem; font-size: 0.85rem; }
+  .sapphire-rush-rank { font-weight: 700; color: var(--text-muted); }
   .whale-legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.5rem 1rem; }
   .whale-legend-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
   .whale-legend-row .tier-emoji { font-size: 1.1rem; }
@@ -810,6 +818,7 @@
       <span id="tabMoreLabel">More</span><span class="tab-more-caret">▾</span>
     </button>
     <div class="tab-more-menu" id="tabMoreMenu" role="menu" hidden>
+      <button class="tab" data-tab="sapphirerush" role="menuitem"><span class="tab-icon">🏆</span>Sapphire Rush</button>
       <button class="tab" data-tab="new" role="menuitem"><span class="tab-icon">🆕</span>What's New</button>
       <button class="tab" data-tab="governance" role="menuitem"><span class="tab-icon">🏛️</span>DAO Governance</button>
       <button class="tab" data-tab="social" role="menuitem"><span class="tab-icon">💬</span>Social</button>
@@ -820,6 +829,57 @@
       <button class="tab" data-tab="snapshots" role="menuitem"><span class="tab-icon">📸</span>Wallet Snapshots</button>
       <button class="tab" data-tab="links" role="menuitem"><span class="tab-icon">🔗</span>Links</button>
     </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-sapphirerush" hidden>
+  <h2>🏆 GnoSwap Sapphire Rush</h2>
+  <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">GnoSwap's own community challenge on sapphire-1 (Aug 11 – Sep 1, 2026): a $3,000
+    prize pool across 6 categories. Only 4 have any on-chain data to read at all — <strong>Content
+    Creators</strong> and <strong>Lucky Draw</strong> are pure X/Twitter engagement and random draws,
+    with nothing here for a chain observer to see. The four below are independently computed from live
+    sapphire-1 data, always regardless of which network is selected above (same pattern as
+    Suggestions) — see each section's own note for the specific approximation it makes.</span><button class="text-collapsible-toggle" type="button">More</button></p>
+  <p class="status-alert">This is an independent, best-effort reading of on-chain data — not GnoSwap's official
+    leaderboard, and not a source of truth for prize determination. Always check GnoSwap's own leaderboard
+    for actual results.</p>
+  <p id="sapphireRushStatus" class="status">Loading…</p>
+
+  <div class="sapphire-rush-section">
+    <h3>🐳 $GNS Whales <span class="sapphire-rush-sub">Top 5 by GNS + xGNS + Launchpad-locked GNS</span></h3>
+    <table id="gnsWhalesTable" style="display:none">
+      <thead><tr><th>#</th><th>Address</th><th>Total GNS-equivalent</th></tr></thead>
+      <tbody id="gnsWhalesBody"></tbody>
+    </table>
+  </div>
+
+  <div class="sapphire-rush-section">
+    <h3>⚡ Power Traders <span class="sapphire-rush-sub">Top 10 by swap volume</span></h3>
+    <p class="status-alert">Volume only counts the USDC side of a swap — there's no price oracle wired up here, so
+      a swap between two non-USDC tokens isn't counted at all rather than guessed at with a made-up rate.</p>
+    <table id="powerTradersTable" style="display:none">
+      <thead><tr><th>#</th><th>Address</th><th>Swaps</th><th>USDC-side volume</th></tr></thead>
+      <tbody id="powerTradersBody"></tbody>
+    </table>
+  </div>
+
+  <div class="sapphire-rush-section">
+    <h3>🌊 LP Strategists <span class="sapphire-rush-sub">Top 5 positions by rewards claimed</span></h3>
+    <p class="status-alert">Shown in raw GNS, not converted to USD — a correct USD figure needs real
+      Uniswap-V3-style price-oracle math per pool, which isn't implemented here rather than risk showing a
+      wrong number for a real-money competition.</p>
+    <table id="lpStrategistsTable" style="display:none">
+      <thead><tr><th>#</th><th>Address</th><th>GNS rewards claimed</th></tr></thead>
+      <tbody id="lpStrategistsBody"></tbody>
+    </table>
+  </div>
+
+  <div class="sapphire-rush-section">
+    <h3>🌉 IBC Specialists <span class="sapphire-rush-sub">Top 5 by ETH supplied in the ETH/USDC 0.3% pool</span></h3>
+    <table id="ibcSpecialistsTable" style="display:none">
+      <thead><tr><th>#</th><th>Address</th><th>ETH supplied</th></tr></thead>
+      <tbody id="ibcSpecialistsBody"></tbody>
+    </table>
   </div>
 </div>
 
@@ -1502,6 +1562,25 @@ try {
   if (savedGingerView === "grid" || savedGingerView === "list") gingerMintsView = savedGingerView;
 } catch {}
 
+// Same temporal-dead-zone reasoning again, for Sapphire Rush --
+// sapphireRushLoaded is read synchronously as loadSapphireRush()'s first
+// line, which restoreInitialView() can reach before this file's own
+// declaration of it would otherwise have run.
+let sapphireRushLoaded = false;
+const SAPPHIRE_RUSH_GNS_PATH = "gno.land/r/gnoswap/gns";
+const SAPPHIRE_RUSH_USDC_PATH = "gno.land/r/gnoswap/test_token/test_usdc";
+const SAPPHIRE_RUSH_ETH_PATH = "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm";
+// This one WAS caught live (refreshing straight into the Sapphire Rush
+// tab threw "Cannot access 'cachedDataPromises' before initialization")
+// rather than anticipated -- loadSapphireRush() is the first
+// activateTab()-triggered loader to call getCachedData(), which every
+// other tab only ever reaches via the unconditional loadAll(currentKey)
+// at the very bottom of this file (by which point the whole script,
+// including cachedDataPromises' original declaration site, has already
+// run) -- so this exact gap was latent for any *future* tab wired the
+// same way, not just this one.
+const cachedDataPromises = new Map(); // netKey -> Promise<data|null>, shared by getCachedData()
+
 // Genesis-realm source is immutable once deployed, so it's safe to persist
 // across page loads indefinitely — this is what actually makes the "one-time
 // scan, cached after that" promise true across reloads, not just within a
@@ -1605,7 +1684,7 @@ function updateUrlForView(partial) {
 // kept as a set here (not just CSS) so activateTab() can tell whether
 // the active tab is one of them and highlight/label the dropdown
 // trigger accordingly, same as a normal tab would show active.
-const MORE_MENU_TABS = new Set(["new", "governance", "social", "defi", "whales", "deps", "faucet", "snapshots", "links"]);
+const MORE_MENU_TABS = new Set(["sapphirerush", "new", "governance", "social", "defi", "whales", "deps", "faucet", "snapshots", "links"]);
 
 // Panels with their own sub-tabs (each has .subtab buttons + .subtab-panel
 // targets inside #panel-<name>) — used to keep ?subtab= alive in the URL
@@ -1628,6 +1707,7 @@ function activateTab(tabName) {
   if (tabName === "suggestions") loadSuggestions();
   if (tabName === "nfts") loadNftImagesForTab();
   if (tabName === "pixels") loadPixelCanvas();
+  if (tabName === "sapphirerush") loadSapphireRush();
 
   const moreBtn = document.getElementById("tabMoreBtn");
   const isMoreTab = MORE_MENU_TABS.has(tabName);
@@ -1842,8 +1922,6 @@ async function mapLimit(items, limit, fn) {
 // scheduled job hasn't run yet, is down, or this is being served somewhere
 // without the data/ directory published alongside it) — the site should
 // degrade gracefully, not depend entirely on the Action staying healthy.
-
-const cachedDataPromises = new Map(); // netKey -> Promise<data|null>
 
 function getCachedData(netKey) {
   if (!cachedDataPromises.has(netKey)) {
@@ -5451,6 +5529,74 @@ document.querySelectorAll(".text-collapsible-toggle").forEach((btn) => {
     btn.textContent = expanded ? "More" : "Less";
   });
 });
+
+// ---------- Sapphire Rush: GnoSwap's community challenge leaderboards ----------
+// Always reads from sapphire-1's own cache regardless of the network
+// selector above — same "pinned to one specific chain" pattern as
+// Suggestions and Ginger Mints. Cache-only, no live-query fallback: the
+// underlying computation (enumerating every LP position, every launchpad
+// deposit, ...) is exactly the kind of full-scan work build-cache.mjs
+// exists to do once every 30 min instead of per visitor — see that
+// script's own fetchSapphireRush() for the full methodology notes and
+// exactly what each category approximates and why.
+async function loadSapphireRush() {
+  if (sapphireRushLoaded) return;
+  sapphireRushLoaded = true;
+  const statusEl = document.getElementById("sapphireRushStatus");
+  clearStatusAlert(statusEl);
+  try {
+    const [rush, cached] = await Promise.all([
+      fetch("data/sapphire-rush.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)),
+      getCachedData("sapphire"),
+    ]);
+    if (!rush) {
+      setStatusAlert(statusEl, "Not available yet — the next scheduled refresh will pick it up.");
+      sapphireRushLoaded = false;
+      return;
+    }
+    const decimalsFor = (path) => cached?.tokenDecimals?.[path];
+    const gnsDecimals = decimalsFor(SAPPHIRE_RUSH_GNS_PATH);
+    const usdcDecimals = decimalsFor(SAPPHIRE_RUSH_USDC_PATH);
+    const ethDecimals = decimalsFor(SAPPHIRE_RUSH_ETH_PATH);
+
+    renderSapphireRushTable("gnsWhalesBody", "gnsWhalesTable", rush.gnsWhales, (r) =>
+      [formatTokenAmount(r.totalGns, gnsDecimals)]
+    );
+    renderSapphireRushTable("powerTradersBody", "powerTradersTable", rush.powerTraders, (r) =>
+      [String(r.swapCount), formatTokenAmount(r.usdcVolume, usdcDecimals)]
+    );
+    renderSapphireRushTable("lpStrategistsBody", "lpStrategistsTable", rush.lpStrategists, (r) =>
+      [formatTokenAmount(r.gnsRewardsClaimed, gnsDecimals)]
+    );
+    renderSapphireRushTable("ibcSpecialistsBody", "ibcSpecialistsTable", rush.ibcSpecialists, (r) =>
+      [formatTokenAmount(r.ethSupplied, ethDecimals)]
+    );
+
+    statusEl.textContent = `${cacheAgeNote(rush.generatedAt)} ${rush.positionsScanned} LP positions scanned.`;
+  } catch (err) {
+    sapphireRushLoaded = false;
+    setStatusAlert(statusEl, "Failed to load: " + err.message);
+  }
+}
+
+
+function renderSapphireRushTable(bodyId, tableId, rows, extraCells) {
+  const tbody = document.getElementById(bodyId);
+  const table = document.getElementById(tableId);
+  if (!rows || !rows.length) {
+    tbody.innerHTML = "";
+    table.style.display = "none";
+    return;
+  }
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td class="sapphire-rush-rank">${i + 1}</td>
+      <td><a href="${gnoscanAccountUrl(r.address, "sapphire")}" target="_blank" rel="noopener">${truncateAddress(r.address)}</a></td>
+      ${extraCells(r).map((c) => `<td>${c}</td>`).join("")}
+    </tr>
+  `).join("");
+  table.style.display = "table";
+}
 
 loadAll(currentKey);
 
