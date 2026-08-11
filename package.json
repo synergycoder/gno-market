@@ -1,0 +1,9 @@
+{
+  "name": "gno-observer",
+  "private": true,
+  "type": "module",
+  "description": "Build tooling for gno.observer (the site itself ships as plain static HTML/JS with no build step or dependencies — this package.json exists only for the social-post automation, which needs a real headless browser for screenshots).",
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}

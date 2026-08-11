@@ -1,0 +1,4 @@
+{
+  "_format": "Each entry: { id, caption, scheduledAt (ISO 8601, UTC), screenshotTab (optional — matches index.html's ?tab= values, e.g. \"sapphirerush\", \"trending\"; omit for the default landing view), status }. Status starts as \"approved\" once the user has signed off on the caption/schedule — the workflow only ever posts entries whose status is \"approved\" and whose scheduledAt has passed. It rewrites status to \"posted\" (+ postedAt, tweetId) or \"failed\" (+ lastError) afterward. Add new entries by asking Claude, or by editing this file directly and committing.",
+  "posts": []
+}
