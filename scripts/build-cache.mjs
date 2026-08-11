@@ -21,19 +21,20 @@ import path from "node:path";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "..", "data");
 
+// topaz-1 ("testnet" in index.html's own NETWORKS) is intentionally NOT
+// listed here anymore — gno.land sunset it in favor of sapphire-1 below,
+// and index.html now marks it archived: true, permanently freezing
+// data/testnet.json/.internal.json/-nft-images.json at whatever this
+// script last wrote for it. Re-adding an entry here would start scanning
+// (and changing) an archive that's meant to stay a fixed historical
+// snapshot — if topaz-1 ever needs re-enabling, index.html's archived
+// flag has to come off too, not just this.
 const NETWORKS = {
-  testnet: {
-    label: "topaz-1 (testnet)",
-    chainId: "topaz-1",
-    rpcUrl: "https://rpc.topaz.testnets.gno.land",
-    indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
-  },
-  // The current/latest gno.land testnet as of Aug 2026 — see the matching
-  // comment in index.html's own NETWORKS for the "previous testnet" note
-  // and CORS confirmation. buildNetwork() below is fully parameterized by
-  // netKey/net, so this network gets every generic scan (tokens, NFTs,
-  // deployed packages, trending, governance, social, swaps, whale watch)
-  // for free — no other code changes needed for the generic path.
+  // buildNetwork() below is fully parameterized by netKey/net, so this
+  // network gets every generic scan (tokens, NFTs, deployed packages,
+  // trending, governance, social, swaps, whale watch) for free — no
+  // other code changes needed for the generic path. RPC/indexer both
+  // confirmed live and CORS-open (access-control-allow-origin: *).
   sapphire: {
     label: "sapphire-1 (testnet)",
     chainId: "sapphire-1",

@@ -8,7 +8,13 @@
 //       recipient: "g1...",              // REQUIRED — your receiving address
 //       projectName: "My Project",       // shown in the modal header
 //       appName: "My Project",           // passed to Adena's AddEstablish (per-site whitelist name)
-//       chainId: "topaz-1",              // network the recipient address lives on
+//       chainId: "sapphire-1",           // network the recipient address lives on
+//       rpcUrl: "https://rpc.sapphire.testnets.gno.land", // pins the tx to that
+//                                         // network via Adena's networkInfo,
+//                                         // regardless of Adena's own current
+//                                         // chain — omit to skip this (old
+//                                         // behavior: signs on whatever chain
+//                                         // Adena already has selected)
 //       mountSelector: "#donateSlot",    // where to insert the trigger button
 //       presetAmounts: [1, 5, 10, 50, 100], // GNOT
 //     });
@@ -127,14 +133,23 @@
     return accountRes.data.address;
   }
 
-  async function sendDonation(fromAddress, toAddress, amountUgnot, memo) {
-    const res = await window.adena.DoContract({
+  async function sendDonation(fromAddress, toAddress, amountUgnot, memo, chainId, rpcUrl) {
+    const req = {
       messages: [{
         type: "/bank.MsgSend",
         value: { from_address: fromAddress, to_address: toAddress, amount: `${amountUgnot}ugnot` },
       }],
       memo: memo || "",
-    });
+    };
+    // Without this, the donation signs on whatever chain the user's own
+    // Adena happens to be pointed at, which may not be the one `recipient`
+    // actually lives on/is being watched on — same mismatch bug found and
+    // fixed in gno-observer's own Suggestions feature (see index.html's
+    // signMemoTx()). Only added when the host page passes an rpcUrl,
+    // keeping this backward-compatible for any integration that hasn't
+    // been updated to pass one.
+    if (rpcUrl) req.networkInfo = { chainId, rpcUrl };
+    const res = await window.adena.DoContract(req);
     if (res.status !== "success") throw new Error(res.message || "Transaction was not approved.");
     return res;
   }
@@ -209,7 +224,7 @@
         const fromAddress = await ensureAdenaConnected(config.appName);
         const amountUgnot = Math.round(selectedAmount * 1_000_000);
         const memo = modal.querySelector("#gnodonate-message").value.trim();
-        await sendDonation(fromAddress, config.recipient, amountUgnot, memo);
+        await sendDonation(fromAddress, config.recipient, amountUgnot, memo, config.chainId, config.rpcUrl);
         statusEl.textContent = "Thank you! Your donation was sent.";
         sendBtn.textContent = "Sent ✓";
       } catch (err) {
@@ -238,7 +253,8 @@
       const config = Object.assign({
         projectName: "this project",
         appName: "GnoDonate",
-        chainId: "topaz-1",
+        chainId: "sapphire-1",
+        rpcUrl: "https://rpc.sapphire.testnets.gno.land",
         presetAmounts: [1, 5, 10, 50, 100],
         mountSelector: null,
         buttonText: "💛 Donate",

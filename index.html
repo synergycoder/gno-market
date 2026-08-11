@@ -757,7 +757,7 @@
   </p>
   <div class="site-footer-actions">
     <span id="donateSlot"></span>
-    <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, testnet only">💡 Suggestions</button>
+    <button id="suggestionsLink" class="tab-link" data-tab="suggestions" type="button" title="Suggest ideas or vote on existing ones — signed on-chain via Adena, sapphire-1 only">💡 Suggestions</button>
   </div>
 </footer>
 
@@ -1112,7 +1112,7 @@
       its on-chain decimals (e.g. 5 GNS, not 5000000); a token whose decimals aren't exposed on-chain
       falls back to showing its raw units, labeled as such. Native GNOT itself never appears here —
       Gnoswap's pools require GRC20-compliant tokens, so native GNOT is traded via its 1:1 wrapped
-      form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot&chainId=topaz-1" target="_blank" rel="noopener">wugnot</a>,
+      form, <a href="https://gnoscan.io/realms/details?path=gno.land%2Fr%2Fgnoland%2Fwugnot&chainId=sapphire-1" target="_blank" rel="noopener">wugnot</a>,
       instead. Follows the network selected above, same as every other tab — Gnoswap is currently only
       deployed on testnet, so betanet will show none.</span><button class="text-collapsible-toggle" type="button">More</button></p>
     <div class="wallet-form">
@@ -1329,8 +1329,10 @@
 <div class="tab-panel" id="panel-suggestions" hidden>
   <h2>💡 Suggestions</h2>
   <p class="status text-collapsible" data-expanded="false"><span class="text-collapsible-content">Suggestions and votes are real signed transactions — a tiny memo-bearing send to a
-    dedicated collector address, submitted through your own Adena wallet on <strong>testnet only</strong>
-    (regardless of which network is selected above). Nothing is stored on this site or its cache — the
+    dedicated collector address, submitted through your own Adena wallet on <strong>sapphire-1 only</strong>
+    (regardless of which network is selected above — and regardless of whichever chain your own Adena
+    happens to be pointed at, since the request explicitly targets sapphire-1). Nothing is stored on
+    this site or its cache — the
     list below is read directly from chain history every time this page loads.</span><button class="text-collapsible-toggle" type="button">More</button></p>
 
   <div class="suggest-form">
@@ -1381,22 +1383,35 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 // not a one-time nag.
 
 const NETWORKS = {
-  testnet: {
-    label: "topaz-1 (testnet)",
-    chainId: "topaz-1",
-    rpcUrl: "https://rpc.topaz.testnets.gno.land",
-    indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
-  },
-  // The current/latest gno.land testnet as of Aug 2026 — topaz-1 above is
-  // now described as "the previous gno.land testnet" on gno.land's own
-  // faucet hub (faucet.gno.land). Both RPC and indexer confirmed live and
-  // CORS-open directly (access-control-allow-origin: *), same as topaz —
-  // no proxy needed, unlike betanet's indexer below.
+  // The current gno.land testnet, per gno.land's own faucet hub
+  // (faucet.gno.land) — topaz-1 below is now officially "the previous"
+  // one. Listed first so it's the default network for new visitors (see
+  // the network-select init below, and the one-time migration for
+  // returning visitors whose saved preference was still "testnet").
+  // Both RPC and indexer confirmed live and CORS-open directly
+  // (access-control-allow-origin: *) — no proxy needed, unlike betanet's
+  // indexer below.
   sapphire: {
     label: "sapphire-1 (testnet)",
     chainId: "sapphire-1",
     rpcUrl: "https://rpc.sapphire.testnets.gno.land",
     indexerUrl: "https://indexer.sapphire.testnets.gno.land/graphql/query",
+  },
+  // Sunset in favor of sapphire-1 above — archived: true freezes this
+  // network permanently at whatever scripts/build-cache.mjs last wrote
+  // for it (that script no longer scans topaz-1 at all, so data/testnet*
+  // won't change again either). abciQuery/graphqlQuery both refuse to
+  // issue a real request for an archived network, so every feature that
+  // would otherwise try a live query (Force Refresh, Scan Wallet, the
+  // live block-height check, ...) surfaces a clear "archived" message
+  // through its own existing error handling instead of hitting a chain
+  // that may eventually stop responding.
+  testnet: {
+    label: "topaz-1 (deprecated — archive only)",
+    chainId: "topaz-1",
+    rpcUrl: "https://rpc.topaz.testnets.gno.land",
+    indexerUrl: "https://indexer.topaz.testnets.gno.land/graphql/query",
+    archived: true,
   },
   betanet: {
     label: "gnoland1 (betanet)",
@@ -1437,7 +1452,14 @@ for (const [key, net] of Object.entries(NETWORKS)) {
 const NETWORK_STORAGE_KEY = "gnoObserver:selectedNetwork";
 try {
   const savedNetwork = localStorage.getItem(NETWORK_STORAGE_KEY);
-  if (savedNetwork && NETWORKS[savedNetwork]) select.value = savedNetwork;
+  // A returning visitor's saved "testnet" almost certainly came from it
+  // being the default network before sapphire-1 took over that role, not
+  // a deliberate choice to view an archive — treat it as unset rather
+  // than silently landing them on frozen data every time. Someone who
+  // genuinely wants the archive can still pick it from the dropdown.
+  if (savedNetwork && NETWORKS[savedNetwork] && !NETWORKS[savedNetwork].archived) {
+    select.value = savedNetwork;
+  }
 } catch {
   // storage unavailable — just falls back to the default (first) option
 }
@@ -1683,7 +1705,21 @@ document.getElementById("suggestionsLink").addEventListener("click", () => {
 
 // ---------- low-level chain access ----------
 
+// Archived networks (currently just topaz-1 — sunset in favor of
+// sapphire-1) never get a real network request, from anywhere in the
+// site: every live-query feature (Force Refresh, Scan Wallet, the live
+// block-height check, NFT gallery metadata, etc.) ultimately calls
+// through abciQuery/graphqlQuery, so guarding these two chokepoints is
+// enough to make the whole network permanently read-only-from-cache
+// without having to special-case every individual call site.
+function assertNotArchived(net) {
+  if (net.archived) {
+    throw new Error(`${net.label} is archived — showing its last snapshot only, no live queries.`);
+  }
+}
+
 async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
+  assertNotArchived(net);
   const data = btoa(unescape(encodeURIComponent(dataStr)));
   const url = `${net.rpcUrl}/abci_query?path=${encodeURIComponent('"' + path + '"')}&data=${encodeURIComponent('"' + data + '"')}`;
   const controller = new AbortController();
@@ -1724,6 +1760,7 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
 }
 
 async function graphqlQuery(net, query, timeoutMs = 20000) {
+  assertNotArchived(net);
   // betanet routes through our own proxy (see NETWORKS.betanet's
   // indexerProxyUrl comment) since indexer.gno.land itself blocks
   // browser requests; testnet's indexer allows them directly, so it
@@ -2566,7 +2603,7 @@ function renderWalletNftGallery(collections) {
 // ---------- NFT Collections: Ginger NFT Mints sub-tab ----------
 // Both collections are betanet-only (same creator, two realms) — always
 // queried against betanet regardless of the network selector above, same
-// pattern as Suggestions being pinned to testnet. Live, not precomputed:
+// pattern as Suggestions being pinned to sapphire-1. Live, not precomputed:
 // unlike the main Collections table (which reads the 30-min site-wide
 // cache), this is a narrow, scoped query — exactly the shape the
 // betanet CORS proxy was built for — so there's no reason to make this
@@ -3761,7 +3798,7 @@ adenaConnectBtns().forEach(btn => {
 });
 autoReconnectAdena();
 
-// ---------- Suggestions: on-chain feature requests + voting, testnet only ----------
+// ---------- Suggestions: on-chain feature requests + voting, sapphire-1 only ----------
 // (constants + in-flight flags live earlier in the script, right after
 // NETWORKS — activateTab()'s tab-restoration on page load can call
 // loadSuggestions() before this point runs, and referencing a `let`/`const`
@@ -3791,6 +3828,13 @@ async function signMemoTx(fromAddress, memo) {
       value: { from_address: fromAddress, to_address: SUGGESTIONS_ADDRESS, amount: SUGGESTION_SEND_AMOUNT },
     }],
     memo,
+    // Explicitly targets sapphire-1 regardless of whichever chain Adena
+    // itself currently has selected — same fix, same reasoning, as the
+    // Pixel feature's own placePixelViaAdena(): without this, a
+    // suggestion/vote signs on whatever network the user's wallet
+    // happens to be pointed at, which loadSuggestions() (always reading
+    // from sapphire-1) would then never see.
+    networkInfo: { chainId: NETWORKS.sapphire.chainId, rpcUrl: NETWORKS.sapphire.rpcUrl },
   });
   if (res.status !== "success") throw new Error(res.message || "Transaction was not approved.");
   return res;
@@ -3858,7 +3902,7 @@ async function loadSuggestions() {
   clearStatusAlert(statusEl);
   statusEl.textContent = "Loading…";
   try {
-    const net = NETWORKS.testnet; // suggestions always live on testnet
+    const net = NETWORKS.sapphire; // suggestions always live on sapphire-1
     const query = `query {
       getTransactions(where: {
         success: { eq: true },
@@ -3922,7 +3966,7 @@ function renderSuggestions(rows) {
       <div class="suggestion-text">
         ${escapeHtml(r.text)}
         <div class="suggestion-meta">by ${truncateAddress(r.from)} · ${formatDate(r.blockTime)} ·
-          <a href="${gnoscanTxUrl(r.hash, "testnet")}" target="_blank" rel="noopener">view tx ↗</a></div>
+          <a href="${gnoscanTxUrl(r.hash, "sapphire")}" target="_blank" rel="noopener">view tx ↗</a></div>
       </div>
       <button class="suggestion-vote" data-hash="${escapeHtml(r.hash)}"
         title="Vote for this suggestion — signs a small on-chain transaction via Adena">
@@ -4208,9 +4252,9 @@ async function placePixelViaAdena(x, y) {
     const address = await ensureAdenaConnected();
     // networkInfo explicitly targets sapphire-1 regardless of whichever
     // chain Adena itself currently has selected -- this realm only
-    // exists on sapphire-1, and the existing Suggestions feature (which
-    // relies on the user having manually pointed Adena at testnet
-    // themselves) is exactly the failure mode this avoids.
+    // exists on sapphire-1. Suggestions (signMemoTx()) hit exactly this
+    // failure mode before it got the same explicit networkInfo fix --
+    // see that function's own comment.
     const res = await window.adena.DoContract({
       messages: [{
         type: "/vm.m_call",
@@ -4304,6 +4348,10 @@ function mdToHtmlSafe(markdown) {
 
 async function showSnapshotHeight(net) {
   const el = document.getElementById("refreshStatus");
+  if (net.archived) {
+    el.textContent = `${net.label.replace(/\s*\(.*\)$/, "")} is archived — showing its last snapshot permanently, no live updates.`;
+    return;
+  }
   try {
     const data = await graphqlQuery(net, "query { latestBlockHeight }");
     const height = data.latestBlockHeight;
@@ -4463,7 +4511,7 @@ function tokenSymbol(path) {
 // OTHER chain). Every link defaults to whichever network is currently
 // selected on this site, but takes an explicit netKey override for
 // content that's pinned to one specific chain regardless of the
-// selector (Suggestions live on testnet only, see loadSuggestions()).
+// selector (Suggestions live on sapphire-1 only, see loadSuggestions()).
 function gnoscanTxUrl(hash, netKey = currentKey) {
   const chainId = NETWORKS[netKey].chainId;
   return `https://gnoscan.io/transactions/details?chainId=${encodeURIComponent(chainId)}&txhash=${encodeURIComponent(hash)}`;
@@ -5327,6 +5375,12 @@ async function loadDashboard(netKey) {
 
 function loadAll(key) {
   const net = NETWORKS[key];
+  // Archived networks never get a live query at all (see abciQuery/
+  // graphqlQuery's own guard) — disabling the button up front avoids a
+  // pointless click-then-fail cycle, on top of that backstop.
+  const forceRefreshBtn = document.getElementById("forceRefreshBtn");
+  forceRefreshBtn.disabled = !!net.archived;
+  forceRefreshBtn.title = net.archived ? "Not available for archived networks" : "Force refresh";
   loadRecentlyDeployed(net, key);
   loadTokens(net, key);
   loadNfts(net, key);
@@ -5404,7 +5458,8 @@ GnoDonate.init({
   recipient: "g1ur08yslxv9z4eywcy5dq83w0hkgm9nhjak4d0n",
   projectName: "Gno.Observer",
   appName: "Gno.Observer",
-  chainId: NETWORKS.testnet.chainId,
+  chainId: NETWORKS.sapphire.chainId,
+  rpcUrl: NETWORKS.sapphire.rpcUrl,
   mountSelector: "#donateSlot",
   presetAmounts: [1, 5, 10, 50, 100],
 });
