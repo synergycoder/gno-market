@@ -167,6 +167,12 @@
       "governance": false,
       "social": false,
       "detectionVersion": 2
+    },
+    "gno.land/r/aib/ibc/core": {
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2
     }
   },
   "realmImports": {
@@ -791,6 +797,101 @@
       "gno.land/p/nt/seqid/v0",
       "gno.land/r/demo/defi/grc20reg",
       "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/aib/ibc/apps/testing/grc20test": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/aib/ibc/apps/testing": [
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/lightclients/cometbls": [
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/onbloc/ibc/union/lightclient/cometbls",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/core"
+    ],
+    "gno.land/r/aib/ibc/core": [
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/host",
+      "gno.land/p/aib/ibc/lightclient",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/aib/ibc/lightclient/tendermint",
+      "gno.land/p/aib/jsonpage",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/onbloc/json"
+    ],
+    "gno.land/r/onbloc/ibc/union/access": [
+      "gno.land/p/onbloc/access/manager",
+      "gno.land/p/onbloc/ibc/union/types"
+    ],
+    "gno.land/r/aib/ibc/apps/transfer": [
+      "gno.land/p/aib/ibc/app",
+      "gno.land/p/aib/ibc/types",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/aib/ibc/core",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/aib/ibc/host",
+      "gno.land/p/onbloc/json",
+      "gno.land/p/aib/encoding/proto",
+      "gno.land/p/onbloc/int256",
+      "gno.land/p/aib/ibc/lightclient",
+      "gno.land/p/aib/jsonpage",
+      "gno.land/p/moul/txlink",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/mux/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/lightclients/statelensics23mpt": [
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/onbloc/ibc/union/lightclient/state_lens/ics23_mpt",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/core"
+    ],
+    "gno.land/r/onbloc/ibc/union/core/v1": [
+      "gno.land/p/onbloc/ibc/union/app",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/core",
+      "gno.land/p/onbloc/ibc/union/lightclient"
+    ],
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1": [
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/p/onbloc/ibc/union/zkgm",
+      "gno.land/p/onbloc/math/uint256",
+      "gno.land/r/onbloc/ibc/union/core",
+      "gno.land/r/demo/defi/grc20reg",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm",
+      "gno.land/p/onbloc/ibc/union/zkgm/tokenbucket",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/fqname/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/core": [
+      "gno.land/p/onbloc/access/manager",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/r/onbloc/ibc/union/access",
+      "gno.land/p/onbloc/ibc/union/app",
+      "gno.land/p/onbloc/ibc/union/lightclient",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/nt/seqid/v0"
+    ],
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm": [
+      "gno.land/p/onbloc/ibc/union/zkgm/tokenbucket",
+      "gno.land/p/onbloc/math/uint256",
+      "gno.land/r/onbloc/ibc/union/access",
+      "gno.land/p/onbloc/ibc/union/app",
+      "gno.land/p/onbloc/ibc/union/types",
+      "gno.land/p/onbloc/ibc/union/zkgm",
+      "gno.land/r/onbloc/ibc/union/core",
+      "gno.land/p/nt/bptree/v0",
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/onbloc/access/manager"
     ]
   },
   "txPackages": {
@@ -1585,6 +1686,369 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-08-11T10:23:06.30161532Z"
+    },
+    "gno.land/p/onbloc/access/manager": {
+      "path": "gno.land/p/onbloc/access/manager",
+      "blockHeight": 83094,
+      "hash": "tC4RYRHnHoBq94y0JsZ13bLrV5ITL9Z/b8pB2qCLJzI=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:28:51.930487299Z"
+    },
+    "gno.land/p/onbloc/deps/encoding": {
+      "path": "gno.land/p/onbloc/deps/encoding",
+      "blockHeight": 83095,
+      "hash": "IhvJiixtfALEIlWLTtwZjIsB4uPdQtGnWadG1gjc+dg=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:28:55.332490629Z"
+    },
+    "gno.land/p/onbloc/deps/encoding/proto": {
+      "path": "gno.land/p/onbloc/deps/encoding/proto",
+      "blockHeight": 83096,
+      "hash": "BL6ANB32iiHljxPoZrM3I+fxLnOh4butuiOPNNB1iNs=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:28:58.653127454Z"
+    },
+    "gno.land/p/onbloc/encoding/rlp": {
+      "path": "gno.land/p/onbloc/encoding/rlp",
+      "blockHeight": 83097,
+      "hash": "9lICe67CpKifTPU8u/FpvsEcyg4KoIsF/CEZYYi2mWM=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:02.091708784Z"
+    },
+    "gno.land/p/onbloc/deps/ibc/host": {
+      "path": "gno.land/p/onbloc/deps/ibc/host",
+      "blockHeight": 83099,
+      "hash": "5h58HScbzFIJV4xvAKOxXtc20lXWdmdEUwf4Wr8ZoBs=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:09.157554471Z"
+    },
+    "gno.land/p/onbloc/deps/ics23": {
+      "path": "gno.land/p/onbloc/deps/ics23",
+      "blockHeight": 83100,
+      "hash": "NnHjR41tCkP97utQb4HVL6Y7yXUuxmQJvvPnq6Ka5nk=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:12.775488399Z"
+    },
+    "gno.land/p/onbloc/verifier/evm/mpt": {
+      "path": "gno.land/p/onbloc/verifier/evm/mpt",
+      "blockHeight": 83101,
+      "hash": "ked11Vl0Euqh2yISIadg4Pxr1zi+kxKxWx/P2Y7Wcfg=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:16.229786296Z"
+    },
+    "gno.land/p/onbloc/encoding/abi": {
+      "path": "gno.land/p/onbloc/encoding/abi",
+      "blockHeight": 83102,
+      "hash": "Zm6ogLQLKcgpbQmv4CuvTSvYM0IZd0us3jAHToVuQaA=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:19.57037692Z"
+    },
+    "gno.land/p/onbloc/ibc/union/zkgm/tokenbucket": {
+      "path": "gno.land/p/onbloc/ibc/union/zkgm/tokenbucket",
+      "blockHeight": 83103,
+      "hash": "X0sjVV2tOxZQhGjFJdaxQ8GkKp8j32t+uA1nuhBfsAE=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:23.109542766Z"
+    },
+    "gno.land/p/onbloc/deps/ibc/types": {
+      "path": "gno.land/p/onbloc/deps/ibc/types",
+      "blockHeight": 83104,
+      "hash": "KOY74wAfjXiIzF03bMe5Zdt/bkdfdeRm9MjAtmb7AUA=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:26.463370532Z"
+    },
+    "gno.land/p/onbloc/verifier/evm/storage": {
+      "path": "gno.land/p/onbloc/verifier/evm/storage",
+      "blockHeight": 83105,
+      "hash": "51SlDE7gazL0xbjBLvBeP8dHKaaAr9Kv9YJXZBcc598=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:29.872154065Z"
+    },
+    "gno.land/p/onbloc/ibc/union/types": {
+      "path": "gno.land/p/onbloc/ibc/union/types",
+      "blockHeight": 83106,
+      "hash": "K1ya+BLjWedCaTL4vdb082tRiaKBmA+Ld67icqNRwAE=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:33.379914403Z"
+    },
+    "gno.land/p/onbloc/ibc/union/app": {
+      "path": "gno.land/p/onbloc/ibc/union/app",
+      "blockHeight": 83107,
+      "hash": "VrsbqAh6ntEEX/3kWnNZW71B0NUuSS3p7Vv41RKVz+k=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:36.775755457Z"
+    },
+    "gno.land/p/onbloc/ibc/union/lightclient": {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient",
+      "blockHeight": 83108,
+      "hash": "I3adyTDR9MYhwluwnupXUhcLgMUyiBFsjEkVJdc+ZBk=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:40.158621904Z"
+    },
+    "gno.land/p/onbloc/ibc/union/zkgm": {
+      "path": "gno.land/p/onbloc/ibc/union/zkgm",
+      "blockHeight": 83109,
+      "hash": "gD7yfRiluX+fivrxZEwirO5lvVhQ4T/BB0Y33T1cg7I=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:43.655888279Z"
+    },
+    "gno.land/r/onbloc/ibc/union/access": {
+      "path": "gno.land/r/onbloc/ibc/union/access",
+      "blockHeight": 83110,
+      "hash": "IdPUIzyG8Q4oX9q9LIIC6Qz8KCYLnED7l9bdH1vK/zI=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:47.225141328Z"
+    },
+    "gno.land/p/onbloc/ibc/union/lightclient/cometbls": {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient/cometbls",
+      "blockHeight": 83111,
+      "hash": "D6dSC5+JXUcG7H/7BwpH8HsB7Cl9crmVBKsFYPcck9g=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:50.602262765Z"
+    },
+    "gno.land/p/onbloc/ibc/union/lightclient/state_lens/ics23_mpt": {
+      "path": "gno.land/p/onbloc/ibc/union/lightclient/state_lens/ics23_mpt",
+      "blockHeight": 83112,
+      "hash": "DLycNbqhYEC3tpcui9Cn+LpnhMaom4oSZSnVPZcAN2E=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:54.01262011Z"
+    },
+    "gno.land/r/onbloc/ibc/union/core": {
+      "path": "gno.land/r/onbloc/ibc/union/core",
+      "blockHeight": 83113,
+      "hash": "dy76auOc7tcEykS8KCHu+eem9f2ThKtzWYazyTTn/6k=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:29:57.607392823Z"
+    },
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm": {
+      "path": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm",
+      "blockHeight": 83114,
+      "hash": "SJ9VMzvgfXuepcydvqQ6FwYTFc8l08tcJiB7jp2lN2I=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:30:01.047277517Z"
+    },
+    "gno.land/r/onbloc/ibc/union/core/v1": {
+      "path": "gno.land/r/onbloc/ibc/union/core/v1",
+      "blockHeight": 83115,
+      "hash": "IK35RrrsV9O8+hIgWZ5/b64fqsOX+R6Tviodxp0wFqM=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:30:04.43028192Z"
+    },
+    "gno.land/r/onbloc/ibc/union/lightclients/cometbls": {
+      "path": "gno.land/r/onbloc/ibc/union/lightclients/cometbls",
+      "blockHeight": 83116,
+      "hash": "5JD57I0k54fpk8wF4h6/gSjh9G8FXiS9zJAPAF/npus=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:30:08.081166998Z"
+    },
+    "gno.land/r/onbloc/ibc/union/lightclients/statelensics23mpt": {
+      "path": "gno.land/r/onbloc/ibc/union/lightclients/statelensics23mpt",
+      "blockHeight": 83117,
+      "hash": "/VXh+09unPaRDCgpNv9c5vxV1OjJ3U5q4rgwt7zCO+Y=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:30:11.477816836Z"
+    },
+    "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1": {
+      "path": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm/v1",
+      "blockHeight": 83118,
+      "hash": "SF3q6vh14/5RKnV5kZG338pjels4m9FVlLPknix4UxQ=",
+      "creator": "g18839tls6c4w9kkxtzthjst4qdcm4lgyntvtqvs",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T11:30:14.855948601Z"
+    },
+    "gno.land/p/aib/ibc/testing": {
+      "path": "gno.land/p/aib/ibc/testing",
+      "blockHeight": 84313,
+      "hash": "GffTHm0c1ZIOLcoh9T7smo/iH66ITSyyXLUNzNnnrw8=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:07.153820118Z"
+    },
+    "gno.land/p/aib/ibc/types": {
+      "path": "gno.land/p/aib/ibc/types",
+      "blockHeight": 84314,
+      "hash": "XNge2omoMrmw9udKfHMXg9U57PFHItaWAvwuiCVOaio=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:10.510400851Z"
+    },
+    "gno.land/p/aib/ibc/app": {
+      "path": "gno.land/p/aib/ibc/app",
+      "blockHeight": 84315,
+      "hash": "s5prxw4pAIN/m/UKVhWyShnMZ6gHmaOgIG+aARmvK8E=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:13.841611671Z"
+    },
+    "gno.land/p/aib/ibc/lightclient": {
+      "path": "gno.land/p/aib/ibc/lightclient",
+      "blockHeight": 84316,
+      "hash": "W1wVXX3SF+OX81LWizWrHBparCwwwnBJHUHuOovz0U4=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:17.417940467Z"
+    },
+    "gno.land/p/aib/ibc/lightclient/tendermint": {
+      "path": "gno.land/p/aib/ibc/lightclient/tendermint",
+      "blockHeight": 84318,
+      "hash": "+F55jt/j1VGO5/0m6f3/BQXMEoaxufAB4u1q0P91gPM=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:24.061527991Z"
+    },
+    "gno.land/p/aib/ibc/lightclient/tendermint/testing": {
+      "path": "gno.land/p/aib/ibc/lightclient/tendermint/testing",
+      "blockHeight": 84319,
+      "hash": "f4vLWuSRtL6UFPYUbLKWjOLZO+9XwjAbmyDa3jqUiX4=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:27.597022295Z"
+    },
+    "gno.land/r/aib/ibc/apps/testing/grc20test": {
+      "path": "gno.land/r/aib/ibc/apps/testing/grc20test",
+      "blockHeight": 84320,
+      "hash": "C/O1Mdynu+fU7xSRMlS1+olo/AyUdHdEATgTdyDAVMM=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:30.970106822Z"
+    },
+    "gno.land/r/aib/ibc/apps/testing": {
+      "path": "gno.land/r/aib/ibc/apps/testing",
+      "blockHeight": 84321,
+      "hash": "cqP/plC/PDWFYAi0EDuy86ynNZF1hfcRoEfAZ5K12c8=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:34.348013135Z"
+    },
+    "gno.land/r/aib/ibc/apps/transfer": {
+      "path": "gno.land/r/aib/ibc/apps/transfer",
+      "blockHeight": 84325,
+      "hash": "Fjh0Ijrp3guAfMsoWBAWfao0BtTDt2ZfaIELkBEzZ7g=",
+      "creator": "g12j6x2cnpkvz83l6a5lhfw22703kwwpknpfnt70",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-11T12:40:48.67094188Z"
     }
   },
   "swapActivity": {
@@ -1648,9 +2112,89 @@
         "amountIn": "1000000",
         "amountOut": "99678",
         "blockTime": "2026-08-11T10:17:01.564914116Z"
+      },
+      "94nVJm6M4s9ndd6zwm3Ui/O31EvqnCKGkI1pD9TiOhE=#0": {
+        "hash": "94nVJm6M4s9ndd6zwm3Ui/O31EvqnCKGkI1pD9TiOhE=",
+        "blockHeight": 83553,
+        "caller": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "tokenIn": "gno.land/r/gnoswap/test_token/test_usdc.USDC",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "1995071251",
+        "amountOut": "199286677",
+        "blockTime": "2026-08-11T11:55:56.788244058Z"
+      },
+      "cmnBSb8m/9/Dwy9Gr1ONb9hFjs/MJEwnCxApqzRTCL8=#0": {
+        "hash": "cmnBSb8m/9/Dwy9Gr1ONb9hFjs/MJEwnCxApqzRTCL8=",
+        "blockHeight": 83683,
+        "caller": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "450000000",
+        "amountOut": "44838473",
+        "blockTime": "2026-08-11T12:03:28.201643778Z"
+      },
+      "hi90VLsHOE1scNAearxLBZ/nO7frhXbUAZa6Xw9e8eU=#0": {
+        "hash": "hi90VLsHOE1scNAearxLBZ/nO7frhXbUAZa6Xw9e8eU=",
+        "blockHeight": 84078,
+        "caller": "g1kcdd3n0d472g2p5l8svyg9t0wq6h5857nq992f",
+        "tokenIn": "gno.land/r/gnoswap/test_token/test_usdc.USDC",
+        "tokenOut": "gno.land/r/gnoswap/test_token/test_dai.DAI",
+        "amountIn": "10000000",
+        "amountOut": "9984000",
+        "blockTime": "2026-08-11T12:26:43.507987159Z"
+      },
+      "zT1h+IL0AVMLsH943MpSvfKgP0fkHykzYezvHMbXdtU=#0": {
+        "hash": "zT1h+IL0AVMLsH943MpSvfKgP0fkHykzYezvHMbXdtU=",
+        "blockHeight": 85510,
+        "caller": "g169d3un6y4sqxxmzwt7le3l5pawlfrhg5aa3xvp",
+        "tokenIn": "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm.USDT",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "1000000000",
+        "amountOut": "99819525",
+        "blockTime": "2026-08-11T13:47:46.224469948Z"
+      },
+      "2aiH3cVc4ytUaK7d3B79pNKzP0Qr9mBuD5eZwF5iS3k=#0": {
+        "hash": "2aiH3cVc4ytUaK7d3B79pNKzP0Qr9mBuD5eZwF5iS3k=",
+        "blockHeight": 85967,
+        "caller": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "100000000",
+        "amountOut": "9961291",
+        "blockTime": "2026-08-11T14:14:00.520418171Z"
+      },
+      "vrfQ1aq2z6bqhwzawje7cdp+xTn6G3Mb4Ok4gyKCur8=#0": {
+        "hash": "vrfQ1aq2z6bqhwzawje7cdp+xTn6G3Mb4Ok4gyKCur8=",
+        "blockHeight": 86313,
+        "caller": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/test_token/test_usdc.USDC",
+        "amountIn": "100000000",
+        "amountOut": "99623594",
+        "blockTime": "2026-08-11T14:34:07.408187935Z"
+      },
+      "FZcyMoXowm5mCNdb3+USKtd5amH50Nr7S57COqvBqHs=#0": {
+        "hash": "FZcyMoXowm5mCNdb3+USKtd5amH50Nr7S57COqvBqHs=",
+        "blockHeight": 86326,
+        "caller": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/gns.GNS",
+        "amountIn": "50000000",
+        "amountOut": "4980033",
+        "blockTime": "2026-08-11T14:34:55.530193137Z"
+      },
+      "b5LrxmPRX6u+ePPIdeQJDAjeEvU/g0IEy+kRSyD7RY4=#0": {
+        "hash": "b5LrxmPRX6u+ePPIdeQJDAjeEvU/g0IEy+kRSyD7RY4=",
+        "blockHeight": 86333,
+        "caller": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
+        "tokenIn": "gno.land/r/gnoland/wugnot.wugnot",
+        "tokenOut": "gno.land/r/gnoswap/test_token/test_usdc.USDC",
+        "amountIn": "50000000",
+        "amountOut": "49808031",
+        "blockTime": "2026-08-11T14:35:19.260274075Z"
       }
     },
-    "lastHeight": 81848
+    "lastHeight": 86333
   },
   "faucetDripsActivity": {
     "drips": [
@@ -2493,8 +3037,190 @@
         "blockTime": "2026-08-11T11:12:00.521854215Z",
         "to": "g14dwr0qm5j054r9jpfkv0kwdn3z4ptcx9vn8kj9",
         "amount": 300000000
+      },
+      {
+        "hash": "3KEe913PUVV7FAGHM8px4SYFogJOGPoQf8OJ9moSFjE=",
+        "blockHeight": 82841,
+        "blockTime": "2026-08-11T11:13:54.103594167Z",
+        "to": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
+        "amount": 300000000
+      },
+      {
+        "hash": "vXhJon6ZTjaoTlb5U2yYBsTnxjY1JMhbu14g8Wd/eOQ=",
+        "blockHeight": 83092,
+        "blockTime": "2026-08-11T11:28:44.821758746Z",
+        "to": "g1fnxskhnj9fzumvklpewt2pzx03yhaswp63f35d",
+        "amount": 100000000
+      },
+      {
+        "hash": "AFPS22P3bx3r/WmPjEzQaPrP+R3gG75dQes6PkhTJnQ=",
+        "blockHeight": 83137,
+        "blockTime": "2026-08-11T11:31:22.872960133Z",
+        "to": "g1ux6cj99sge5ew74e9aw5e7c7ugpa29a72hmhra",
+        "amount": 100000000
+      },
+      {
+        "hash": "KQOR6gAytfGb1ZWlD8sBVlNoIBMAxHvWr7sL/dpB0Es=",
+        "blockHeight": 83289,
+        "blockTime": "2026-08-11T11:40:21.474627611Z",
+        "to": "g1geep7yqmgcvexukkfxe982pvyu98mtcj0wrhp4",
+        "amount": 100000000
+      },
+      {
+        "hash": "hksSmscOmmjy5pjP/mGWsNGSGnIZ70Am/NQMXbt0lN0=",
+        "blockHeight": 83440,
+        "blockTime": "2026-08-11T11:49:17.685291785Z",
+        "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "amount": 300000000
+      },
+      {
+        "hash": "qlPF3ziSYL5oHmDk/v8iRiMKwGImW/HyAZ5ptVCTAX0=",
+        "blockHeight": 83519,
+        "blockTime": "2026-08-11T11:53:49.748996109Z",
+        "to": "g1npaccm9xucl696fns8j7na44fmeucduflh59uu",
+        "amount": 100000000
+      },
+      {
+        "hash": "tyPuQNEFsx7cg7rf4cRutOKCUfSXrnTK+oN86S0zOTE=",
+        "blockHeight": 83640,
+        "blockTime": "2026-08-11T12:01:04.787984543Z",
+        "to": "g159qmqn8mdnz4rsvycxh7xnw6h055kj976m2dyg",
+        "amount": 300000000
+      },
+      {
+        "hash": "5hTp9ZPFMrRh+0lckzHtGghI9+ifq0O6eoqdDqaI2Vo=",
+        "blockHeight": 83710,
+        "blockTime": "2026-08-11T12:05:02.185996334Z",
+        "to": "g1pd2jqrgc0hwsx3evqk8lakvz7y89zkx4nc78g0",
+        "amount": 100000000
+      },
+      {
+        "hash": "rS+nvgRXrR2oNS5qui2gGYLoBLflLtCxHkeiQtiokKs=",
+        "blockHeight": 83819,
+        "blockTime": "2026-08-11T12:11:23.008498834Z",
+        "to": "g1pskxvnzkawh4hze3tdn8u7jj59pcs4ukku7fv5",
+        "amount": 300000000
+      },
+      {
+        "hash": "LC5IuBf+gDrEYXjgmkjJXtrNE8/GK2GtwyOnDiSImsw=",
+        "blockHeight": 83870,
+        "blockTime": "2026-08-11T12:14:26.629032475Z",
+        "to": "g1nez986lpnmyxcrgdzm4kw5l2375hdwvytfujc8",
+        "amount": 100000000
+      },
+      {
+        "hash": "iYGXlzN1cOci0zdQW0NLNmkxN+gV6rXi/j9jZsHvbts=",
+        "blockHeight": 84265,
+        "blockTime": "2026-08-11T12:37:24.698896434Z",
+        "to": "g18dw5qfv2zlh372hh3wvdv9k4ywu7jcgmrnnsep",
+        "amount": 100000000
+      },
+      {
+        "hash": "cWVKrtztHo9bhR89+aZ0dGNFB3pXUrtrKiXdRIjAgMA=",
+        "blockHeight": 84335,
+        "blockTime": "2026-08-11T12:41:23.250923009Z",
+        "to": "g1pwpz0acvw0mc0clr4kknedt94efhwzj86upn5q",
+        "amount": 300000000
+      },
+      {
+        "hash": "1GP6jELYO+BmvfBU2EmGJTKuIan5cGhUcwwjwltfY84=",
+        "blockHeight": 84342,
+        "blockTime": "2026-08-11T12:41:46.415005035Z",
+        "to": "g1u86nekvlf7ppehkf0a6zpdwth5fvh0uljv7x2l",
+        "amount": 300000000
+      },
+      {
+        "hash": "aH16MrPVTanPMpkvL7zhrR0Y84Ti1W/9m72ijf2pNpg=",
+        "blockHeight": 84449,
+        "blockTime": "2026-08-11T12:47:45.481334783Z",
+        "to": "g1arw7msrsupe436spp4knv3pnp0n3gn4vjeksmt",
+        "amount": 300000000
+      },
+      {
+        "hash": "1lXfPFOnM7w4PYN0KZbu4Hs5DUw6xoYmU2w13MNTUeM=",
+        "blockHeight": 84660,
+        "blockTime": "2026-08-11T12:59:35.752771291Z",
+        "to": "g1f363suf6h7trgyshs5gmf80f2ee9lfzjs3hr03",
+        "amount": 300000000
+      },
+      {
+        "hash": "ycI/VN2/C4eo72UVfEf7bo2X+XKFOcM5DVE7olEmLcA=",
+        "blockHeight": 84993,
+        "blockTime": "2026-08-11T13:18:13.015564268Z",
+        "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "amount": 300000000
+      },
+      {
+        "hash": "1R69URm6XQj0/eXPWQvNqEJsQVMn8pr0CKeSems9rmQ=",
+        "blockHeight": 85185,
+        "blockTime": "2026-08-11T13:29:10.594352898Z",
+        "to": "g1apx2ktj0tc7gqzaqtgl9xluflnqehgpqla0anv",
+        "amount": 300000000
+      },
+      {
+        "hash": "aqscHChqB7VAQYkLrAO0R6V5vC/egiVSKyYZ7wLZKig=",
+        "blockHeight": 85188,
+        "blockTime": "2026-08-11T13:29:20.988796649Z",
+        "to": "g1k4kum5pp4r297yx9v868j9578t6de5mm2atd2h",
+        "amount": 100000000
+      },
+      {
+        "hash": "CwDL8mu0awMJJn6xJvISAEUhsScDVH2typVA6Ru9etY=",
+        "blockHeight": 85500,
+        "blockTime": "2026-08-11T13:47:11.469507219Z",
+        "to": "g1z360harzpshhdnlrdgj5ljkx2aeckzavkyl9g0",
+        "amount": 300000000
+      },
+      {
+        "hash": "S7rPHeqcmcRPqbmylM42nB82crOEedi8EWPjJ8d6a9U=",
+        "blockHeight": 85942,
+        "blockTime": "2026-08-11T14:12:35.58293919Z",
+        "to": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
+        "amount": 300000000
+      },
+      {
+        "hash": "dEpqpwnOEFUqi3aeQTH4pvnjaCYoIDr4syVf//aB2Ys=",
+        "blockHeight": 85969,
+        "blockTime": "2026-08-11T14:14:09.386743576Z",
+        "to": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+        "amount": 300000000
+      },
+      {
+        "hash": "pDSc6sQAVwuEis5spi5LmOJfgrsUwsC+J/NrNeti0xE=",
+        "blockHeight": 86284,
+        "blockTime": "2026-08-11T14:32:26.6888844Z",
+        "to": "g18lnmr5td4g5td0w0e3cmt5lvgd8xwzekat0dhy",
+        "amount": 100000000
+      },
+      {
+        "hash": "pHMVdpOnJSH0NDIGM+DeWVTNpr87gqVu2vQxCbCwrjA=",
+        "blockHeight": 86366,
+        "blockTime": "2026-08-11T14:37:14.181888297Z",
+        "to": "g1nqvsxzcgagsps3qe4ffs0stxxzxxaj2nmuem07",
+        "amount": 100000000
+      },
+      {
+        "hash": "NNO3bstiBl/wju4VQrQ/7ntEN3QsQNBvCoUALInvvmE=",
+        "blockHeight": 86475,
+        "blockTime": "2026-08-11T14:43:30.916309051Z",
+        "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+        "amount": 300000000
+      },
+      {
+        "hash": "sJXOrkB1rwtt64zNqEc9Zk358IMeJTkm4o6PvIE/Qqs=",
+        "blockHeight": 86492,
+        "blockTime": "2026-08-11T14:44:33.03824953Z",
+        "to": "g16mldrfu90pe5r97cjm3xk02m7a3d0z8g9g3r75",
+        "amount": 300000000
+      },
+      {
+        "hash": "kRVgMqyVU53KmxieieZo+dhFGwOgJcWP1d1k1wJQjU8=",
+        "blockHeight": 86513,
+        "blockTime": "2026-08-11T14:45:44.808048879Z",
+        "to": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 82807
+    "lastHeight": 86513
   }
 }
