@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-11T22:27:48.505Z",
+  "generatedAt": "2026-08-12T04:30:24.689Z",
   "gnsWhales": [
     {
       "address": "g1em9s40nfrwd2aqn9ypjv7d9x9z9c8uk5uxrza9",
-      "totalGns": 20103362897946
+      "totalGns": 20103696184687
     },
     {
       "address": "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04",
@@ -15,14 +15,19 @@
     },
     {
       "address": "g1dexaf6aqkkyr9yfy9d5up69lsn7ra80af34g5v",
-      "totalGns": 731690363816
+      "totalGns": 731817131327
     },
     {
       "address": "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3",
-      "totalGns": 276897032887
+      "totalGns": 395002088046
     }
   ],
   "powerTraders": [
+    {
+      "address": "g1uhsq7qat4l345hkw9f2g5wpm6pnncmrju9p5mu",
+      "swapCount": 26,
+      "usdcVolume": 7040135017
+    },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
       "swapCount": 3,
@@ -30,8 +35,8 @@
     },
     {
       "address": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
-      "swapCount": 70,
-      "usdcVolume": 1992887218
+      "swapCount": 79,
+      "usdcVolume": 3956495334
     },
     {
       "address": "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8",
@@ -40,8 +45,13 @@
     },
     {
       "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
-      "swapCount": 3,
-      "usdcVolume": 489646679
+      "swapCount": 9,
+      "usdcVolume": 730678036
+    },
+    {
+      "address": "g1d4nskey60zsz5my5z9g6hqt37csy7gpupcdu89",
+      "swapCount": 17,
+      "usdcVolume": 706881558
     },
     {
       "address": "g1eep2z6k5u0t5964a5fa6qtqplkt9pnk926kh34",
@@ -62,66 +72,58 @@
       "address": "g1q4efxxhzavfydlxw8ltvnvwc80x83v4qfm4vz2",
       "swapCount": 12,
       "usdcVolume": 168463456
-    },
-    {
-      "address": "g1vjgt4jz7y79hf32y5ggkkg2ph9p4wpen3ml0vh",
-      "swapCount": 4,
-      "usdcVolume": 149431625
-    },
-    {
-      "address": "g1g5ng5ru6fy6epjuxt38xep46t08g9fnrjc05ch",
-      "swapCount": 17,
-      "usdcVolume": 122305790
     }
   ],
   "lpStrategists": [
+    {
+      "address": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+      "gnsRewardsClaimed": 364869462
+    },
+    {
+      "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
+      "gnsRewardsClaimed": 212738623
+    },
+    {
+      "address": "g1d4nskey60zsz5my5z9g6hqt37csy7gpupcdu89",
+      "gnsRewardsClaimed": 26071381
+    },
     {
       "address": "g1qyfled5ulf6wmu2u4smstn8rlzazanmqt0n8kh",
       "gnsRewardsClaimed": 20042489
     },
     {
-      "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
-      "gnsRewardsClaimed": 16394019
-    },
-    {
       "address": "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8",
       "gnsRewardsClaimed": 10252977
-    },
-    {
-      "address": "g1vmjgpgsy7v7t7xvwwgcya8thuufuyh2ak6zsqc",
-      "gnsRewardsClaimed": 4750257
-    },
-    {
-      "address": "g1eep2z6k5u0t5964a5fa6qtqplkt9pnk926kh34",
-      "gnsRewardsClaimed": 648014
     }
   ],
   "ibcSpecialists": [
     {
-      "address": "g1eep2z6k5u0t5964a5fa6qtqplkt9pnk926kh34",
-      "ethSupplied": 731844
+      "address": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+      "ethSupplied": 501067
     },
     {
       "address": "g169d3un6y4sqxxmzwt7le3l5pawlfrhg5aa3xvp",
-      "ethSupplied": 312583
+      "ethSupplied": 251239
+    },
+    {
+      "address": "g1eep2z6k5u0t5964a5fa6qtqplkt9pnk926kh34",
+      "ethSupplied": 242860
     },
     {
       "address": "g1gmc2ewsh8xwdrkpzgv24sv6gjen3wvxdeufena",
       "ethSupplied": 118904
-    },
-    {
-      "address": "g1dxzfdxnxx3sz2xnhckh0ewc692z8l8kp624yq8",
-      "ethSupplied": 40070
     }
   ],
-  "positionsScanned": 118,
+  "positionsScanned": 196,
   "xgnsHolders": {
     "gno.land/r/gnoswap/gov/xgns|xGNS": {
       "g169d3un6y4sqxxmzwt7le3l5pawlfrhg5aa3xvp": 100000000000,
       "g1q5tjjv3kkslzwf2na9y9wk7e5a8ugph8xfsk04": 20000000000000,
       "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr": 190000000,
       "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu": 69000000,
-      "g1qyfled5ulf6wmu2u4smstn8rlzazanmqt0n8kh": 2000000
+      "g1qyfled5ulf6wmu2u4smstn8rlzazanmqt0n8kh": 2000000,
+      "g10zeuka7zgx0cmtxvy7vfvtm8jujvd8mg5ylvfr": 1000000,
+      "g1d4nskey60zsz5my5z9g6hqt37csy7gpupcdu89": 30000000
     }
   }
 }
