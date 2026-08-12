@@ -15,6 +15,17 @@
 //                                         // chain — omit to skip this (old
 //                                         // behavior: signs on whatever chain
 //                                         // Adena already has selected)
+//       transfersEnabled: true,          // default true. Set false when
+//                                         // `chainId` points at a chain whose
+//                                         // GNOT transfers are protocol-level
+//                                         // disabled (e.g. gno.land's Beta
+//                                         // Mainnet as of 2026-08) — the
+//                                         // widget still renders normally so
+//                                         // it's visibly wired up, but keeps
+//                                         // the send button permanently
+//                                         // disabled instead of letting a
+//                                         // real signed tx hit the chain and
+//                                         // fail (which can still cost gas).
 //       mountSelector: "#donateSlot",    // where to insert the trigger button
 //       presetAmounts: [1, 5, 10, 50, 100], // GNOT
 //     });
@@ -179,8 +190,14 @@
       <div class="gnodonate-summary" id="gnodonate-summary">
         Select an amount to continue.
       </div>
-      <div class="gnodonate-status" id="gnodonate-status"></div>
-      <button class="gnodonate-send-btn" id="gnodonate-send-btn" disabled>Connect wallet &amp; donate</button>
+      <div class="gnodonate-status" id="gnodonate-status">${
+        config.transfersEnabled === false
+          ? "⏳ GNOT transfers are currently disabled on this chain during its Beta phase. This button activates automatically once gno.land turns them on — no need to check back manually."
+          : ""
+      }</div>
+      <button class="gnodonate-send-btn" id="gnodonate-send-btn" disabled>${
+        config.transfersEnabled === false ? "Not yet available — transfers disabled" : "Connect wallet &amp; donate"
+      }</button>
     `;
     overlay.appendChild(modal);
 
@@ -189,6 +206,7 @@
     const statusEl = modal.querySelector("#gnodonate-status");
     const sendBtn = modal.querySelector("#gnodonate-send-btn");
     const customInput = modal.querySelector("#gnodonate-custom");
+    const sendBtnDefaultLabel = config.transfersEnabled === false ? "Not yet available — transfers disabled" : "Connect wallet & donate";
 
     function updateSummary() {
       if (!selectedAmount || selectedAmount <= 0) {
@@ -197,7 +215,7 @@
         return;
       }
       summaryEl.innerHTML = `Sending <strong>${selectedAmount} GNOT</strong> to <code>${truncate(config.recipient)}</code> on ${escapeHtml(config.chainId)}.`;
-      sendBtn.disabled = false;
+      sendBtn.disabled = config.transfersEnabled === false;
     }
 
     modal.querySelectorAll(".gnodonate-amount-btn").forEach(btn => {
@@ -216,6 +234,7 @@
     });
 
     sendBtn.addEventListener("click", async () => {
+      if (config.transfersEnabled === false) return;
       if (!selectedAmount || selectedAmount <= 0) return;
       sendBtn.disabled = true;
       sendBtn.innerHTML = '<span class="gnodonate-spinner"></span>Waiting for wallet…';
@@ -229,7 +248,7 @@
         sendBtn.textContent = "Sent ✓";
       } catch (err) {
         statusEl.textContent = "Failed: " + err.message;
-        sendBtn.textContent = "Connect wallet & donate";
+        sendBtn.textContent = sendBtnDefaultLabel;
         sendBtn.disabled = false;
       }
     });
@@ -255,6 +274,7 @@
         appName: "GnoDonate",
         chainId: "sapphire-1",
         rpcUrl: "https://rpc.sapphire.testnets.gno.land",
+        transfersEnabled: true,
         presetAmounts: [1, 5, 10, 50, 100],
         mountSelector: null,
         buttonText: "💛 Donate",

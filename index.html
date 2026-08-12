@@ -5600,12 +5600,22 @@ function renderSapphireRushTable(bodyId, tableId, rows, extraCells) {
 
 loadAll(currentKey);
 
+// Pointed at gno.land's production chain (NETWORKS.betanet, chain-id
+// gnoland1 — gno.land's own "Beta Mainnet") ahead of GovDAO enabling real
+// GNOT transfers there, expected within the coming weeks per gno.land's
+// Beta Mainnet announcement (gno.land/r/gnoland/blog:p/beta-mainnet).
+// transfersEnabled: false keeps the button wired up and visible but
+// permanently disabled until then — a real send attempt right now would
+// just get rejected on-chain (transfers are protocol-level disabled during
+// Beta), and could still cost real gas for nothing. Flip to true once
+// transfers go live; nothing else here needs to change.
 GnoDonate.init({
   recipient: "g1ur08yslxv9z4eywcy5dq83w0hkgm9nhjak4d0n",
   projectName: "Gno.Observer",
   appName: "Gno.Observer",
-  chainId: NETWORKS.sapphire.chainId,
-  rpcUrl: NETWORKS.sapphire.rpcUrl,
+  chainId: NETWORKS.betanet.chainId,
+  rpcUrl: NETWORKS.betanet.rpcUrl,
+  transfersEnabled: false,
   mountSelector: "#donateSlot",
   presetAmounts: [1, 5, 10, 50, 100],
 });
