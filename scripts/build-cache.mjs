@@ -97,7 +97,18 @@ async function abciQuery(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
   } finally {
     clearTimeout(timer);
   }
-  const json = await res.json();
+  const text = await res.text();
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    // Same rationale as graphqlQuery's identical guard below: an unguarded
+    // res.json() throws an opaque native SyntaxError on a non-JSON body
+    // (an HTML error/rate-limit page, most often), with no HTTP status or
+    // content to debug from. This RPC endpoint has been observed doing
+    // exactly that, not just the indexer.
+    throw new Error(`RPC_NON_JSON_RESPONSE: HTTP ${res.status}, body starts with: ${text.slice(0, 120)}`);
+  }
   if (json.error) throw new Error(json.error.message);
   const raw = json.result.response.ResponseBase.Data;
   if (json.result.response.ResponseBase.Error) return null;
@@ -108,6 +119,10 @@ async function abciQuery(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
 // paranoid: this exact indexer has been directly observed hanging (never
 // responding, no error) during this project's development — a script that
 // runs unattended in CI cannot afford an unbounded await on that.
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function graphqlQuery(indexerUrl, query, timeoutMs = 30000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -151,14 +166,28 @@ async function graphqlQuery(indexerUrl, query, timeoutMs = 30000) {
 // enforces a flat "max elements per query reached (10000)" cap and exposes
 // no limit/offset pagination at all (confirmed via schema introspection —
 // only `where`/`order` args exist on getTransactions). Starts optimistic,
-// halves the window and retries the same start on a cap hit (either a clean
-// GraphQL "max elements" error, or the oversized-response signal from
-// graphqlQuery above — heavier per-tx payloads like fetchTokenHolders' full
-// event lists can trip a response-size gateway limit before the indexer
-// even gets to count rows), grows back toward the ceiling after a run of
-// successes. Bounded by a soft time budget (originally fetchWhaleWatch's
-// pattern) so a large backlog can't blow the job's timeout — it just
-// persists however far it got, and the caller resumes from there next run.
+// grows back toward the ceiling after a run of successes.
+//
+// A failed chunk is retried against the SAME window up to 3 times, with a
+// growing delay between attempts, before anything else happens — this
+// looked at first like a query-shape or response-size problem, but isolated
+// curl replay proved otherwise: the exact query+range that threw
+// GRAPHQL_OVERSIZED_RESPONSE, retried seconds apart by hand, succeeded every
+// time — including on a tiny early block range that could never plausibly
+// be "too large". A bare zero-delay retry (tried first) still failed 3/3,
+// which only makes sense as a short-lived rate limit: this build's own
+// earlier chunked fetches (fetchCallActivity runs first) had just finished
+// a burst of requests against the same indexer, and immediate retries land
+// inside the same window instead of past it. The delay gives that window a
+// chance to roll over. Only once retries are exhausted does a cap-shaped
+// error (a clean GraphQL "max elements", or the oversized-response signal
+// from graphqlQuery above, which also covers a response-size gateway limit
+// tripping before the indexer's own row-count cap applies) shrink the
+// window and retry the same start — shrinking a purely transient hiccup
+// would just waste chunks without fixing anything. Bounded by a soft time
+// budget (originally fetchWhaleWatch's pattern) so a large backlog can't
+// blow the job's timeout — it just persists however far it got, and the
+// caller resumes from there next run.
 async function fetchInChunks(net, fromHeight, { buildQuery, onChunk, maxChunk = 20000, minChunk = 10, timeBudgetMs = 4 * 60 * 1000 }) {
   const { latestBlockHeight } = await graphqlQuery(net.indexerUrl, `query { latestBlockHeight }`);
   const deadline = Date.now() + timeBudgetMs;
@@ -171,16 +200,25 @@ async function fetchInChunks(net, fromHeight, { buildQuery, onChunk, maxChunk = 
     if (Date.now() > deadline) { timedOut = true; break; }
     const to = Math.min(from + chunkSize - 1, latestBlockHeight);
     let data;
-    try {
-      data = await graphqlQuery(net.indexerUrl, buildQuery(from, to), 90000);
-    } catch (err) {
-      const oversized = /max elements per query/i.test(err.message) || /GRAPHQL_OVERSIZED_RESPONSE/.test(err.message);
+    let lastErr = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await sleep(3000 * attempt); // 3s, then 6s
+      try {
+        data = await graphqlQuery(net.indexerUrl, buildQuery(from, to), 90000);
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+    if (lastErr) {
+      const oversized = /max elements per query/i.test(lastErr.message) || /GRAPHQL_OVERSIZED_RESPONSE/.test(lastErr.message);
       if (oversized && chunkSize > minChunk) {
         chunkSize = Math.max(minChunk, Math.floor(chunkSize / 2));
         consecutiveOk = 0;
         continue; // retry the same `from` with a smaller window
       }
-      throw err;
+      throw lastErr;
     }
     onChunk(data);
     newHeight = to; // this whole range is now fully covered, whether or not it had matches
