@@ -125,9 +125,73 @@ async function graphqlQuery(indexerUrl, query, timeoutMs = 30000) {
   } finally {
     clearTimeout(timer);
   }
-  const json = await res.json();
+  const text = await res.text();
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    // A non-JSON body (an HTML error/WAF page, a truncated response, ...)
+    // means something upstream of the GraphQL layer itself rejected the
+    // request — most often an oversized query/response tripping a gateway
+    // limit rather than the indexer's own app-level "max elements per
+    // query" cap. Tagged GRAPHQL_OVERSIZED_RESPONSE so callers that chunk
+    // their own queries (see fetchInChunks) can treat this the same as a
+    // clean "max elements" error and retry with a smaller window, instead
+    // of a raw, uninformative SyntaxError from res.json() itself.
+    throw new Error(`GRAPHQL_OVERSIZED_RESPONSE: HTTP ${res.status}, body starts with: ${text.slice(0, 120)}`);
+  }
   if (json.errors) throw new Error(json.errors[0].message);
   return json.data;
+}
+
+// Shared by any getTransactions-scan that walks forward from a persisted
+// block_height watermark (fetchCallActivity, fetchTokenHolders, ...): runs
+// `buildQuery(from, to)` across `(fromHeight, latestBlockHeight]` in
+// adaptively-sized chunks instead of one unbounded query, since the indexer
+// enforces a flat "max elements per query reached (10000)" cap and exposes
+// no limit/offset pagination at all (confirmed via schema introspection —
+// only `where`/`order` args exist on getTransactions). Starts optimistic,
+// halves the window and retries the same start on a cap hit (either a clean
+// GraphQL "max elements" error, or the oversized-response signal from
+// graphqlQuery above — heavier per-tx payloads like fetchTokenHolders' full
+// event lists can trip a response-size gateway limit before the indexer
+// even gets to count rows), grows back toward the ceiling after a run of
+// successes. Bounded by a soft time budget (originally fetchWhaleWatch's
+// pattern) so a large backlog can't blow the job's timeout — it just
+// persists however far it got, and the caller resumes from there next run.
+async function fetchInChunks(net, fromHeight, { buildQuery, onChunk, maxChunk = 20000, minChunk = 10, timeBudgetMs = 4 * 60 * 1000 }) {
+  const { latestBlockHeight } = await graphqlQuery(net.indexerUrl, `query { latestBlockHeight }`);
+  const deadline = Date.now() + timeBudgetMs;
+  let chunkSize = maxChunk;
+  let consecutiveOk = 0;
+  let from = fromHeight + 1;
+  let newHeight = fromHeight;
+  let timedOut = false;
+  while (from <= latestBlockHeight) {
+    if (Date.now() > deadline) { timedOut = true; break; }
+    const to = Math.min(from + chunkSize - 1, latestBlockHeight);
+    let data;
+    try {
+      data = await graphqlQuery(net.indexerUrl, buildQuery(from, to), 90000);
+    } catch (err) {
+      const oversized = /max elements per query/i.test(err.message) || /GRAPHQL_OVERSIZED_RESPONSE/.test(err.message);
+      if (oversized && chunkSize > minChunk) {
+        chunkSize = Math.max(minChunk, Math.floor(chunkSize / 2));
+        consecutiveOk = 0;
+        continue; // retry the same `from` with a smaller window
+      }
+      throw err;
+    }
+    onChunk(data);
+    newHeight = to; // this whole range is now fully covered, whether or not it had matches
+    from = to + 1;
+    consecutiveOk++;
+    if (consecutiveOk >= 3 && chunkSize < maxChunk) {
+      chunkSize = Math.min(maxChunk, chunkSize * 2);
+      consecutiveOk = 0;
+    }
+  }
+  return { newHeight, latestBlockHeight, timedOut };
 }
 
 async function mapLimit(items, limit, fn) {
@@ -756,10 +820,6 @@ async function fetchDeployedPackages(net, prevState) {
 // realms got MsgCall'd, how often, by whom, and when" dataset differently.
 // One shared fetch instead of four separate ones.
 
-const CALL_ACTIVITY_TIME_BUDGET_MS = 4 * 60 * 1000;
-const CALL_ACTIVITY_MAX_CHUNK = 20000;
-const CALL_ACTIVITY_MIN_CHUNK = 10;
-
 async function fetchCallActivity(net, prevState) {
   const lastHeight = prevState?.lastHeight || 0;
 
@@ -770,33 +830,10 @@ async function fetchCallActivity(net, prevState) {
   for (const [p, entry] of Object.entries(prevState?.byPath || {})) {
     byPath[p] = { ...entry, callers: new Set(entry.callers), funcs: { ...entry.funcs } };
   }
-
-  const { latestBlockHeight } = await graphqlQuery(net.indexerUrl, `query { latestBlockHeight }`);
-  let newHeight = lastHeight;
   let newCount = 0;
 
-  // The indexer enforces a hard "max elements per query reached (10000)"
-  // cap on getTransactions and exposes no limit/offset pagination at all
-  // (confirmed via schema introspection — only `where`/`order` args exist),
-  // so the only lever is narrowing the block_height range itself. A fixed
-  // chunk size would still eventually break: tx density swings wildly with
-  // real activity (GnoSwap's Sapphire Rush competition landed right after
-  // sapphire-1 launched and blew straight through an unbounded from-genesis
-  // query in one shot — exactly how this was first found failing in CI).
-  // So this adapts: start optimistic, halve the window and retry the same
-  // start on a cap hit, grow back toward the ceiling after a run of
-  // successes. Bounded by a soft time budget (mirrors fetchWhaleWatch's
-  // pattern below) so a large backlog can't blow the job's timeout — it
-  // just persists however far it got and finishes over subsequent runs.
-  const deadline = Date.now() + CALL_ACTIVITY_TIME_BUDGET_MS;
-  let chunkSize = CALL_ACTIVITY_MAX_CHUNK;
-  let consecutiveOk = 0;
-  let from = lastHeight + 1;
-  let timedOut = false;
-  while (from <= latestBlockHeight) {
-    if (Date.now() > deadline) { timedOut = true; break; }
-    const to = Math.min(from + chunkSize - 1, latestBlockHeight);
-    const query = `
+  const { newHeight, timedOut } = await fetchInChunks(net, lastHeight, {
+    buildQuery: (from, to) => `
       query {
         getTransactions(where: {
           success: { eq: true },
@@ -806,45 +843,29 @@ async function fetchCallActivity(net, prevState) {
           block_height
           messages { value { ... on MsgCall { caller pkg_path func } } }
         }
-      }`;
-    let data;
-    try {
-      data = await graphqlQuery(net.indexerUrl, query, 60000);
-    } catch (err) {
-      if (/max elements per query/i.test(err.message) && chunkSize > CALL_ACTIVITY_MIN_CHUNK) {
-        chunkSize = Math.max(CALL_ACTIVITY_MIN_CHUNK, Math.floor(chunkSize / 2));
-        consecutiveOk = 0;
-        continue; // retry the same `from` with a smaller window
-      }
-      throw err;
-    }
-    for (const tx of data.getTransactions || []) {
-      for (const msg of tx.messages) {
-        const v = msg.value;
-        if (!v || !v.pkg_path) continue;
-        newCount++;
-        let agg = byPath[v.pkg_path];
-        if (!agg) {
-          agg = { calls: 0, callers: new Set(), funcs: {}, firstBlockHeight: tx.block_height, lastBlockHeight: 0 };
-          byPath[v.pkg_path] = agg;
+      }`,
+    onChunk: (data) => {
+      for (const tx of data.getTransactions || []) {
+        for (const msg of tx.messages) {
+          const v = msg.value;
+          if (!v || !v.pkg_path) continue;
+          newCount++;
+          let agg = byPath[v.pkg_path];
+          if (!agg) {
+            agg = { calls: 0, callers: new Set(), funcs: {}, firstBlockHeight: tx.block_height, lastBlockHeight: 0 };
+            byPath[v.pkg_path] = agg;
+          }
+          agg.calls++;
+          agg.callers.add(v.caller);
+          agg.funcs[v.func] = (agg.funcs[v.func] || 0) + 1;
+          agg.firstBlockHeight = Math.min(agg.firstBlockHeight, tx.block_height);
+          agg.lastBlockHeight = Math.max(agg.lastBlockHeight, tx.block_height);
         }
-        agg.calls++;
-        agg.callers.add(v.caller);
-        agg.funcs[v.func] = (agg.funcs[v.func] || 0) + 1;
-        agg.firstBlockHeight = Math.min(agg.firstBlockHeight, tx.block_height);
-        agg.lastBlockHeight = Math.max(agg.lastBlockHeight, tx.block_height);
       }
-    }
-    newHeight = to; // this whole range is now fully covered, whether or not it had matches
-    from = to + 1;
-    consecutiveOk++;
-    if (consecutiveOk >= 3 && chunkSize < CALL_ACTIVITY_MAX_CHUNK) {
-      chunkSize = Math.min(CALL_ACTIVITY_MAX_CHUNK, chunkSize * 2);
-      consecutiveOk = 0;
-    }
-  }
+    },
+  });
   if (timedOut) {
-    console.log(`call activity: hit the time budget at height ${newHeight}/${latestBlockHeight} (will resume next run)`);
+    console.log(`call activity: hit the time budget at height ${newHeight} (will resume next run)`);
   }
 
   // Same "resolve once, persist forever" block-time backfill pattern as
@@ -920,34 +941,41 @@ async function fetchTokenHolders(net, tokens, prevState) {
   const balances = {};
   for (const key of tokenKeys) balances[key] = { ...(prevState?.balances?.[key] || {}) };
 
-  const query = `
-    query {
-      getTransactions(where: {
-        success: { eq: true },
-        block_height: { gt: ${lastHeight} },
-        messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
-      }) {
-        block_height
-        response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+  // Full per-tx event lists make each row here far heavier than
+  // fetchCallActivity's — starts from a smaller chunk ceiling so it needs
+  // fewer halvings to find a safe window on a cold/backlogged run.
+  const { newHeight, timedOut } = await fetchInChunks(net, lastHeight, {
+    maxChunk: 5000,
+    buildQuery: (from, to) => `
+      query {
+        getTransactions(where: {
+          success: { eq: true },
+          block_height: { gt: ${from - 1}, lt: ${to + 1} },
+          messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
+        }) {
+          block_height
+          response { events { __typename ... on GnoEvent { type attrs { key value } } } }
+        }
+      }`,
+    onChunk: (data) => {
+      for (const tx of data.getTransactions || []) {
+        for (const ev of tx.response?.events || []) {
+          if (ev.__typename !== "GnoEvent" || ev.type !== "Transfer") continue;
+          const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
+          if (!attrs.token) continue;
+          const key = tokenKeyFromTransferAttr(attrs.token);
+          if (!tokenKeySet.has(key)) continue;
+          const amount = Number(attrs.value || 0);
+          if (!Number.isFinite(amount) || amount <= 0) continue;
+          const bal = balances[key];
+          if (attrs.from) bal[attrs.from] = (bal[attrs.from] || 0) - amount;
+          if (attrs.to) bal[attrs.to] = (bal[attrs.to] || 0) + amount;
+        }
       }
-    }`;
-  const data = await graphqlQuery(net.indexerUrl, query, 90000);
-
-  let newHeight = lastHeight;
-  for (const tx of data.getTransactions || []) {
-    if (tx.block_height > newHeight) newHeight = tx.block_height;
-    for (const ev of tx.response?.events || []) {
-      if (ev.__typename !== "GnoEvent" || ev.type !== "Transfer") continue;
-      const attrs = Object.fromEntries((ev.attrs || []).map(a => [a.key, a.value]));
-      if (!attrs.token) continue;
-      const key = tokenKeyFromTransferAttr(attrs.token);
-      if (!tokenKeySet.has(key)) continue;
-      const amount = Number(attrs.value || 0);
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-      const bal = balances[key];
-      if (attrs.from) bal[attrs.from] = (bal[attrs.from] || 0) - amount;
-      if (attrs.to) bal[attrs.to] = (bal[attrs.to] || 0) + amount;
-    }
+    },
+  });
+  if (timedOut) {
+    console.log(`token holders: hit the time budget at height ${newHeight} (will resume next run)`);
   }
 
   const holderCounts = {};
