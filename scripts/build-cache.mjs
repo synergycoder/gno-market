@@ -188,8 +188,27 @@ async function graphqlQuery(indexerUrl, query, timeoutMs = 30000) {
 // budget (originally fetchWhaleWatch's pattern) so a large backlog can't
 // blow the job's timeout — it just persists however far it got, and the
 // caller resumes from there next run.
+// Retries ANY graphqlQuery call against this same short-lived-rate-limit
+// flakiness — not just per-chunk fetches inside the loop below. The
+// standalone latestBlockHeight probe that used to run unretried ahead of
+// the loop was the actual cause of a failure that looked instant (no 3s/6s
+// delay could have elapsed): it hit the exact same transient 403 the loop
+// itself is built to ride out, just before ever reaching the loop.
+async function graphqlQueryWithRetry(indexerUrl, query, timeoutMs) {
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await sleep(3000 * attempt); // 3s, then 6s
+    try {
+      return await graphqlQuery(indexerUrl, query, timeoutMs);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
+}
+
 async function fetchInChunks(net, fromHeight, { buildQuery, onChunk, maxChunk = 20000, minChunk = 10, timeBudgetMs = 4 * 60 * 1000 }) {
-  const { latestBlockHeight } = await graphqlQuery(net.indexerUrl, `query { latestBlockHeight }`);
+  const { latestBlockHeight } = await graphqlQueryWithRetry(net.indexerUrl, `query { latestBlockHeight }`);
   const deadline = Date.now() + timeBudgetMs;
   let chunkSize = maxChunk;
   let consecutiveOk = 0;
@@ -200,25 +219,16 @@ async function fetchInChunks(net, fromHeight, { buildQuery, onChunk, maxChunk = 
     if (Date.now() > deadline) { timedOut = true; break; }
     const to = Math.min(from + chunkSize - 1, latestBlockHeight);
     let data;
-    let lastErr = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) await sleep(3000 * attempt); // 3s, then 6s
-      try {
-        data = await graphqlQuery(net.indexerUrl, buildQuery(from, to), 90000);
-        lastErr = null;
-        break;
-      } catch (err) {
-        lastErr = err;
-      }
-    }
-    if (lastErr) {
-      const oversized = /max elements per query/i.test(lastErr.message) || /GRAPHQL_OVERSIZED_RESPONSE/.test(lastErr.message);
+    try {
+      data = await graphqlQueryWithRetry(net.indexerUrl, buildQuery(from, to), 90000);
+    } catch (err) {
+      const oversized = /max elements per query/i.test(err.message) || /GRAPHQL_OVERSIZED_RESPONSE/.test(err.message);
       if (oversized && chunkSize > minChunk) {
         chunkSize = Math.max(minChunk, Math.floor(chunkSize / 2));
         consecutiveOk = 0;
         continue; // retry the same `from` with a smaller window
       }
-      throw lastErr;
+      throw err;
     }
     onChunk(data);
     newHeight = to; // this whole range is now fully covered, whether or not it had matches
@@ -1825,8 +1835,23 @@ async function buildNetwork(netKey, net) {
   for (const t of tokens) t.totalSupply = totalSupplies[t.path] ?? null;
   console.log(`token total supplies: ${Object.values(totalSupplies).filter(s => s != null).length}/${tokens.length} resolved`);
 
-  const { balances: tokenHolderBalances, holderCounts, lastHeight: tokenHoldersLastHeight } =
-    await fetchTokenHolders(net, tokens, prev?.tokenHolders);
+  // Non-fatal by design: this is one enrichment step among many, fed by the
+  // same flaky indexer as everything else here, and a transient failure in
+  // it shouldn't cost the whole network's run — every OTHER already-
+  // computed step (trending, swaps, whale watch, ...) still deserves to be
+  // written and committed. Falls back to last run's holder data untouched
+  // (including its watermark, so the next run just retries this same
+  // range) rather than losing it or advancing past unscanned blocks.
+  let tokenHolderBalances, holderCounts, tokenHoldersLastHeight;
+  try {
+    ({ balances: tokenHolderBalances, holderCounts, lastHeight: tokenHoldersLastHeight } =
+      await fetchTokenHolders(net, tokens, prev?.tokenHolders));
+  } catch (err) {
+    console.log(`token holders: failed this run (${err.message}) — keeping previous holder counts`);
+    tokenHolderBalances = prev?.tokenHolders?.balances || {};
+    holderCounts = prev?.tokenHolders?.holderCounts || {};
+    tokenHoldersLastHeight = prev?.tokenHolders?.lastHeight || 0;
+  }
   for (const t of tokens) t.holderCount = holderCounts[`${t.path}|${t.symbol}`] ?? 0;
   console.log(`token holders: ${Object.values(holderCounts).reduce((a, b) => a + b, 0)} total holder-rows across ${tokens.length} tokens`);
 
