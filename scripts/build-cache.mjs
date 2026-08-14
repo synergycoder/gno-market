@@ -756,20 +756,12 @@ async function fetchDeployedPackages(net, prevState) {
 // realms got MsgCall'd, how often, by whom, and when" dataset differently.
 // One shared fetch instead of four separate ones.
 
+const CALL_ACTIVITY_TIME_BUDGET_MS = 4 * 60 * 1000;
+const CALL_ACTIVITY_MAX_CHUNK = 20000;
+const CALL_ACTIVITY_MIN_CHUNK = 10;
+
 async function fetchCallActivity(net, prevState) {
   const lastHeight = prevState?.lastHeight || 0;
-  const query = `
-    query {
-      getTransactions(where: {
-        success: { eq: true },
-        block_height: { gt: ${lastHeight} },
-        messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
-      }) {
-        block_height
-        messages { value { ... on MsgCall { caller pkg_path func } } }
-      }
-    }`;
-  const data = await graphqlQuery(net.indexerUrl, query, 60000);
 
   // Re-hydrate from the previous run's plain-JSON shape into working Sets
   // so incremental unique-caller counting stays correct across runs (a
@@ -779,25 +771,80 @@ async function fetchCallActivity(net, prevState) {
     byPath[p] = { ...entry, callers: new Set(entry.callers), funcs: { ...entry.funcs } };
   }
 
+  const { latestBlockHeight } = await graphqlQuery(net.indexerUrl, `query { latestBlockHeight }`);
   let newHeight = lastHeight;
   let newCount = 0;
-  for (const tx of data.getTransactions || []) {
-    for (const msg of tx.messages) {
-      const v = msg.value;
-      if (!v || !v.pkg_path) continue;
-      newCount++;
-      let agg = byPath[v.pkg_path];
-      if (!agg) {
-        agg = { calls: 0, callers: new Set(), funcs: {}, firstBlockHeight: tx.block_height, lastBlockHeight: 0 };
-        byPath[v.pkg_path] = agg;
+
+  // The indexer enforces a hard "max elements per query reached (10000)"
+  // cap on getTransactions and exposes no limit/offset pagination at all
+  // (confirmed via schema introspection — only `where`/`order` args exist),
+  // so the only lever is narrowing the block_height range itself. A fixed
+  // chunk size would still eventually break: tx density swings wildly with
+  // real activity (GnoSwap's Sapphire Rush competition landed right after
+  // sapphire-1 launched and blew straight through an unbounded from-genesis
+  // query in one shot — exactly how this was first found failing in CI).
+  // So this adapts: start optimistic, halve the window and retry the same
+  // start on a cap hit, grow back toward the ceiling after a run of
+  // successes. Bounded by a soft time budget (mirrors fetchWhaleWatch's
+  // pattern below) so a large backlog can't blow the job's timeout — it
+  // just persists however far it got and finishes over subsequent runs.
+  const deadline = Date.now() + CALL_ACTIVITY_TIME_BUDGET_MS;
+  let chunkSize = CALL_ACTIVITY_MAX_CHUNK;
+  let consecutiveOk = 0;
+  let from = lastHeight + 1;
+  let timedOut = false;
+  while (from <= latestBlockHeight) {
+    if (Date.now() > deadline) { timedOut = true; break; }
+    const to = Math.min(from + chunkSize - 1, latestBlockHeight);
+    const query = `
+      query {
+        getTransactions(where: {
+          success: { eq: true },
+          block_height: { gt: ${from - 1}, lt: ${to + 1} },
+          messages: { route: { eq: "vm" }, typeUrl: { eq: "exec" } }
+        }) {
+          block_height
+          messages { value { ... on MsgCall { caller pkg_path func } } }
+        }
+      }`;
+    let data;
+    try {
+      data = await graphqlQuery(net.indexerUrl, query, 60000);
+    } catch (err) {
+      if (/max elements per query/i.test(err.message) && chunkSize > CALL_ACTIVITY_MIN_CHUNK) {
+        chunkSize = Math.max(CALL_ACTIVITY_MIN_CHUNK, Math.floor(chunkSize / 2));
+        consecutiveOk = 0;
+        continue; // retry the same `from` with a smaller window
       }
-      agg.calls++;
-      agg.callers.add(v.caller);
-      agg.funcs[v.func] = (agg.funcs[v.func] || 0) + 1;
-      agg.firstBlockHeight = Math.min(agg.firstBlockHeight, tx.block_height);
-      agg.lastBlockHeight = Math.max(agg.lastBlockHeight, tx.block_height);
-      if (tx.block_height > newHeight) newHeight = tx.block_height;
+      throw err;
     }
+    for (const tx of data.getTransactions || []) {
+      for (const msg of tx.messages) {
+        const v = msg.value;
+        if (!v || !v.pkg_path) continue;
+        newCount++;
+        let agg = byPath[v.pkg_path];
+        if (!agg) {
+          agg = { calls: 0, callers: new Set(), funcs: {}, firstBlockHeight: tx.block_height, lastBlockHeight: 0 };
+          byPath[v.pkg_path] = agg;
+        }
+        agg.calls++;
+        agg.callers.add(v.caller);
+        agg.funcs[v.func] = (agg.funcs[v.func] || 0) + 1;
+        agg.firstBlockHeight = Math.min(agg.firstBlockHeight, tx.block_height);
+        agg.lastBlockHeight = Math.max(agg.lastBlockHeight, tx.block_height);
+      }
+    }
+    newHeight = to; // this whole range is now fully covered, whether or not it had matches
+    from = to + 1;
+    consecutiveOk++;
+    if (consecutiveOk >= 3 && chunkSize < CALL_ACTIVITY_MAX_CHUNK) {
+      chunkSize = Math.min(CALL_ACTIVITY_MAX_CHUNK, chunkSize * 2);
+      consecutiveOk = 0;
+    }
+  }
+  if (timedOut) {
+    console.log(`call activity: hit the time budget at height ${newHeight}/${latestBlockHeight} (will resume next run)`);
   }
 
   // Same "resolve once, persist forever" block-time backfill pattern as
