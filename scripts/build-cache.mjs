@@ -1874,11 +1874,23 @@ async function buildNetwork(netKey, net) {
     console.log(`ginger mints: ${result.mints.length} total (${result.newlyFetched} newly fetched this run)`);
   }
 
+  // Same non-fatal treatment as the token-holders fetch above, and for the
+  // same reason: this makes its own fetchTokenHolders call internally (for
+  // xGNS), fed by the same flaky indexer, and a failure here shouldn't cost
+  // sapphire's whole run either — falls back to last run's full snapshot
+  // (already the same shape this writes) untouched, which also means its
+  // own generatedAt naturally reflects the staleness via the existing
+  // cacheAgeNote UI text rather than needing special handling.
   let sapphireRush = null;
   if (netKey === "sapphire") {
-    const result = await fetchSapphireRush(net, tokens, tokenHolderBalances, swapsResult.swaps, prevSapphireRush);
-    sapphireRush = { generatedAt: new Date().toISOString(), ...result };
-    console.log(`sapphire rush: ${result.gnsWhales.length} GNS whales, ${result.powerTraders.length} power traders, ${result.lpStrategists.length} LP strategists, ${result.ibcSpecialists.length} IBC specialists (${result.positionsScanned} positions scanned)`);
+    try {
+      const result = await fetchSapphireRush(net, tokens, tokenHolderBalances, swapsResult.swaps, prevSapphireRush);
+      sapphireRush = { generatedAt: new Date().toISOString(), ...result };
+      console.log(`sapphire rush: ${result.gnsWhales.length} GNS whales, ${result.powerTraders.length} power traders, ${result.lpStrategists.length} LP strategists, ${result.ibcSpecialists.length} IBC specialists (${result.positionsScanned} positions scanned)`);
+    } catch (err) {
+      console.log(`sapphire rush: failed this run (${err.message}) — keeping previous snapshot`);
+      sapphireRush = prevSapphireRush;
+    }
   }
 
   const output = {
