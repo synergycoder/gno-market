@@ -1811,6 +1811,17 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
     res = await fetch(url, { signal: controller.signal });
   } catch (err) {
     if (err.name === "AbortError") throw new Error(`RPC timed out after ${timeoutMs / 1000}s (${path})`);
+    // Browsers deliberately collapse every network-layer fetch failure —
+    // DNS failure, connection refused, the host being down, a CORS block —
+    // into the same generic "TypeError: Failed to fetch", with no way to
+    // tell which one happened (a security/privacy measure, not a bug).
+    // Every caller of abciQuery shows err.message directly to the user
+    // (e.g. the click-to-expand Render() preview's "Failed to load
+    // render: ..."), so left as-is this reads as a meaningless dev-console
+    // string instead of telling someone the RPC just isn't responding.
+    if (err instanceof TypeError) {
+      throw new Error(`RPC endpoint (${net.rpcUrl}) isn't responding right now — this is usually temporary, try again in a moment (${path})`);
+    }
     throw err;
   } finally {
     clearTimeout(timer);
