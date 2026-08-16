@@ -478,6 +478,10 @@
   .preview p { margin: 0.4rem 0; }
   .preview ul { margin: 0.4rem 0; padding-left: 1.2rem; }
   .preview code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; }
+  .preview .render-preview-img {
+    display: block; max-width: 240px; max-height: 240px; object-fit: contain;
+    margin: 0.4rem 0; border-radius: 6px; background: var(--bg);
+  }
   code { background: var(--border-soft); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
 
   .tabs {
@@ -4376,17 +4380,39 @@ function safeUrl(url) {
   return null;
 }
 
+// NFT/collection Render() output on gno.land almost always embeds art as a
+// base64 data: URI (confirmed against real deployed collections) — safe to
+// allow as an <img src>: browsers never execute script content inside an
+// SVG loaded that way (unlike inline <svg> or <object>/<iframe>), so this
+// carries none of the risk a data: URI would as a clickable link target
+// (which safeUrl above deliberately still refuses). Restricted to actual
+// image MIME types and the base64 form specifically, not the raw/percent-
+// encoded data: form, to keep the allowlist tight rather than open-ended.
+function safeImageUrl(url) {
+  const u = url.trim();
+  if (/^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,[a-z0-9+/=]+$/i.test(u)) return u;
+  return safeUrl(u);
+}
+
 function inlineMd(raw) {
   let out = "";
   let lastIndex = 0;
-  const linkRe = /\[([^\]]*)\]\(([^)]*)\)/g;
+  const linkRe = /(!)?\[([^\]]*)\]\(([^)]*)\)/g;
   let m;
   while ((m = linkRe.exec(raw)) !== null) {
     out += formatInline(raw.slice(lastIndex, m.index));
-    const url = safeUrl(m[2]);
-    out += url
-      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${formatInline(m[1])}</a>`
-      : formatInline(m[0]);
+    const isImage = !!m[1];
+    if (isImage) {
+      const imgUrl = safeImageUrl(m[3]);
+      out += imgUrl
+        ? `<img class="render-preview-img" src="${escapeHtml(imgUrl)}" alt="${escapeHtml(m[2])}" loading="lazy">`
+        : formatInline(m[0]);
+    } else {
+      const url = safeUrl(m[3]);
+      out += url
+        ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${formatInline(m[2])}</a>`
+        : formatInline(m[0]);
+    }
     lastIndex = linkRe.lastIndex;
   }
   out += formatInline(raw.slice(lastIndex));
