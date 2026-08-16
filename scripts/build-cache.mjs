@@ -39,6 +39,20 @@ const NETWORKS = {
     label: "sapphire-1 (testnet)",
     chainId: "sapphire-1",
     rpcUrl: "https://rpc.sapphire.testnets.gno.land",
+    // Same vetting as index.html's own NETWORKS.sapphire (see its comment),
+    // but NOT the same list — index.html drops luckystar and oshvank
+    // because both send a duplicated Access-Control-Allow-Origin header
+    // that a real browser's CORS check rejects (confirmed: bare "Failed to
+    // fetch" from an in-browser fetch() against both, despite curl seeing
+    // them as perfectly healthy). This script runs in Node, where CORS
+    // doesn't apply at all, so all 4 are safe to keep here.
+    rpcUrls: [
+      "https://rpc.sapphire.testnets.gno.land",
+      "https://gnoland-sapphire-rpc.luckystar.asia",
+      "https://gnoland-sapphire-rpc.corenodehq.xyz",
+      "https://gnoland-sapphire-rpc.oshvank.xyz",
+      "https://gnoland-sapphire-rpc.hazennetworksolutions.com",
+    ],
     indexerUrl: "https://indexer.sapphire.testnets.gno.land/graphql/query",
   },
   betanet: {
@@ -83,7 +97,7 @@ async function fetchTokenRegistry(chainId) {
 
 // ---------- low-level chain access (Node port of index.html's abciQuery) ----------
 
-async function abciQuery(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
+async function abciQuerySingle(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
   const data = Buffer.from(dataStr, "utf-8").toString("base64");
   const url = `${rpcUrl}/abci_query?path=${encodeURIComponent('"' + qpath + '"')}&data=${encodeURIComponent('"' + data + '"')}`;
   const controller = new AbortController();
@@ -113,6 +127,51 @@ async function abciQuery(rpcUrl, qpath, dataStr, timeoutMs = 15000) {
   const raw = json.result.response.ResponseBase.Data;
   if (json.result.response.ResponseBase.Error) return null;
   return raw ? Buffer.from(raw, "base64").toString("utf-8") : "";
+}
+
+// chainId -> index into net.rpcUrls of the last endpoint that worked,
+// sticky for this whole process run (a fresh Node process every scheduled
+// invocation, so no cross-run staleness to worry about) — same rationale
+// as index.html's identical lastGoodRpcIndex: without it, every one of the
+// (often hundreds, e.g. whale watch's per-address checks) abciQuery calls
+// in a single run would re-pay the primary's full timeout before falling
+// back, for the whole run, once the primary goes down.
+const lastGoodRpcIndex = {};
+
+async function abciQuery(net, qpath, dataStr, timeoutMs = 15000) {
+  const urls = net.rpcUrls || [net.rpcUrl];
+  const startIdx = lastGoodRpcIndex[net.chainId] || 0;
+  let lastErr;
+  for (let offset = 0; offset < urls.length; offset++) {
+    const idx = (startIdx + offset) % urls.length;
+    try {
+      const result = await abciQuerySingle(urls[idx], qpath, dataStr, timeoutMs);
+      lastGoodRpcIndex[net.chainId] = idx;
+      return result;
+    } catch (err) {
+      lastErr = err;
+      // Only fall through to the next endpoint for a connectivity-class
+      // failure — a real on-chain error (e.g. an invalid package path)
+      // would be the identical answer from every endpoint, so retrying it
+      // elsewhere would just waste time to arrive at the same result.
+      const connectivityFailure =
+        err.name === "AbortError" || err instanceof TypeError || /RPC_NON_JSON_RESPONSE/.test(err.message);
+      if (!connectivityFailure) {
+        // The endpoint itself answered fine — a genuine on-chain error,
+        // not a reason to distrust it. Same fix as index.html's identical
+        // gap: recording stickiness only on the success path above missed
+        // this case, so any query hitting a real on-chain error (existence
+        // checks, etc.) never marked a perfectly healthy endpoint good.
+        lastGoodRpcIndex[net.chainId] = idx;
+        throw err;
+      }
+    }
+  }
+  throw new Error(
+    urls.length > 1
+      ? `All ${urls.length} RPC endpoints for ${net.label} are unreachable right now (${qpath}): ${lastErr.message}`
+      : lastErr.message
+  );
 }
 
 // Same timeout protection as abciQuery, for GraphQL calls. Necessary, not
@@ -258,7 +317,7 @@ async function mapLimit(items, limit, fn) {
 // ---------- GRC20 tokens: same regex-over-Render() approach as the client ----------
 
 async function fetchTokens(net) {
-  const markdown = (await abciQuery(net.rpcUrl, "vm/qrender", "gno.land/r/demo/defi/grc20reg:")) || "";
+  const markdown = (await abciQuery(net, "vm/qrender", "gno.land/r/demo/defi/grc20reg:")) || "";
   const lineRe = /^- \*\*(.+?)\*\* - \[(.+?)\]\([^)]*\)(?:\.(\S+))? - /gm;
   const rows = [];
   let m;
@@ -276,7 +335,7 @@ async function fetchTokenTotalSupplies(net, tokenPaths) {
   const results = await mapLimit(tokenPaths, 8, async (path) => {
     for (const fn of ["TotalSupply()", "GetTotalSupply()"]) {
       try {
-        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.${fn}`);
+        const raw = await abciQuery(net, "vm/qeval", `${path}.${fn}`);
         const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
         if (m) return [path, Number(m[1])];
       } catch {
@@ -322,14 +381,14 @@ function realmPathOnly(id) {
 async function fetchNftCollectionMeta(net, nftRealms) {
   await mapLimit(nftRealms, 8, async (n) => {
     try {
-      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.Name()`);
+      const raw = await abciQuery(net, "vm/qeval", `${n.path}.Name()`);
       const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
       if (m) n.name = m[1];
     } catch {
       // leave n.name unset
     }
     try {
-      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.Symbol()`);
+      const raw = await abciQuery(net, "vm/qeval", `${n.path}.Symbol()`);
       const m = /^\("(.*)" string\)/s.exec((raw || "").trim());
       if (m) n.symbol = m[1];
     } catch {
@@ -337,7 +396,7 @@ async function fetchNftCollectionMeta(net, nftRealms) {
     }
     for (const fn of ["TokenCount()", "TotalSupply()"]) {
       try {
-        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.${fn}`);
+        const raw = await abciQuery(net, "vm/qeval", `${n.path}.${fn}`);
         const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
         if (m) { n.tokenCount = Number(m[1]); break; }
       } catch {
@@ -446,7 +505,7 @@ async function fetchNftCollectionImages(net, nftRealms) {
       // text from that second line's own nested quotes.
       for (const fn of ["GetTokenURI", "TokenURI"]) {
         try {
-          const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.${fn}("${tokenId}")`);
+          const raw = await abciQuery(net, "vm/qeval", `${n.path}.${fn}("${tokenId}")`);
           const firstLine = (raw || "").trim().split("\n")[0];
           const m = /^\("([^"]*)" string\)$/.exec(firstLine);
           const image = m ? extractImageFromMetadataURI(m[1]) : null;
@@ -465,7 +524,7 @@ async function fetchNftCollectionImages(net, nftRealms) {
       // renders a struct as (struct{(field1),(field2),...} typename) in
       // declaration order — only the first field is parsed here.
       try {
-        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${n.path}.TokenMetadata("${tokenId}")`);
+        const raw = await abciQuery(net, "vm/qeval", `${n.path}.TokenMetadata("${tokenId}")`);
         const firstLine = (raw || "").trim().split("\n")[0];
         const m = /^\(struct\{\("([^"]*)" string\)/.exec(firstLine);
         const image = m ? extractImageFromMetadataURI(m[1]) : null;
@@ -551,7 +610,7 @@ async function fetchGingerTokenMetadata(net, tokenId) {
   const literal = JSON.stringify(tokenId);
   for (const fn of ["GetTokenURI", "TokenURI"]) {
     try {
-      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GINGER_COLLECTION.path}.${fn}(${literal})`);
+      const raw = await abciQuery(net, "vm/qeval", `${GINGER_COLLECTION.path}.${fn}(${literal})`);
       const firstLine = (raw || "").trim().split("\n")[0];
       const m = /^\("([^"]*)" string\)$/.exec(firstLine);
       if (!m) continue;
@@ -562,7 +621,7 @@ async function fetchGingerTokenMetadata(net, tokenId) {
     }
   }
   try {
-    const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GINGER_COLLECTION.path}.TokenMetadata(${literal})`);
+    const raw = await abciQuery(net, "vm/qeval", `${GINGER_COLLECTION.path}.TokenMetadata(${literal})`);
     const firstLine = (raw || "").trim().split("\n")[0];
     const fields = [...firstLine.matchAll(/\((?:"([^"]*)")?\s*string\)/g)].map((m) => m[1] ?? "");
     if (fields.length) {
@@ -651,7 +710,7 @@ async function fetchTokenDecimals(net, tokenPaths, prevDecimals, registryDecimal
   await mapLimit(toFetch, 8, async (path) => {
     for (const fn of ["Decimals()", "GetDecimals()"]) {
       try {
-        const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${path}.${fn}`);
+        const raw = await abciQuery(net, "vm/qeval", `${path}.${fn}`);
         const m = /^\((\d+)\s+\w+\)/.exec((raw || "").trim());
         if (m) { known[path] = Number(m[1]); return; }
       } catch {
@@ -818,12 +877,12 @@ async function fetchDeployedPackages(net, prevState) {
   if (toReclassify.length > 0) {
     await mapLimit(toReclassify, 8, async (pkg) => {
       try {
-        const listing = await abciQuery(net.rpcUrl, "vm/qfile", pkg.path);
+        const listing = await abciQuery(net, "vm/qfile", pkg.path);
         const filenames = (listing || "").split("\n").map(s => s.trim())
           .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
         const files = await mapLimit(filenames, 4, async (name) => {
           try {
-            return { name, body: (await abciQuery(net.rpcUrl, "vm/qfile", `${pkg.path}/${name}`)) || "" };
+            return { name, body: (await abciQuery(net, "vm/qfile", `${pkg.path}/${name}`)) || "" };
           } catch {
             return { name, body: "" };
           }
@@ -1144,7 +1203,7 @@ async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
   if (toFetch.length > 0) {
     await mapLimit(toFetch, 8, async (p) => {
       try {
-        const listing = await abciQuery(net.rpcUrl, "vm/qfile", p);
+        const listing = await abciQuery(net, "vm/qfile", p);
         const filenames = (listing || "").split("\n").map(s => s.trim())
           .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
         // A realm can have a hundred-plus files (mostly gno "filetest" files,
@@ -1154,7 +1213,7 @@ async function fetchGenesisStandards(net, allRealms, txPaths, prevGenesis) {
         // file just means less source to scan, not a false "unreadable".
         const files = await mapLimit(filenames, 4, async (name) => {
           try {
-            return { name, body: (await abciQuery(net.rpcUrl, "vm/qfile", `${p}/${name}`)) || "" };
+            return { name, body: (await abciQuery(net, "vm/qfile", `${p}/${name}`)) || "" };
           } catch {
             return { name, body: "" };
           }
@@ -1212,12 +1271,12 @@ async function fetchRealmImports(net, allRealms, prevImports) {
   if (toFetch.length > 0) {
     await mapLimit(toFetch, 8, async (p) => {
       try {
-        const listing = await abciQuery(net.rpcUrl, "vm/qfile", p);
+        const listing = await abciQuery(net, "vm/qfile", p);
         const filenames = (listing || "").split("\n").map(s => s.trim())
           .filter(n => n.endsWith(".gno") && !n.endsWith("_test.gno") && !n.endsWith("_filetest.gno"));
         const files = await mapLimit(filenames, 4, async (name) => {
           try {
-            return (await abciQuery(net.rpcUrl, "vm/qfile", `${p}/${name}`)) || "";
+            return (await abciQuery(net, "vm/qfile", `${p}/${name}`)) || "";
           } catch {
             return "";
           }
@@ -1408,7 +1467,7 @@ function parseLaunchpadDeposit(raw) {
 async function fetchLaunchpadLockedGns(net) {
   let count = 0;
   try {
-    count = parseQevalInt(await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDepositCount()`));
+    count = parseQevalInt(await abciQuery(net, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDepositCount()`));
   } catch {
     return {};
   }
@@ -1416,7 +1475,7 @@ async function fetchLaunchpadLockedGns(net) {
   const locked = {};
   await mapLimit(Array.from({ length: count }, (_, i) => String(i + 1)), 8, async (depositId) => {
     try {
-      const raw = await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDeposit("${depositId}")`);
+      const raw = await abciQuery(net, "vm/qeval", `${GNOSWAP_LAUNCHPAD_PATH}.GetDeposit("${depositId}")`);
       const deposit = parseLaunchpadDeposit(raw);
       if (!deposit || deposit.withdrawnHeight > 0) return; // withdrawn -- no longer locked
       locked[deposit.depositor] = (locked[deposit.depositor] || 0) + deposit.depositAmount;
@@ -1471,7 +1530,7 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
 
   let positionCount = 0;
   try {
-    positionCount = parseQevalInt(await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionCount()`));
+    positionCount = parseQevalInt(await abciQuery(net, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionCount()`));
   } catch {
     // leave at 0 -- LP Strategists/IBC Specialists just come back empty
   }
@@ -1481,14 +1540,14 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
   await mapLimit(Array.from({ length: positionCount }, (_, i) => i + 1), 8, async (positionId) => {
     try {
       const poolKey = parseQevalAddressOrString(
-        await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionPoolKey(uint64(${positionId}))`)
+        await abciQuery(net, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionPoolKey(uint64(${positionId}))`)
       );
       if (poolKey === IBC_ETH_POOL_PATH) {
         const owner = parseQevalAddressOrString(
-          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionOwner(uint64(${positionId}))`)
+          await abciQuery(net, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionOwner(uint64(${positionId}))`)
         );
         const ethAmount = parseQevalInt(
-          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionToken1Balance(uint64(${positionId}))`)
+          await abciQuery(net, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionToken1Balance(uint64(${positionId}))`)
         );
         if (owner && ethAmount > 0) ibcEthByOwner[owner] = (ibcEthByOwner[owner] || 0) + ethAmount;
       }
@@ -1500,11 +1559,11 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
       // GetDepositOwner returns "" for a position that was never staked --
       // safe to call unconditionally rather than pre-checking staked status.
       const stakedOwner = parseQevalAddressOrString(
-        await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositOwner(uint64(${positionId}))`)
+        await abciQuery(net, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositOwner(uint64(${positionId}))`)
       );
       if (stakedOwner && stakedOwner.startsWith("g1")) {
         const reward = parseQevalInt(
-          await abciQuery(net.rpcUrl, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositCollectedInternalReward(uint64(${positionId}))`)
+          await abciQuery(net, "vm/qeval", `${GNOSWAP_STAKER_PATH}.GetDepositCollectedInternalReward(uint64(${positionId}))`)
         );
         if (reward > 0) lpRewardsByOwner[stakedOwner] = (lpRewardsByOwner[stakedOwner] || 0) + reward;
       }
@@ -1649,7 +1708,7 @@ async function fetchWhaleWatch(net, knownAddresses, genesisAddresses) {
     // actually failed once, not a blanket second pass over everything).
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const raw = await abciQuery(net.rpcUrl, "auth/accounts/" + addr, "");
+        const raw = await abciQuery(net, "auth/accounts/" + addr, "");
         if (!raw || raw.trim() === "null") return { address: addr, balance: 0, genesis };
         const parsed = JSON.parse(raw);
         const coins = parsed?.BaseAccount?.coins || "";
@@ -1708,7 +1767,7 @@ async function buildNetwork(netKey, net) {
 
   const [tokens, allRealmsRaw, txResult, callActivityResult, swapsResult, bankSendResult, tokenRegistry, faucetResult] = await Promise.all([
     fetchTokens(net),
-    abciQuery(net.rpcUrl, "vm/qpaths", "gno.land/r/"),
+    abciQuery(net, "vm/qpaths", "gno.land/r/"),
     fetchDeployedPackages(net, prev),
     fetchCallActivity(net, prev?.callActivity),
     fetchGnoswapSwaps(net, prev?.swapActivity),

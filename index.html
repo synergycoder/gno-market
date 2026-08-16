@@ -1459,6 +1459,39 @@ const NETWORKS = {
     label: "sapphire-1 (testnet)",
     chainId: "sapphire-1",
     rpcUrl: "https://rpc.sapphire.testnets.gno.land",
+    // Fallback list for abciQuery (see its own comment) — the official RPC
+    // above has been unreliable enough this week to be worth backup
+    // endpoints for. Community-run (shared in gno.land's Telegram, not an
+    // official gno.land list — none exists), vetted 2026-08-16 before
+    // adding: correct sapphire-1 chain-id, block height and block time in
+    // exact agreement with each other (block time is consensus-committed
+    // data baked into the header, hard to fake), a real vm/qeval call
+    // against actual deployed source correctly executed by the Gno VM
+    // (returned the right compiler error for an intentionally wrong
+    // function name — a fake/spoofing node would have no reason to
+    // implement a working VM just to fake that), AND cross-referenced
+    // against gno-validator.nodesync.top's public sapphire-1 validator
+    // set — all 4 correspond to registered, actively-participating
+    // validators with long public uptime histories (99.9%+, one at a
+    // perfect 100%), not anonymous infra.
+    //
+    // Only 2 of the original 4 are listed here, though: luckystar and
+    // oshvank both send a DUPLICATED Access-Control-Allow-Origin header
+    // (confirmed via curl -D, both show the line twice) — curl doesn't
+    // care, but a real browser's CORS check does, and both failed with a
+    // bare "Failed to fetch" from an actual in-browser fetch() while curl
+    // reported them as perfectly healthy. scripts/build-cache.mjs runs in
+    // Node, where CORS doesn't apply at all, so it keeps all 4 — this
+    // list and that one are deliberately NOT identical; keep it that way
+    // rather than "fixing" this file to match it.
+    //
+    // Still not officially endorsed by gno.land; re-verify if either of
+    // these ever starts behaving oddly.
+    rpcUrls: [
+      "https://rpc.sapphire.testnets.gno.land",
+      "https://gnoland-sapphire-rpc.corenodehq.xyz",
+      "https://gnoland-sapphire-rpc.hazennetworksolutions.com",
+    ],
     indexerUrl: "https://indexer.sapphire.testnets.gno.land/graphql/query",
   },
   // Sunset in favor of sapphire-1 above — archived: true freezes this
@@ -1584,6 +1617,17 @@ const SAPPHIRE_RUSH_ETH_PATH = "gno.land/r/onbloc/ibc/union/apps/ucs03_zkgm";
 // run) -- so this exact gap was latent for any *future* tab wired the
 // same way, not just this one.
 const cachedDataPromises = new Map(); // netKey -> Promise<data|null>, shared by getCachedData()
+
+// Same reasoning again, pre-emptively this time: abciQuery (used by, among
+// other things, the click-to-expand Render() preview — reachable from a
+// restoreInitialView()-triggered tab the same way loadSapphireRush() was
+// above) reads this synchronously as its first statement. chainId -> index
+// into net.rpcUrls of the last RPC endpoint that worked, sticky for the
+// rest of this page session — without it, every query would re-pay the
+// primary's full timeout before falling back, every time, once the
+// primary goes down. Starts fresh (index 0, the official endpoint) each
+// page load; a later success earlier in the list moves it back down.
+const lastGoodRpcIndex = {};
 
 // Genesis-realm source is immutable once deployed, so it's safe to persist
 // across page loads indefinitely — this is what actually makes the "one-time
@@ -1802,10 +1846,9 @@ function assertNotArchived(net) {
   }
 }
 
-async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
-  assertNotArchived(net);
+async function abciQuerySingle(rpcUrl, path, dataStr, timeoutMs) {
   const data = btoa(unescape(encodeURIComponent(dataStr)));
-  const url = `${net.rpcUrl}/abci_query?path=${encodeURIComponent('"' + path + '"')}&data=${encodeURIComponent('"' + data + '"')}`;
+  const url = `${rpcUrl}/abci_query?path=${encodeURIComponent('"' + path + '"')}&data=${encodeURIComponent('"' + data + '"')}`;
   const controller = new AbortController();
   // some RPC nodes occasionally accept a connection and never respond; without
   // this, one bad request stalls an entire batch of Promise.all-based scanning.
@@ -1824,7 +1867,7 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
     // render: ..."), so left as-is this reads as a meaningless dev-console
     // string instead of telling someone the RPC just isn't responding.
     if (err instanceof TypeError) {
-      throw new Error(`RPC endpoint (${net.rpcUrl}) isn't responding right now — this is usually temporary, try again in a moment (${path})`);
+      throw new Error(`RPC endpoint (${rpcUrl}) isn't responding right now — this is usually temporary, try again in a moment (${path})`);
     }
     throw err;
   } finally {
@@ -1852,6 +1895,44 @@ async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
     throw new Error(msg);
   }
   return raw ? decodeURIComponent(escape(atob(raw))) : "";
+}
+
+async function abciQuery(net, path, dataStr, timeoutMs = 15000) {
+  assertNotArchived(net);
+  const urls = net.rpcUrls || [net.rpcUrl];
+  const startIdx = lastGoodRpcIndex[net.chainId] || 0;
+  let lastErr;
+  for (let offset = 0; offset < urls.length; offset++) {
+    const idx = (startIdx + offset) % urls.length;
+    try {
+      const result = await abciQuerySingle(urls[idx], path, dataStr, timeoutMs);
+      lastGoodRpcIndex[net.chainId] = idx;
+      return result;
+    } catch (err) {
+      lastErr = err;
+      // Only fall through to the next endpoint for a connectivity-class
+      // failure (unreachable / timed out) — a real on-chain error (e.g. an
+      // invalid package path) would be the identical answer from every
+      // endpoint, so retrying it elsewhere would just waste time to arrive
+      // at the same result.
+      if (!/isn't responding right now|^RPC timed out/.test(err.message)) {
+        // The endpoint itself answered fine here — this is a genuine
+        // on-chain-level error, not a reason to distrust it. Caught live:
+        // a naive version only recorded stickiness on the success path
+        // above, so any query that happens to hit a real on-chain error
+        // (existence checks, etc.) never marked a perfectly healthy
+        // endpoint as known-good, undoing the point of stickiness for
+        // exactly the queries most likely to legitimately error.
+        lastGoodRpcIndex[net.chainId] = idx;
+        throw err;
+      }
+    }
+  }
+  throw new Error(
+    urls.length > 1
+      ? `All ${urls.length} RPC endpoints for ${net.label} are unreachable right now — this is unusual, try again in a moment (${path})`
+      : lastErr.message
+  );
 }
 
 async function graphqlQuery(net, query, timeoutMs = 20000) {
