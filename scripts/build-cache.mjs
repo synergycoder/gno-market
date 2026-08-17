@@ -1731,6 +1731,8 @@ async function buildNetwork(netKey, net) {
   const internalPath = path.join(DATA_DIR, `${netKey}.internal.json`);
   const nftImagesPath = path.join(DATA_DIR, `${netKey}-nft-images.json`);
   const nftRealmsPath = path.join(DATA_DIR, `${netKey}-nft-realms.json`);
+  const tokensPath = path.join(DATA_DIR, `${netKey}-tokens.json`);
+  const whaleWatchPath = path.join(DATA_DIR, `${netKey}-whale-watch.json`);
   const gingerMintsPath = path.join(DATA_DIR, `${netKey}-ginger-mints.json`);
   // No netKey prefix here (unlike gingerMintsPath) -- this is only ever
   // computed for netKey === "sapphire", so "sapphire-sapphire-rush.json"
@@ -2026,12 +2028,23 @@ async function buildNetwork(netKey, net) {
   // tokenCount -- the exact same reasoning nft-images.json already
   // exists for, just for a different sibling project's use case.
   await writeFile(nftRealmsPath, JSON.stringify(nftRealms, null, 2));
+  // Same pure-ADD split as nftRealms above, for the same reason: gno-tools
+  // asked for tokens/whaleWatch as their own small files too, so other
+  // sibling projects can fetch just this slice instead of the full
+  // multi-MB data/${netKey}.json. Both stay in `output` as well -- neither
+  // is what makes that file big (tokens: ~40 entries; whaleWatch: a
+  // fixed-size top list), so like nftRealms this doesn't remove anything,
+  // only adds a standalone copy.
+  await writeFile(tokensPath, JSON.stringify(tokens, null, 2));
+  await writeFile(whaleWatchPath, JSON.stringify(whaleWatch, null, 2));
   if (gingerMints) await writeFile(gingerMintsPath, JSON.stringify(gingerMints, null, 2));
   if (sapphireRush) await writeFile(sapphireRushPath, JSON.stringify(sapphireRush, null, 2));
   console.log(`wrote ${outPath}`);
   console.log(`wrote ${internalPath}`);
   console.log(`wrote ${nftImagesPath}`);
   console.log(`wrote ${nftRealmsPath}`);
+  console.log(`wrote ${tokensPath}`);
+  console.log(`wrote ${whaleWatchPath}`);
   if (gingerMints) console.log(`wrote ${gingerMintsPath}`);
   if (sapphireRush) console.log(`wrote ${sapphireRushPath}`);
 }
