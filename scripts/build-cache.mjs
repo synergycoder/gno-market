@@ -1730,6 +1730,7 @@ async function buildNetwork(netKey, net) {
   const outPath = path.join(DATA_DIR, `${netKey}.json`);
   const internalPath = path.join(DATA_DIR, `${netKey}.internal.json`);
   const nftImagesPath = path.join(DATA_DIR, `${netKey}-nft-images.json`);
+  const nftRealmsPath = path.join(DATA_DIR, `${netKey}-nft-realms.json`);
   const gingerMintsPath = path.join(DATA_DIR, `${netKey}-ginger-mints.json`);
   // No netKey prefix here (unlike gingerMintsPath) -- this is only ever
   // computed for netKey === "sapphire", so "sapphire-sapphire-rush.json"
@@ -2015,11 +2016,22 @@ async function buildNetwork(netKey, net) {
   await writeFile(outPath, JSON.stringify(output, null, 2));
   await writeFile(internalPath, JSON.stringify(internalState, null, 2));
   await writeFile(nftImagesPath, JSON.stringify(nftImages, null, 2));
+  // nftRealms itself stays in `output` too (unlike nftImages, it's only a
+  // few KB total -- not what made data/${netKey}.json big) -- this is a
+  // pure ADD, not a split, purely so a sibling project can fetch just this
+  // small slice instead of the full multi-MB file. Requested by gno-tools
+  // (a sibling project reusing this same GRC721/GRC1155 detection
+  // heuristic client-side against the live RPC) to avoid re-walking the
+  // whole chain just to get collection path/standard/name/symbol/
+  // tokenCount -- the exact same reasoning nft-images.json already
+  // exists for, just for a different sibling project's use case.
+  await writeFile(nftRealmsPath, JSON.stringify(nftRealms, null, 2));
   if (gingerMints) await writeFile(gingerMintsPath, JSON.stringify(gingerMints, null, 2));
   if (sapphireRush) await writeFile(sapphireRushPath, JSON.stringify(sapphireRush, null, 2));
   console.log(`wrote ${outPath}`);
   console.log(`wrote ${internalPath}`);
   console.log(`wrote ${nftImagesPath}`);
+  console.log(`wrote ${nftRealmsPath}`);
   if (gingerMints) console.log(`wrote ${gingerMintsPath}`);
   if (sapphireRush) console.log(`wrote ${sapphireRushPath}`);
 }
