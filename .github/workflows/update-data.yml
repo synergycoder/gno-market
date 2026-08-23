@@ -22,16 +22,25 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # Real runs typically finish in 1-2 minutes, but fetchWhaleWatch (the
-    # last step per network) has its own internal 8-minute soft deadline
-    # now (see build-cache.mjs) rather than being genuinely unbounded —
-    # worst case is both networks' whale-watch each hitting that deadline
-    # back to back (~17 min) plus everything else, so this needs real
-    # headroom above the old 10-minute cap, which was tight enough to
-    # get hit by legitimate (if slow) work on the very next run after
-    # it shipped. Still a massive bound down from the previous default
-    # (GitHub's own 6-hour job ceiling, hit for real more than once).
-    timeout-minutes: 25
+    # Real runs typically finish in 1-2 minutes, but the old 25-min value
+    # here was set from an INCOMPLETE accounting — it only budgeted for
+    # fetchWhaleWatch's own 8-min soft deadline (see build-cache.mjs) and
+    # missed that fetchSapphireRush's position-scan loop and
+    # fetchNftCollectionImages were BOTH still genuinely unbounded at the
+    # time. Confirmed live: real runs started hitting this ceiling for
+    # real (not a hypothetical) once chain activity grew enough — every
+    # scheduled run for ~19 hours straight got force-cancelled mid-run,
+    # meaning the commit step never ran and data/ went stale despite the
+    # UI's own "updates every 30 min" claim. Both loops now have their
+    # own soft deadlines too (3 min for nft images, 8 min for the
+    # position scan), so the real worst case per network is now whale
+    # watch (8) + sapphire-only rush (its own xGNS holders fetch, capped
+    # 4, + the position scan, capped 8) + nft images (3) + token holders
+    # (4, fetchInChunks' own default) + fast misc steps (~1) ≈ 28 min for
+    # sapphire alone, plus betanet/testnet's own smaller runs after it
+    # (no sapphire-rush step, so ~16 min worst case each) — 40 gives that
+    # real headroom instead of just delaying the same cancellation.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 

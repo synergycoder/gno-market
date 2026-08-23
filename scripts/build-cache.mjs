@@ -490,7 +490,20 @@ function extractImageFromMetadataURI(uri) {
 
 async function fetchNftCollectionImages(net, nftRealms) {
   const images = {};
+  // Unbounded before this -- up to 4 sequential abciQuery/indexer calls
+  // per collection (fetchFirstMintedTokenId's own indexer query, then up
+  // to 3 more for TokenURI/GetTokenURI/TokenMetadata), concurrency 4, no
+  // overall cap. Confirmed live: a run against a currently-degraded
+  // indexer took 5.5 minutes and still resolved 0/41 images -- worst-case
+  // timeouts on every call, for every collection, is exactly the shape
+  // this soft deadline exists to bound. Same pattern as fetchWhaleWatch/
+  // fetchSapphireRush's own (see their comments) -- once the deadline
+  // passes, no NEW collection starts, whatever's already resolved is
+  // still returned.
+  const deadline = Date.now() + 3 * 60 * 1000;
+  let skipped = 0;
   await mapLimit(nftRealms, 4, async (n) => {
+    if (Date.now() > deadline) { skipped++; return; }
     try {
       const tokenId = await fetchFirstMintedTokenId(net, n.path);
       if (!tokenId) return;
@@ -536,6 +549,7 @@ async function fetchNftCollectionImages(net, nftRealms) {
       // best-effort — not every collection will resolve, leave it out
     }
   });
+  if (skipped > 0) console.log(`nft collection images: hit the time budget, skipped ${skipped}/${nftRealms.length} collections this run (will retry next run)`);
   return images;
 }
 
@@ -1537,7 +1551,22 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
 
   const lpRewardsByOwner = {};
   const ibcEthByOwner = {};
+  // Unbounded before this -- up to 5 sequential abciQuery calls PER
+  // position (each with its own 15s timeout/fallback), concurrency 8, no
+  // overall cap. Confirmed live via a real run's own logs: 1816 positions
+  // took 10m39s even when nothing failed, and the very next scheduled run
+  // after that blew straight through the job's entire 25-minute timeout
+  // with zero progress logged in between -- this loop, silently. Same
+  // soft-deadline treatment as fetchWhaleWatch's own (see its comment):
+  // once the deadline passes, no NEW positions start, already-in-flight
+  // ones still finish, and whatever's aggregated by then is still
+  // returned instead of the whole job (including sapphire's other
+  // already-computed data, and betanet/testnet's runs after it) getting
+  // killed by the outer timeout with nothing committed at all.
+  const positionScanDeadline = Date.now() + 8 * 60 * 1000;
+  let positionsSkipped = 0;
   await mapLimit(Array.from({ length: positionCount }, (_, i) => i + 1), 8, async (positionId) => {
+    if (Date.now() > positionScanDeadline) { positionsSkipped++; return; }
     try {
       const poolKey = parseQevalAddressOrString(
         await abciQuery(net, "vm/qeval", `${GNOSWAP_POSITION_PATH}.GetPositionPoolKey(uint64(${positionId}))`)
@@ -1571,6 +1600,7 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
       // best-effort -- skip this position for LP Strategists purposes
     }
   });
+  if (positionsSkipped > 0) console.log(`sapphire rush: hit the time budget, skipped ${positionsSkipped}/${positionCount} positions this run (will retry next run)`);
 
   const lpStrategists = Object.entries(lpRewardsByOwner)
     .map(([address, gnsRewardsClaimed]) => ({ address, gnsRewardsClaimed }))
@@ -1587,7 +1617,12 @@ async function fetchSapphireRush(net, tokens, tokenHolderBalances, swaps, prevSt
     powerTraders,
     lpStrategists,
     ibcSpecialists,
-    positionsScanned: positionCount,
+    // positionCount itself (total positions that exist on-chain, from
+    // GetPositionCount()) is still logged separately above -- this field
+    // now reflects how many were ACTUALLY scanned this run, which can be
+    // less than positionCount once the soft deadline above starts
+    // skipping the tail.
+    positionsScanned: positionCount - positionsSkipped,
     xgnsHolders: xgnsHolderResult, // persisted as prevState for next run's incremental scan
   };
 }
