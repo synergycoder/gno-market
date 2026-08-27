@@ -1447,16 +1447,40 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 // not a one-time nag.
 
 const NETWORKS = {
-  // The current gno.land testnet, per gno.land's own faucet hub
-  // (faucet.gno.land) — topaz-1 below is now officially "the previous"
-  // one. Listed first so it's the default network for new visitors (see
-  // the network-select init below, and the one-time migration for
-  // returning visitors whose saved preference was still "testnet").
-  // Both RPC and indexer confirmed live and CORS-open directly
-  // (access-control-allow-origin: *) — no proxy needed, unlike betanet's
-  // indexer below.
+  // Pearl (pearl-1), the current gno.land testnet as of 2026-08-27 --
+  // sapphire-1 below is now officially "the previous" one, same relation
+  // sapphire-1 had to topaz-1 when IT took over this slot (see that
+  // entry's own comment, and ~/gno-land-dev-notes.md's 2026-08-27 entry
+  // for the full announcement). Listed first so it's the default network
+  // for new visitors (see the network-select init below, and the
+  // one-time migration for returning visitors whose saved preference was
+  // still "sapphire"). RPC/indexer both confirmed live and CORS-open
+  // directly (access-control-allow-origin: *) against a real vm/qeval
+  // call and a real indexer query, not just a bare connectivity check.
+  // Only one RPC endpoint known so far -- Pearl launched hours before
+  // this was added, no community fallback list exists yet the way
+  // sapphire's eventually accumulated one (see its own rpcUrls comment).
+  pearl: {
+    label: "pearl-1 (testnet)",
+    chainId: "pearl-1",
+    rpcUrl: "https://rpc.pearl.testnets.gno.land",
+    indexerUrl: "https://indexer.pearl.testnets.gno.land/graphql/query",
+  },
+  // Demoted from the default network (pearl-1 above took that role) in
+  // anticipation of an eventual sunset -- but per an explicit ask, this is
+  // deliberately NOT the same treatment topaz-1 below got: no `archived`
+  // flag, so abciQuery/graphqlQuery keep serving real live queries here
+  // (Force Refresh, Scan Wallet, NFT galleries, everything), and
+  // scripts/build-cache.mjs keeps scanning and refreshing data/sapphire*
+  // on the normal schedule, unlike topaz-1's frozen-forever snapshot.
+  // `legacy: true` below only affects which network a new or returning
+  // visitor lands on by default (see the one-time migration below) --
+  // nothing else reads it. Re-evaluate once (if) gno.land actually
+  // announces a sapphire-1 sunset date; this is anticipatory, not a
+  // confirmed deprecation yet.
   sapphire: {
-    label: "sapphire-1 (testnet)",
+    legacy: true,
+    label: "sapphire-1 (previous testnet)",
     chainId: "sapphire-1",
     rpcUrl: "https://rpc.sapphire.testnets.gno.land",
     // Fallback list for abciQuery (see its own comment) — the official RPC
@@ -1549,12 +1573,15 @@ for (const [key, net] of Object.entries(NETWORKS)) {
 const NETWORK_STORAGE_KEY = "gnoObserver:selectedNetwork";
 try {
   const savedNetwork = localStorage.getItem(NETWORK_STORAGE_KEY);
-  // A returning visitor's saved "testnet" almost certainly came from it
-  // being the default network before sapphire-1 took over that role, not
-  // a deliberate choice to view an archive — treat it as unset rather
-  // than silently landing them on frozen data every time. Someone who
-  // genuinely wants the archive can still pick it from the dropdown.
-  if (savedNetwork && NETWORKS[savedNetwork] && !NETWORKS[savedNetwork].archived) {
+  // A returning visitor's saved "testnet"/"sapphire" almost certainly came
+  // from it being the default network at the time, not a deliberate choice
+  // to keep viewing an archived or now-previous one — treat it as unset
+  // rather than silently stranding them there on every visit. Someone who
+  // genuinely wants sapphire-1 or the topaz-1 archive can still pick it
+  // from the dropdown; `legacy` (sapphire-1 now) and `archived` (topaz-1)
+  // are deliberately separate flags (see NETWORKS.sapphire's own comment)
+  // but both mean "don't default a visitor here" for this one purpose.
+  if (savedNetwork && NETWORKS[savedNetwork] && !NETWORKS[savedNetwork].archived && !NETWORKS[savedNetwork].legacy) {
     select.value = savedNetwork;
   }
 } catch {

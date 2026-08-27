@@ -30,6 +30,34 @@ const DATA_DIR = path.join(__dirname, "..", "data");
 // snapshot — if topaz-1 ever needs re-enabling, index.html's archived
 // flag has to come off too, not just this.
 const NETWORKS = {
+  // Pearl (pearl-1) launched 2026-08-27, the next testnet after sapphire-1
+  // -- a fresh chain, not a hardfork (no state carries over; see
+  // ~/gno-land-dev-notes.md's 2026-08-27 entry for the full announcement
+  // and breaking-change list). Listed first so index.html's
+  // Object.entries-driven network dropdown defaults new visitors here,
+  // same reasoning as sapphire's own comment for itself when IT became
+  // the default over topaz-1. RPC/indexer both confirmed live and
+  // CORS-open (access-control-allow-origin: *) directly against real
+  // deployed source (r/sys/users.ResolveAddress) and a real indexer query
+  // (latestBlockHeight), not just a bare connectivity check. Only one RPC
+  // endpoint known so far (Pearl is hours old at the time of writing) --
+  // no community-vetted fallback list exists yet the way sapphire's
+  // eventually accumulated one; add rpcUrls here once alternatives turn up.
+  pearl: {
+    label: "pearl-1 (testnet)",
+    chainId: "pearl-1",
+    rpcUrl: "https://rpc.pearl.testnets.gno.land",
+    indexerUrl: "https://indexer.pearl.testnets.gno.land/graphql/query",
+  },
+  // sapphire-1 is NOT being archived/frozen the way topaz-1 was above --
+  // per an explicit ask, this keeps getting scanned on the normal
+  // schedule in anticipation of an eventual sunset that hasn't actually
+  // been announced yet (Pearl's own announcement calls itself "the next
+  // iteration after Sapphire," not a replacement with a stated cutover
+  // date). index.html demotes it in the UI (no longer the default
+  // network, relabeled) without touching its live-query behavior at all
+  // -- see that file's own NETWORKS.sapphire comment for the split.
+  //
   // buildNetwork() below is fully parameterized by netKey/net, so this
   // network gets every generic scan (tokens, NFTs, deployed packages,
   // trending, governance, social, swaps, whale watch) for free — no
