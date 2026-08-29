@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-29T15:01:00.744Z",
+  "generatedAt": "2026-08-29T15:30:56.869Z",
   "lastHeight": 50914,
   "tokens": [
     {
@@ -2489,19 +2489,19 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1",
+      "calls": 67,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 52601,
+      "lastBlockTime": "2026-08-29T12:03:56.438789768Z",
+      "topFunc": "Claim"
+    },
+    {
       "path": "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nslogic/v1",
       "calls": 65,
       "uniqueCallers": 1,
       "lastBlockHeight": 50917,
       "lastBlockTime": "2026-08-28T18:44:13.899114513Z",
-      "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1",
-      "calls": 64,
-      "uniqueCallers": 1,
-      "lastBlockHeight": 50939,
-      "lastBlockTime": "2026-08-29T12:03:56.438789768Z",
       "topFunc": null
     },
     {
@@ -5960,6 +5960,11 @@
       "genesis": false
     },
     {
+      "address": "g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme",
+      "balance": 10268744,
+      "genesis": false
+    },
+    {
       "address": "g17hz5r08jzhgmhjpxtfqk8afx7hlsud337xjwf4",
       "balance": 10000000,
       "genesis": false
@@ -5972,11 +5977,6 @@
     {
       "address": "g1tqgna0xl3p8e50drzneyl9f2h7qc83pa5azc2l",
       "balance": 9940000,
-      "genesis": false
-    },
-    {
-      "address": "g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme",
-      "balance": 9797505,
       "genesis": false
     },
     {
@@ -12200,17 +12200,17 @@
         "lastBlockTime": "2026-08-29T01:03:28.578677738Z"
       },
       "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1": {
-        "calls": 64,
+        "calls": 67,
         "callers": [
           "g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme"
         ],
-        "topFunc": null,
+        "topFunc": "Claim",
         "firstBlockHeight": 49573,
-        "lastBlockHeight": 50939,
+        "lastBlockHeight": 52601,
         "lastBlockTime": "2026-08-29T12:03:56.438789768Z"
       }
     },
-    "lastHeight": 52512
+    "lastHeight": 53009
   },
   "bankSendActivity": {
     "addresses": [
@@ -13302,7 +13302,7 @@
         "g1xsjn8qfxxv6xuz9jz2ag3gfp7kc8x896djj5d8": 2000000
       }
     },
-    "lastHeight": 52513
+    "lastHeight": 53010
   },
   "stats": {
     "tokenCount": 95,
