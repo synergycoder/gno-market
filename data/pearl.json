@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-29T16:31:10.294Z",
+  "generatedAt": "2026-08-29T17:02:31.214Z",
   "lastHeight": 50914,
   "tokens": [
     {
@@ -2482,11 +2482,11 @@
     },
     {
       "path": "gno.land/r/gnops/valopers",
-      "calls": 88,
-      "uniqueCallers": 73,
-      "lastBlockHeight": 51383,
+      "calls": 89,
+      "uniqueCallers": 74,
+      "lastBlockHeight": 54024,
       "lastBlockTime": "2026-08-27T19:02:29.548929495Z",
-      "topFunc": null
+      "topFunc": "Register"
     },
     {
       "path": "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1",
@@ -2671,7 +2671,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999907306000000,
+      "balance": 999999906704000000,
       "genesis": true
     },
     {
@@ -2855,17 +2855,22 @@
       "genesis": false
     },
     {
-      "address": "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9",
-      "balance": 300000000,
-      "genesis": false
-    },
-    {
       "address": "g1e44xasl93w7f74zxc0xg9xprqy4p8w66p7lfxl",
       "balance": 300000000,
       "genesis": false
     },
     {
       "address": "g1vslfj2l2jaauyku2cpn2rplv89ygrw37y65wy7",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1anajhdr28jlh4dd6dz5pzdjk0dsyqvc4ayk0aa",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1ey5aeyezjug2xzuswl9ahkhn0mycnrvzcpgc5d",
       "balance": 300000000,
       "genesis": false
     },
@@ -2877,6 +2882,11 @@
     {
       "address": "g1u86nekvlf7ppehkf0a6zpdwth5fvh0uljv7x2l",
       "balance": 297720100,
+      "genesis": false
+    },
+    {
+      "address": "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9",
+      "balance": 297719900,
       "genesis": false
     },
     {
@@ -6091,6 +6101,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "E8w8qGz7dRQT/M3DwRP5KU7KD3Yks+l8aVNntlg5Pf0=",
+      "blockHeight": 54097,
+      "blockTime": "2026-08-29T16:36:15.531569094Z",
+      "to": "g1ey5aeyezjug2xzuswl9ahkhn0mycnrvzcpgc5d",
+      "amount": 300000000
+    },
+    {
+      "hash": "DfukQ6Gwo8Xzf4bTJiHJOQbZCvO6x6kkg62por/Dn+E=",
+      "blockHeight": 54050,
+      "blockTime": "2026-08-29T16:33:26.450577539Z",
+      "to": "g1anajhdr28jlh4dd6dz5pzdjk0dsyqvc4ayk0aa",
+      "amount": 300000000
+    },
     {
       "hash": "hzIUpRcQAVcQAMB9l5sRG1ymKBxHNKKnaPYrYJP4MWY=",
       "blockHeight": 53449,
@@ -11708,7 +11732,7 @@
   "callActivity": {
     "byPath": {
       "gno.land/r/gnops/valopers": {
-        "calls": 88,
+        "calls": 89,
         "callers": [
           "g1apx2ktj0tc7gqzaqtgl9xluflnqehgpqla0anv",
           "g15g0la8fyn4mvulrw39vmngs3z9vzhefkyyef9y",
@@ -11782,11 +11806,12 @@
           "g1sxvcr9xp0tqcqjheaeqmzjw3tqt6nm2gsv0n9e",
           "g1qd974fj0wgkmj5ah2euqygs7w86tgsskme6n05",
           "g1fqcddarc4s9qap788t7lksgag4mq7g2gevc8ht",
-          "g1pjlefcnqulegeycg53xuk87qu49qg5rdnw9g6f"
+          "g1pjlefcnqulegeycg53xuk87qu49qg5rdnw9g6f",
+          "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9"
         ],
-        "topFunc": null,
+        "topFunc": "Register",
         "firstBlockHeight": 1844,
-        "lastBlockHeight": 51383,
+        "lastBlockHeight": 54024,
         "lastBlockTime": "2026-08-27T19:02:29.548929495Z"
       },
       "gno.land/r/sys/namereg/v1": {
@@ -12217,7 +12242,7 @@
         "lastBlockTime": "2026-08-29T12:03:56.438789768Z"
       }
     },
-    "lastHeight": 54005
+    "lastHeight": 54527
   },
   "bankSendActivity": {
     "addresses": [
@@ -12897,9 +12922,11 @@
       "g1pjlefcnqulegeycg53xuk87qu49qg5rdnw9g6f",
       "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9",
       "g1e44xasl93w7f74zxc0xg9xprqy4p8w66p7lfxl",
-      "g1vslfj2l2jaauyku2cpn2rplv89ygrw37y65wy7"
+      "g1vslfj2l2jaauyku2cpn2rplv89ygrw37y65wy7",
+      "g1anajhdr28jlh4dd6dz5pzdjk0dsyqvc4ayk0aa",
+      "g1ey5aeyezjug2xzuswl9ahkhn0mycnrvzcpgc5d"
     ],
-    "lastHeight": 53449
+    "lastHeight": 54097
   },
   "tokenHolders": {
     "balances": {
@@ -13309,7 +13336,7 @@
         "g1xsjn8qfxxv6xuz9jz2ag3gfp7kc8x896djj5d8": 2000000
       }
     },
-    "lastHeight": 54008
+    "lastHeight": 54528
   },
   "stats": {
     "tokenCount": 95,
@@ -13322,9 +13349,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 685,
+    "whaleWatchCount": 687,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 61,
-    "faucetDripCount": 694
+    "faucetDripCount": 696
   }
 }
