@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-29T11:31:07.122Z",
+  "generatedAt": "2026-08-29T12:01:08.695Z",
   "lastHeight": 40960,
   "tokens": [
     {
@@ -2431,7 +2431,7 @@
       "uniqueCallers": 94,
       "lastBlockHeight": 49005,
       "lastBlockTime": "2026-08-28T21:04:07.995178038Z",
-      "topFunc": "Faucet"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems/g18",
@@ -2447,7 +2447,7 @@
       "uniqueCallers": 95,
       "lastBlockHeight": 48996,
       "lastBlockTime": "2026-08-28T21:02:35.571832368Z",
-      "topFunc": "SetStringField"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/gnops/valopers",
@@ -2632,7 +2632,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999910417000000,
+      "balance": 999999910116000000,
       "genesis": true
     },
     {
@@ -2687,7 +2687,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 3000000000,
+      "balance": 3300000000,
       "genesis": false
     },
     {
@@ -6027,6 +6027,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "WTa9LyDugJooGxp5xspwaaUHuQ05V1UJtj0xhncZFZY=",
+      "blockHeight": 49222,
+      "blockTime": "2026-08-29T11:42:47.003866406Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
     {
       "hash": "NWwWL8EjgZ0a05LEkg4EAeuWBf13LwM7F/zHN2Ch88M=",
       "blockHeight": 48811,
@@ -11807,7 +11814,7 @@
           "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c",
           "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9"
         ],
-        "topFunc": "SetStringField",
+        "topFunc": null,
         "firstBlockHeight": 24875,
         "lastBlockHeight": 48996,
         "lastBlockTime": "2026-08-28T21:02:35.571832368Z"
@@ -12024,7 +12031,7 @@
           "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c",
           "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9"
         ],
-        "topFunc": "Faucet",
+        "topFunc": null,
         "firstBlockHeight": 34136,
         "lastBlockHeight": 49005,
         "lastBlockTime": "2026-08-28T21:04:07.995178038Z"
@@ -12043,7 +12050,7 @@
         "lastBlockTime": "2026-08-29T01:03:28.578677738Z"
       }
     },
-    "lastHeight": 49024
+    "lastHeight": 49525
   },
   "bankSendActivity": {
     "addresses": [
@@ -12720,7 +12727,7 @@
       "g15ks83fkun0w9mq4ldskqw67704zypvtx2x4udk",
       "g1f9kr8yhev09za0efmfd8r7r3v5w8w6s44250p8"
     ],
-    "lastHeight": 48999
+    "lastHeight": 49222
   },
   "tokenHolders": {
     "balances": {
@@ -13130,7 +13137,7 @@
         "g1xsjn8qfxxv6xuz9jz2ag3gfp7kc8x896djj5d8": 2000000
       }
     },
-    "lastHeight": 49025
+    "lastHeight": 49525
   },
   "stats": {
     "tokenCount": 95,
@@ -13146,6 +13153,6 @@
     "whaleWatchCount": 680,
     "popularDependencyCount": 99,
     "crossRealmEdgeCount": 57,
-    "faucetDripCount": 683
+    "faucetDripCount": 684
   }
 }
