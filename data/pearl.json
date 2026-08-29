@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-29T23:01:04.706Z",
+  "generatedAt": "2026-08-29T23:31:02.913Z",
   "lastHeight": 50914,
   "tokens": [
     {
@@ -2698,7 +2698,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999902684000000,
+      "balance": 999999901781000000,
       "genesis": true
     },
     {
@@ -2767,6 +2767,11 @@
       "genesis": false
     },
     {
+      "address": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
+      "balance": 1500000000,
+      "genesis": false
+    },
+    {
       "address": "g1p4r3esnxhahp307gh5kplvnjxdgy8kguvf9znu",
       "balance": 600000000,
       "genesis": false
@@ -2783,11 +2788,6 @@
     },
     {
       "address": "g1kjkwr5ch8drwr3hzq5v5dcgu4ns7kj7ff74ren",
-      "balance": 600000000,
-      "genesis": false
-    },
-    {
-      "address": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
       "balance": 600000000,
       "genesis": false
     },
@@ -6208,6 +6208,27 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "PTHpKRhRg/I7n+1fhtbmO6/QN08wFJTKq3F3Dekto1s=",
+      "blockHeight": 60854,
+      "blockTime": "2026-08-29T23:25:11.03924758Z",
+      "to": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
+      "amount": 300000000
+    },
+    {
+      "hash": "YKwZD18jWsgXcJ2/6Gqj+Cla+rSnLxGLw3rqo0MeCu8=",
+      "blockHeight": 60812,
+      "blockTime": "2026-08-29T23:22:39.955441045Z",
+      "to": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
+      "amount": 300000000
+    },
+    {
+      "hash": "LuKpyPJdRda6oLyF7xUuPZeAW0UPcYdoScudGigq6kw=",
+      "blockHeight": 60767,
+      "blockTime": "2026-08-29T23:19:54.527076003Z",
+      "to": "g1hpgfqn2ksz40ss70kt4y8lrqd5zgv4n29tyfd4",
+      "amount": 300000000
+    },
     {
       "hash": "/m9nxyNOFw7OA/yjNfOt453ou5cPXCXIU5BdCWPq6CU=",
       "blockHeight": 59518,
@@ -12502,7 +12523,7 @@
         "lastBlockTime": "2026-08-29T12:03:56.438789768Z"
       }
     },
-    "lastHeight": 60452
+    "lastHeight": 60947
   },
   "bankSendActivity": {
     "addresses": [
@@ -13202,7 +13223,7 @@
       "g1f0t6fz8gye0swu2etk2fhhvn8lunvkpf6zmvvc",
       "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e"
     ],
-    "lastHeight": 59518
+    "lastHeight": 60854
   },
   "tokenHolders": {
     "balances": {
@@ -13630,7 +13651,7 @@
         "g1s3zh240vcpa6tpqqmaw3kt5n9ygpt2jw2ta2s8": 2000000
       }
     },
-    "lastHeight": 60453
+    "lastHeight": 60947
   },
   "stats": {
     "tokenCount": 98,
@@ -13646,6 +13667,6 @@
     "whaleWatchCount": 703,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 61,
-    "faucetDripCount": 716
+    "faucetDripCount": 719
   }
 }
