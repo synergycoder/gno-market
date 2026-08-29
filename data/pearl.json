@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-29T19:01:08.019Z",
+  "generatedAt": "2026-08-29T19:31:07.781Z",
   "lastHeight": 50914,
   "tokens": [
     {
@@ -2509,11 +2509,11 @@
     },
     {
       "path": "gno.land/r/gnops/valopers",
-      "calls": 89,
-      "uniqueCallers": 74,
-      "lastBlockHeight": 54024,
+      "calls": 90,
+      "uniqueCallers": 75,
+      "lastBlockHeight": 56546,
       "lastBlockTime": "2026-08-27T19:02:29.548929495Z",
-      "topFunc": null
+      "topFunc": "Register"
     },
     {
       "path": "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1",
@@ -2907,11 +2907,6 @@
       "genesis": false
     },
     {
-      "address": "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs",
-      "balance": 300000000,
-      "genesis": false
-    },
-    {
       "address": "g1etf3rd7dqghksj8r5yunkgmvpupdfszdjhuzju",
       "balance": 297720800,
       "genesis": false
@@ -2949,6 +2944,11 @@
     {
       "address": "g14m0n559xdj00qwvp6ck0xesprrq26kgprgjt4j",
       "balance": 297704700,
+      "genesis": false
+    },
+    {
+      "address": "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs",
+      "balance": 297688800,
       "genesis": false
     },
     {
@@ -11915,7 +11915,7 @@
   "callActivity": {
     "byPath": {
       "gno.land/r/gnops/valopers": {
-        "calls": 89,
+        "calls": 90,
         "callers": [
           "g1apx2ktj0tc7gqzaqtgl9xluflnqehgpqla0anv",
           "g15g0la8fyn4mvulrw39vmngs3z9vzhefkyyef9y",
@@ -11990,11 +11990,12 @@
           "g1qd974fj0wgkmj5ah2euqygs7w86tgsskme6n05",
           "g1fqcddarc4s9qap788t7lksgag4mq7g2gevc8ht",
           "g1pjlefcnqulegeycg53xuk87qu49qg5rdnw9g6f",
-          "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9"
+          "g1vlvfudwxh8h569p8jruf2euemzqt3hqk3e3mx9",
+          "g1n70hju0sew704tmzfxkhy64uer6prjsm2xwlxs"
         ],
-        "topFunc": null,
+        "topFunc": "Register",
         "firstBlockHeight": 1844,
-        "lastBlockHeight": 54024,
+        "lastBlockHeight": 56546,
         "lastBlockTime": "2026-08-27T19:02:29.548929495Z"
       },
       "gno.land/r/sys/namereg/v1": {
@@ -12436,7 +12437,7 @@
         "lastBlockTime": "2026-08-29T12:03:56.438789768Z"
       }
     },
-    "lastHeight": 56494
+    "lastHeight": 56991
   },
   "bankSendActivity": {
     "addresses": [
@@ -13561,7 +13562,7 @@
         "g1s3zh240vcpa6tpqqmaw3kt5n9ygpt2jw2ta2s8": 2000000
       }
     },
-    "lastHeight": 56495
+    "lastHeight": 56993
   },
   "stats": {
     "tokenCount": 98,
