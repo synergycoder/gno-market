@@ -1,7 +1,7 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T18:01:07.976Z",
-  "lastHeight": 68285,
+  "generatedAt": "2026-08-30T18:31:12.008Z",
+  "lastHeight": 79356,
   "tokens": [
     {
       "name": "Test",
@@ -961,6 +961,30 @@
     }
   ],
   "recentDeployed": [
+    {
+      "path": "gno.land/p/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/median",
+      "blockHeight": 79356,
+      "blockTime": "2026-08-30T18:08:02.654446039Z",
+      "hash": "ZABFB7Om8qQfBf0qj8UfcAFqruVnXKcVRnwkcvXptxA=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/ratelimit",
+      "blockHeight": 79315,
+      "blockTime": "2026-08-30T18:05:35.145660442Z",
+      "hash": "RzCUvElkEypBD84GyxWP6/cxWPG/7YXfSTMJV1nsfWQ=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "kind": "Package"
+    },
+    {
+      "path": "gno.land/p/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/fixedpoint",
+      "blockHeight": 79300,
+      "blockTime": "2026-08-30T18:04:39.661994859Z",
+      "hash": "d+PppEot/lGqM6KaOISQfO/j6sC1AYZDF/6RUrow6fA=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "kind": "Package"
+    },
     {
       "path": "gno.land/r/g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap/gnowardrobe/v2",
       "blockHeight": 68285,
@@ -3061,11 +3085,6 @@
       "genesis": false
     },
     {
-      "address": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
-      "balance": 297718500,
-      "genesis": false
-    },
-    {
       "address": "g15crxnxd79syggtha6ymfhy8m8a4ytqel58cwkg",
       "balance": 297717000,
       "genesis": false
@@ -3243,6 +3262,11 @@
     {
       "address": "g1p2av3saw8h3s37w4d0cplcemmeqmmnxhpezx2g",
       "balance": 295540200,
+      "genesis": false
+    },
+    {
+      "address": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "balance": 293868600,
       "genesis": false
     },
     {
@@ -13339,7 +13363,7 @@
         "lastBlockTime": "2026-08-30T06:58:58.170751219Z"
       }
     },
-    "lastHeight": 79233
+    "lastHeight": 79734
   },
   "bankSendActivity": {
     "addresses": [
@@ -14539,13 +14563,13 @@
         "g1x3me0uacl2h25qn0a5gxavh936gyg2mt6xuakg": 22921428
       }
     },
-    "lastHeight": 79234
+    "lastHeight": 79738
   },
   "stats": {
     "tokenCount": 100,
     "nftRealmCount": 11,
     "totalRealmsScanned": 161,
-    "txPackageCount": 201,
+    "txPackageCount": 204,
     "genesisOnlyCount": 28,
     "trendingRealmCount": 25,
     "governanceRealmCount": 1,
