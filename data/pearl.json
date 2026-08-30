@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T10:01:16.974Z",
+  "generatedAt": "2026-08-30T10:31:09.631Z",
   "lastHeight": 68285,
   "tokens": [
     {
@@ -2802,7 +2802,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999896759000000,
+      "balance": 999999896357000000,
       "genesis": true
     },
     {
@@ -2881,6 +2881,11 @@
       "genesis": false
     },
     {
+      "address": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
+      "balance": 600000000,
+      "genesis": false
+    },
+    {
       "address": "g1p4r3esnxhahp307gh5kplvnjxdgy8kguvf9znu",
       "balance": 600000000,
       "genesis": false
@@ -2927,11 +2932,6 @@
     },
     {
       "address": "g1uvf7xv3qnl0ray3zuddmrtpn3wumafranhplts",
-      "balance": 300000000,
-      "genesis": false
-    },
-    {
-      "address": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
       "balance": 300000000,
       "genesis": false
     },
@@ -5271,6 +5271,11 @@
       "genesis": false
     },
     {
+      "address": "g1wt79w2q0sfmpfrxc4990mlsg5ll09yva6fyc4p",
+      "balance": 100000000,
+      "genesis": false
+    },
+    {
       "address": "g1wg9fzxyywaz4gdlc9l96suakfepxxvkaxfnhvq",
       "balance": 99980000,
       "genesis": false
@@ -6352,6 +6357,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "+kB+USjykU3F31nW08V/NrXvX+ektQUqkm4tkJGbtew=",
+      "blockHeight": 71599,
+      "blockTime": "2026-08-30T10:18:50.320865043Z",
+      "to": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
+      "amount": 300000000
+    },
+    {
+      "hash": "5eEs2Lua2rUoylMwDUfIvojvymp/hO+9qpUAUfM01Ik=",
+      "blockHeight": 71352,
+      "blockTime": "2026-08-30T10:03:52.146560373Z",
+      "to": "g1wt79w2q0sfmpfrxc4990mlsg5ll09yva6fyc4p",
+      "amount": 100000000
+    },
     {
       "hash": "7qeHu1yxJwm4JzpwchF+RT+20ymCQe6OY8TQSQExfcM=",
       "blockHeight": 71003,
@@ -13162,7 +13181,7 @@
         "lastBlockTime": "2026-08-30T06:58:58.170751219Z"
       }
     },
-    "lastHeight": 71304
+    "lastHeight": 71797
   },
   "bankSendActivity": {
     "addresses": [
@@ -13868,9 +13887,10 @@
       "g15danrp9lmu44w8x297sszhfdkq788vvs5wkgjn",
       "g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap",
       "g1ka7gz4zqcfdcd0atuywaktm7v2nyavuznh4waz",
-      "g1yvkqqrzkdlp07nup2strr3n4p2m9upn9ec7wpz"
+      "g1yvkqqrzkdlp07nup2strr3n4p2m9upn9ec7wpz",
+      "g1wt79w2q0sfmpfrxc4990mlsg5ll09yva6fyc4p"
     ],
-    "lastHeight": 71003
+    "lastHeight": 71599
   },
   "tokenHolders": {
     "balances": {
@@ -14355,7 +14375,7 @@
         "g1x3me0uacl2h25qn0a5gxavh936gyg2mt6xuakg": 22921428
       }
     },
-    "lastHeight": 71305
+    "lastHeight": 71799
   },
   "stats": {
     "tokenCount": 100,
@@ -14368,9 +14388,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 711,
+    "whaleWatchCount": 712,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 64,
-    "faucetDripCount": 741
+    "faucetDripCount": 743
   }
 }
