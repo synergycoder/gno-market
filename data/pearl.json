@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T16:01:08.052Z",
+  "generatedAt": "2026-08-30T16:31:09.585Z",
   "lastHeight": 68285,
   "tokens": [
     {
@@ -2802,7 +2802,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999892543000000,
+      "balance": 999999891941000000,
       "genesis": true
     },
     {
@@ -2852,7 +2852,7 @@
     },
     {
       "address": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
-      "balance": 5700000000,
+      "balance": 6000000000,
       "genesis": false
     },
     {
@@ -2876,17 +2876,17 @@
       "genesis": false
     },
     {
+      "address": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
+      "balance": 1200000000,
+      "genesis": false
+    },
+    {
       "address": "g12l0ns2c834uuq4q7wh4yh748sel8fgamsvnhv5",
       "balance": 1200000000,
       "genesis": false
     },
     {
       "address": "g1r5muk8te0z2url8kntgjst7wygnfmr8xhsn7m3",
-      "balance": 900000000,
-      "genesis": false
-    },
-    {
-      "address": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
       "balance": 900000000,
       "genesis": false
     },
@@ -6377,6 +6377,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "iNh8BeypmVQXTZ9LXhCKcDzY2UVcuvvNshjyDcfIuu4=",
+      "blockHeight": 77560,
+      "blockTime": "2026-08-30T16:20:10.7401183Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
+    {
+      "hash": "X/4PIvqarR77ksOfLCyvOKlENJhXUOrLSurxk/0qhVs=",
+      "blockHeight": 77443,
+      "blockTime": "2026-08-30T16:13:13.881843217Z",
+      "to": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
+      "amount": 300000000
+    },
     {
       "hash": "OIuuuTCZYuLHbK4GHmtKCiYktYDP8UV5bPZm9YCiiAM=",
       "blockHeight": 76709,
@@ -13300,7 +13314,7 @@
         "lastBlockTime": "2026-08-30T06:58:58.170751219Z"
       }
     },
-    "lastHeight": 77236
+    "lastHeight": 77736
   },
   "bankSendActivity": {
     "addresses": [
@@ -14013,7 +14027,7 @@
       "g1t2vtt4qzhcgg04czu327vaxz0v5drg2wr3zcl3",
       "g12l0ns2c834uuq4q7wh4yh748sel8fgamsvnhv5"
     ],
-    "lastHeight": 76709
+    "lastHeight": 77560
   },
   "tokenHolders": {
     "balances": {
@@ -14498,7 +14512,7 @@
         "g1x3me0uacl2h25qn0a5gxavh936gyg2mt6xuakg": 22921428
       }
     },
-    "lastHeight": 77240
+    "lastHeight": 77740
   },
   "stats": {
     "tokenCount": 100,
@@ -14514,6 +14528,6 @@
     "whaleWatchCount": 716,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 64,
-    "faucetDripCount": 757
+    "faucetDripCount": 759
   }
 }
