@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T03:00:55.371Z",
+  "generatedAt": "2026-08-30T03:31:18.219Z",
   "lastHeight": 50914,
   "tokens": [
     {
@@ -892,7 +892,7 @@
       "standard": "GRC721",
       "name": "Gems",
       "symbol": "GEMS",
-      "tokenCount": 241
+      "tokenCount": 242
     },
     {
       "path": "gno.land/r/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/nft",
@@ -2493,9 +2493,9 @@
     },
     {
       "path": "gno.land/r/g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems/g18",
-      "calls": 298,
-      "uniqueCallers": 101,
-      "lastBlockHeight": 64385,
+      "calls": 299,
+      "uniqueCallers": 102,
+      "lastBlockHeight": 64404,
       "lastBlockTime": "2026-08-29T01:03:28.578677738Z",
       "topFunc": "MintAssembled"
     },
@@ -2509,9 +2509,9 @@
     },
     {
       "path": "gno.land/r/sys/namereg/v1",
-      "calls": 100,
-      "uniqueCallers": 100,
-      "lastBlockHeight": 64380,
+      "calls": 101,
+      "uniqueCallers": 101,
+      "lastBlockHeight": 64401,
       "lastBlockTime": "2026-08-27T14:31:06.869861856Z",
       "topFunc": "Register"
     },
@@ -3158,7 +3158,7 @@
     },
     {
       "address": "g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems",
-      "balance": 214613257,
+      "balance": 215613257,
       "genesis": false
     },
     {
@@ -5782,11 +5782,6 @@
       "genesis": false
     },
     {
-      "address": "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9",
-      "balance": 75459800,
-      "genesis": false
-    },
-    {
       "address": "g1evd5ryl9x5x2cn24jadqlx2jhgptwygcwm8df7",
       "balance": 74663900,
       "genesis": false
@@ -5844,6 +5839,11 @@
     {
       "address": "g18aj6dcawxxer5ml8p7x69wjvqzlyx5e79glvh9",
       "balance": 72620100,
+      "genesis": false
+    },
+    {
+      "address": "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9",
+      "balance": 71699700,
       "genesis": false
     },
     {
@@ -12164,7 +12164,7 @@
         "lastBlockTime": "2026-08-27T19:02:29.548929495Z"
       },
       "gno.land/r/sys/namereg/v1": {
-        "calls": 100,
+        "calls": 101,
         "callers": [
           "g1rac2pdlwjwsavxluvw7yc397luyr5grrf2mpl4",
           "g14zzduktp007kc6247fx4pqrsh5kaes268nr289",
@@ -12265,11 +12265,12 @@
           "g1t8hf6mw50dnxvh7fcttauldsdmsuhk8z3aj8e0",
           "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8",
           "g1ev3uzdujuy407npfatzmn3wyec54d6l39r36ju",
-          "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c"
+          "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c",
+          "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9"
         ],
         "topFunc": "Register",
         "firstBlockHeight": 2952,
-        "lastBlockHeight": 64380,
+        "lastBlockHeight": 64401,
         "lastBlockTime": "2026-08-27T14:31:06.869861856Z"
       },
       "gno.land/r/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/nft": {
@@ -12675,7 +12676,7 @@
         "lastBlockTime": "2026-08-28T21:04:07.995178038Z"
       },
       "gno.land/r/g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems/g18": {
-        "calls": 298,
+        "calls": 299,
         "callers": [
           "g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems",
           "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
@@ -12777,11 +12778,12 @@
           "g1t8hf6mw50dnxvh7fcttauldsdmsuhk8z3aj8e0",
           "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8",
           "g1ev3uzdujuy407npfatzmn3wyec54d6l39r36ju",
-          "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c"
+          "g10t49arneh5xgjrv8uvkvuyd2lc7pup8cav3f8c",
+          "g1hzn6ryp47qdv5p59l3wapfsk7tz73zqh4hups9"
         ],
         "topFunc": "MintAssembled",
         "firstBlockHeight": 38619,
-        "lastBlockHeight": 64385,
+        "lastBlockHeight": 64404,
         "lastBlockTime": "2026-08-29T01:03:28.578677738Z"
       },
       "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1": {
@@ -12795,7 +12797,7 @@
         "lastBlockTime": "2026-08-29T12:03:56.438789768Z"
       }
     },
-    "lastHeight": 64397
+    "lastHeight": 64897
   },
   "bankSendActivity": {
     "addresses": [
@@ -13926,7 +13928,7 @@
         "g1s3zh240vcpa6tpqqmaw3kt5n9ygpt2jw2ta2s8": 2000000
       }
     },
-    "lastHeight": 64397
+    "lastHeight": 64898
   },
   "stats": {
     "tokenCount": 98,
