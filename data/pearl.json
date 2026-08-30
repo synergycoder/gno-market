@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T16:31:09.585Z",
+  "generatedAt": "2026-08-30T17:01:16.306Z",
   "lastHeight": 68285,
   "tokens": [
     {
@@ -2802,7 +2802,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999891941000000,
+      "balance": 999999891640000000,
       "genesis": true
     },
     {
@@ -3042,6 +3042,11 @@
     },
     {
       "address": "g1t2vtt4qzhcgg04czu327vaxz0v5drg2wr3zcl3",
+      "balance": 300000000,
+      "genesis": false
+    },
+    {
+      "address": "g1arw7msrsupe436spp4knv3pnp0n3gn4vjeksmt",
       "balance": 300000000,
       "genesis": false
     },
@@ -6377,6 +6382,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "fnoohZAyWcyBolL+dNX6ZXDO0xsz3vOF8UktQNf6pVw=",
+      "blockHeight": 78110,
+      "blockTime": "2026-08-30T16:53:11.008472041Z",
+      "to": "g1arw7msrsupe436spp4knv3pnp0n3gn4vjeksmt",
+      "amount": 300000000
+    },
     {
       "hash": "iNh8BeypmVQXTZ9LXhCKcDzY2UVcuvvNshjyDcfIuu4=",
       "blockHeight": 77560,
@@ -13314,7 +13326,7 @@
         "lastBlockTime": "2026-08-30T06:58:58.170751219Z"
       }
     },
-    "lastHeight": 77736
+    "lastHeight": 78237
   },
   "bankSendActivity": {
     "addresses": [
@@ -14025,9 +14037,10 @@
       "g1w5qyyrftpjzfdsh75vnvv0d9dx42gxlmwlpvdq",
       "g10y56sf9kw5g38vazuev35s7cqw6x8t0a3r28qt",
       "g1t2vtt4qzhcgg04czu327vaxz0v5drg2wr3zcl3",
-      "g12l0ns2c834uuq4q7wh4yh748sel8fgamsvnhv5"
+      "g12l0ns2c834uuq4q7wh4yh748sel8fgamsvnhv5",
+      "g1arw7msrsupe436spp4knv3pnp0n3gn4vjeksmt"
     ],
-    "lastHeight": 77560
+    "lastHeight": 78110
   },
   "tokenHolders": {
     "balances": {
@@ -14512,7 +14525,7 @@
         "g1x3me0uacl2h25qn0a5gxavh936gyg2mt6xuakg": 22921428
       }
     },
-    "lastHeight": 77740
+    "lastHeight": 78239
   },
   "stats": {
     "tokenCount": 100,
@@ -14525,9 +14538,9 @@
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 716,
+    "whaleWatchCount": 717,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 64,
-    "faucetDripCount": 759
+    "faucetDripCount": 760
   }
 }
