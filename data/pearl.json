@@ -1,7 +1,7 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-31T05:31:14.802Z",
-  "lastHeight": 88113,
+  "generatedAt": "2026-08-31T06:01:15.625Z",
+  "lastHeight": 91162,
   "tokens": [
     {
       "name": "Test",
@@ -961,6 +961,14 @@
     }
   ],
   "recentDeployed": [
+    {
+      "path": "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory",
+      "blockHeight": 91162,
+      "blockTime": "2026-08-31T05:56:30.361456314Z",
+      "hash": "l1gZne3ClAGuAWOZR3BKOi0CiV4sYT9K2g7DmdENG/E=",
+      "creator": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+      "kind": "Realm"
+    },
     {
       "path": "gno.land/p/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/ammmathv2",
       "blockHeight": 88113,
@@ -2866,6 +2874,14 @@
       "lastBlockHeight": 88214,
       "lastBlockTime": "2026-08-31T02:59:20.321182613Z",
       "topFunc": null
+    },
+    {
+      "path": "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 91196,
+      "lastBlockTime": "2026-08-31T05:58:34.046157387Z",
+      "topFunc": "LaunchToken"
     }
   ],
   "governanceRealms": [
@@ -2898,7 +2914,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999882796000000,
+      "balance": 999999882495000000,
       "genesis": true
     },
     {
@@ -3359,6 +3375,11 @@
     {
       "address": "g1k4kum5pp4r297yx9v868j9578t6de5mm2atd2h",
       "balance": 293576200,
+      "genesis": false
+    },
+    {
+      "address": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+      "balance": 288463600,
       "genesis": false
     },
     {
@@ -6598,6 +6619,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "WKFD+1Txt25CcdFCPWz6aO91uVCyOtG4VTd3FPsuP9k=",
+      "blockHeight": 91107,
+      "blockTime": "2026-08-31T05:53:15.968741608Z",
+      "to": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+      "amount": 300000000
+    },
     {
       "hash": "0HXetYovj6wzh/h3XrfgicAuV9ZL1lPrgdywk2MzBPw=",
       "blockHeight": 90060,
@@ -12242,7 +12270,7 @@
     },
     {
       "path": "gno.land/p/nt/ufmt/v0",
-      "dependentCount": 43,
+      "dependentCount": 44,
       "kind": "Package"
     },
     {
@@ -12252,7 +12280,7 @@
     },
     {
       "path": "gno.land/p/nt/seqid/v0",
-      "dependentCount": 11,
+      "dependentCount": 12,
       "kind": "Package"
     },
     {
@@ -12262,7 +12290,7 @@
     },
     {
       "path": "gno.land/p/demo/tokens/grc20",
-      "dependentCount": 9,
+      "dependentCount": 10,
       "kind": "Package"
     },
     {
@@ -13987,9 +14015,19 @@
         "firstBlockHeight": 88226,
         "lastBlockHeight": 88227,
         "lastBlockTime": "2026-08-31T03:00:05.163075143Z"
+      },
+      "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory": {
+        "calls": 1,
+        "callers": [
+          "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e"
+        ],
+        "topFunc": "LaunchToken",
+        "firstBlockHeight": 91196,
+        "lastBlockHeight": 91196,
+        "lastBlockTime": "2026-08-31T05:58:34.046157387Z"
       }
     },
-    "lastHeight": 90732
+    "lastHeight": 91232
   },
   "bankSendActivity": {
     "addresses": [
@@ -14725,9 +14763,10 @@
       "g1us4lanq0k00kaz8k38aedsgzfsghh74v7xfk40",
       "g18ygntxq0a426dpcyh28fecj0uymrw8m6a33ycs",
       "g1d4nskey60zsz5my5z9g6hqt37csy7gpupcdu89",
-      "g1fxrmd7hcsu2h6l4tmvd9ljnrls0zu6h5ywkj69"
+      "g1fxrmd7hcsu2h6l4tmvd9ljnrls0zu6h5ywkj69",
+      "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e"
     ],
-    "lastHeight": 90060
+    "lastHeight": 91107
   },
   "tokenHolders": {
     "balances": {
@@ -15265,22 +15304,22 @@
         "g18m96872n9s6rggczeh9xzulyzhkyvexqxefv5j": 10472223
       }
     },
-    "lastHeight": 90737
+    "lastHeight": 91237
   },
   "stats": {
     "tokenCount": 100,
     "nftRealmCount": 11,
-    "totalRealmsScanned": 166,
-    "txPackageCount": 210,
+    "totalRealmsScanned": 167,
+    "txPackageCount": 211,
     "genesisOnlyCount": 28,
-    "trendingRealmCount": 28,
+    "trendingRealmCount": 29,
     "governanceRealmCount": 1,
     "socialRealmCount": 1,
     "defiRealmCount": 0,
     "gnoswapSwapCount": 0,
-    "whaleWatchCount": 741,
+    "whaleWatchCount": 742,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 64,
-    "faucetDripCount": 804
+    "faucetDripCount": 805
   }
 }

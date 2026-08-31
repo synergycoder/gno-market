@@ -796,6 +796,11 @@
     ],
     "gno.land/r/g1mv0052e7r6s09f5t9xsqf00nj3tqsgt9dg52jr/gnomemepad/bond": [
       "gno.land/p/nt/ufmt/v0"
+    ],
+    "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/seqid/v0",
+      "gno.land/p/nt/ufmt/v0"
     ]
   },
   "txPackages": {
@@ -3108,6 +3113,17 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-08-31T02:53:13.240397707Z"
+    },
+    "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory": {
+      "path": "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory",
+      "blockHeight": 91162,
+      "hash": "l1gZne3ClAGuAWOZR3BKOi0CiV4sYT9K2g7DmdENG/E=",
+      "creator": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-08-31T05:56:30.361456314Z"
     }
   },
   "swapActivity": {
@@ -8743,8 +8759,15 @@
         "blockTime": "2026-08-31T04:50:17.557414378Z",
         "to": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
         "amount": 100000000
+      },
+      {
+        "hash": "WKFD+1Txt25CcdFCPWz6aO91uVCyOtG4VTd3FPsuP9k=",
+        "blockHeight": 91107,
+        "blockTime": "2026-08-31T05:53:15.968741608Z",
+        "to": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 90060
+    "lastHeight": 91107
   }
 }
