@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-30T23:31:02.433Z",
+  "generatedAt": "2026-08-31T00:01:12.273Z",
   "lastHeight": 79356,
   "tokens": [
     {
@@ -2668,19 +2668,19 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap/gnowardrobe/v2",
+      "calls": 10,
+      "uniqueCallers": 4,
+      "lastBlockHeight": 85164,
+      "lastBlockTime": "2026-08-30T06:58:58.170751219Z",
+      "topFunc": "Mint"
+    },
+    {
       "path": "gno.land/r/g1k5hec7vlu9rn3krvyhcx0jkxnhs2h2rxjlh8yy/nslogic/v1",
       "calls": 9,
       "uniqueCallers": 1,
       "lastBlockHeight": 27057,
       "lastBlockTime": "2026-08-28T13:32:07.254637651Z",
-      "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap/gnowardrobe/v2",
-      "calls": 9,
-      "uniqueCallers": 3,
-      "lastBlockHeight": 74957,
-      "lastBlockTime": "2026-08-30T06:58:58.170751219Z",
       "topFunc": null
     },
     {
@@ -3275,11 +3275,6 @@
       "genesis": false
     },
     {
-      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
-      "balance": 290916289,
-      "genesis": false
-    },
-    {
       "address": "g18u6htlfee0hyhlqs7dv9y3mdrtz4sn3hmj3n07",
       "balance": 287526500,
       "genesis": false
@@ -3297,6 +3292,11 @@
     {
       "address": "g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3",
       "balance": 277248300,
+      "genesis": false
+    },
+    {
+      "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
+      "balance": 270976102,
       "genesis": false
     },
     {
@@ -3350,6 +3350,11 @@
       "genesis": false
     },
     {
+      "address": "g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap",
+      "balance": 147784309,
+      "genesis": false
+    },
+    {
       "address": "g1lgjcg074fz7uzr3a3qwh068ym6u6njxd7uckrm",
       "balance": 145000000,
       "genesis": false
@@ -3372,11 +3377,6 @@
     {
       "address": "g1tg20pz34lcjpsw9frfa53rv8mcdps5r7t8e5z4",
       "balance": 130000000,
-      "genesis": false
-    },
-    {
-      "address": "g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap",
-      "balance": 129784309,
       "genesis": false
     },
     {
@@ -13466,19 +13466,20 @@
         "lastBlockTime": "2026-08-30T04:38:25.987124122Z"
       },
       "gno.land/r/g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap/gnowardrobe/v2": {
-        "calls": 9,
+        "calls": 10,
         "callers": [
           "g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap",
           "g1ka7gz4zqcfdcd0atuywaktm7v2nyavuznh4waz",
-          "g12ydrj8eml4wq2cvva7s502ge2w5u7qh5wz370e"
+          "g12ydrj8eml4wq2cvva7s502ge2w5u7qh5wz370e",
+          "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard"
         ],
-        "topFunc": null,
+        "topFunc": "Mint",
         "firstBlockHeight": 68315,
-        "lastBlockHeight": 74957,
+        "lastBlockHeight": 85164,
         "lastBlockTime": "2026-08-30T06:58:58.170751219Z"
       }
     },
-    "lastHeight": 84734
+    "lastHeight": 85236
   },
   "bankSendActivity": {
     "addresses": [
@@ -14680,7 +14681,7 @@
         "g1x3me0uacl2h25qn0a5gxavh936gyg2mt6xuakg": 22921428
       }
     },
-    "lastHeight": 84735
+    "lastHeight": 85237
   },
   "stats": {
     "tokenCount": 100,
