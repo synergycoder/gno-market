@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-08-31T06:01:15.625Z",
+  "generatedAt": "2026-08-31T06:31:21.353Z",
   "lastHeight": 91162,
   "tokens": [
     {
@@ -2772,6 +2772,14 @@
       "topFunc": null
     },
     {
+      "path": "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory",
+      "calls": 3,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 91362,
+      "lastBlockTime": "2026-08-31T05:58:34.046157387Z",
+      "topFunc": "Buy"
+    },
+    {
       "path": "gno.land/r/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/nftmarket",
       "calls": 2,
       "uniqueCallers": 1,
@@ -2874,14 +2882,6 @@
       "lastBlockHeight": 88214,
       "lastBlockTime": "2026-08-31T02:59:20.321182613Z",
       "topFunc": null
-    },
-    {
-      "path": "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory",
-      "calls": 1,
-      "uniqueCallers": 1,
-      "lastBlockHeight": 91196,
-      "lastBlockTime": "2026-08-31T05:58:34.046157387Z",
-      "topFunc": "LaunchToken"
     }
   ],
   "governanceRealms": [
@@ -2914,7 +2914,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999882495000000,
+      "balance": 999999882394000000,
       "genesis": true
     },
     {
@@ -3008,17 +3008,17 @@
       "genesis": false
     },
     {
+      "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "balance": 700000000,
+      "genesis": false
+    },
+    {
       "address": "g1xc2t364d97d0ejsrm2h5ruv8yv7kfuycuwhk3w",
       "balance": 600000000,
       "genesis": false
     },
     {
       "address": "g1p4r3esnxhahp307gh5kplvnjxdgy8kguvf9znu",
-      "balance": 600000000,
-      "genesis": false
-    },
-    {
-      "address": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
       "balance": 600000000,
       "genesis": false
     },
@@ -3378,11 +3378,6 @@
       "genesis": false
     },
     {
-      "address": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
-      "balance": 288463600,
-      "genesis": false
-    },
-    {
       "address": "g18u6htlfee0hyhlqs7dv9y3mdrtz4sn3hmj3n07",
       "balance": 287526500,
       "genesis": false
@@ -3390,6 +3385,11 @@
     {
       "address": "g14ymnmcklzc8zlr7q5hzc370jv433ltx0aq90np",
       "balance": 287513400,
+      "genesis": false
+    },
+    {
+      "address": "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e",
+      "balance": 285370566,
       "genesis": false
     },
     {
@@ -6619,6 +6619,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "PI4hBFTbgk1qKI8ggY8bf+GXI1FbW6ccBsEJzXVbCnE=",
+      "blockHeight": 91672,
+      "blockTime": "2026-08-31T06:27:10.98772074Z",
+      "to": "g1zd43a5mrmnq65xmq3zj3ukz4vakau7rw3k369h",
+      "amount": 100000000
+    },
     {
       "hash": "WKFD+1Txt25CcdFCPWz6aO91uVCyOtG4VTd3FPsuP9k=",
       "blockHeight": 91107,
@@ -14017,17 +14024,17 @@
         "lastBlockTime": "2026-08-31T03:00:05.163075143Z"
       },
       "gno.land/r/g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e/factory": {
-        "calls": 1,
+        "calls": 3,
         "callers": [
           "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e"
         ],
-        "topFunc": "LaunchToken",
+        "topFunc": "Buy",
         "firstBlockHeight": 91196,
-        "lastBlockHeight": 91196,
+        "lastBlockHeight": 91362,
         "lastBlockTime": "2026-08-31T05:58:34.046157387Z"
       }
     },
-    "lastHeight": 91232
+    "lastHeight": 91733
   },
   "bankSendActivity": {
     "addresses": [
@@ -14766,7 +14773,7 @@
       "g1fxrmd7hcsu2h6l4tmvd9ljnrls0zu6h5ywkj69",
       "g187zknttvdv5f53vamtygg0wg5gwp0n3zdffr3e"
     ],
-    "lastHeight": 91107
+    "lastHeight": 91672
   },
   "tokenHolders": {
     "balances": {
@@ -15304,7 +15311,7 @@
         "g18m96872n9s6rggczeh9xzulyzhkyvexqxefv5j": 10472223
       }
     },
-    "lastHeight": 91237
+    "lastHeight": 91737
   },
   "stats": {
     "tokenCount": 100,
@@ -15320,6 +15327,6 @@
     "whaleWatchCount": 742,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 64,
-    "faucetDripCount": 805
+    "faucetDripCount": 806
   }
 }
