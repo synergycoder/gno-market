@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-09-01T06:40:03.211Z",
+  "generatedAt": "2026-09-01T07:02:39.846Z",
   "lastHeight": 108537,
   "tokens": [
     {
@@ -909,8 +909,8 @@
       "symbol": "wugnot",
       "image": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
       "description": "This is a GRC20 token issued on pearl-1 for testing purposes only. This token has no actual value and never will. There is no guarantee that this token will be available on mainnet.",
-      "totalSupply": 1939621637,
-      "holderCount": 318
+      "totalSupply": 1966850430,
+      "holderCount": 322
     }
   ],
   "nftRealms": [
@@ -919,7 +919,7 @@
       "standard": "GRC721",
       "name": "Gems",
       "symbol": "GEMS",
-      "tokenCount": 611
+      "tokenCount": 618
     },
     {
       "path": "gno.land/r/g19sh6ww9g6ukzhndg4d4zkx25l6nq782f9pfuap/gnowardrobe/v2",
@@ -2981,17 +2981,17 @@
   "trendingRealms": [
     {
       "path": "gno.land/r/gnoland/wugnot",
-      "calls": 2759,
-      "uniqueCallers": 318,
-      "lastBlockHeight": 115724,
+      "calls": 2798,
+      "uniqueCallers": 322,
+      "lastBlockHeight": 116103,
       "lastBlockTime": "2026-08-28T21:02:28.749926768Z",
       "topFunc": "Deposit"
     },
     {
       "path": "gno.land/r/g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems/g18",
-      "calls": 668,
-      "uniqueCallers": 214,
-      "lastBlockHeight": 115448,
+      "calls": 675,
+      "uniqueCallers": 216,
+      "lastBlockHeight": 115852,
       "lastBlockTime": "2026-08-29T01:03:28.578677738Z",
       "topFunc": "MintAssembled"
     },
@@ -3001,21 +3001,21 @@
       "uniqueCallers": 99,
       "lastBlockHeight": 115662,
       "lastBlockTime": "2026-08-28T21:04:07.995178038Z",
-      "topFunc": "Transfer"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/demo/profile",
-      "calls": 319,
-      "uniqueCallers": 262,
-      "lastBlockHeight": 115651,
+      "calls": 320,
+      "uniqueCallers": 263,
+      "lastBlockHeight": 116060,
       "lastBlockTime": "2026-08-28T21:02:35.571832368Z",
       "topFunc": "SetStringField"
     },
     {
       "path": "gno.land/r/sys/namereg/v1",
-      "calls": 218,
-      "uniqueCallers": 218,
-      "lastBlockHeight": 115731,
+      "calls": 219,
+      "uniqueCallers": 219,
+      "lastBlockHeight": 115812,
       "lastBlockTime": "2026-08-27T14:31:06.869861856Z",
       "topFunc": "Register"
     },
@@ -3330,7 +3330,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999605454000000,
+      "balance": 999999605153000000,
       "genesis": true
     },
     {
@@ -3464,6 +3464,11 @@
       "genesis": false
     },
     {
+      "address": "g10h5qkujhw8jnztppngtjtg5wy2ma9xwqc93uky",
+      "balance": 790988448,
+      "genesis": false
+    },
+    {
       "address": "g1kncpt05lez932qynpzduekrplzfdhn2zyvx4d7",
       "balance": 600000000,
       "genesis": false
@@ -3494,6 +3499,11 @@
       "genesis": false
     },
     {
+      "address": "g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems",
+      "balance": 591613257,
+      "genesis": false
+    },
+    {
       "address": "g1f0t6fz8gye0swu2etk2fhhvn8lunvkpf6zmvvc",
       "balance": 590988522,
       "genesis": false
@@ -3519,18 +3529,8 @@
       "genesis": false
     },
     {
-      "address": "g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems",
-      "balance": 585613257,
-      "genesis": false
-    },
-    {
       "address": "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
       "balance": 570976102,
-      "genesis": false
-    },
-    {
-      "address": "g10h5qkujhw8jnztppngtjtg5wy2ma9xwqc93uky",
-      "balance": 490988448,
       "genesis": false
     },
     {
@@ -8199,11 +8199,6 @@
       "genesis": false
     },
     {
-      "address": "g1ylmz8m28x2dqcpcjplwc9t2ywwezhryxaw2dcs",
-      "balance": 117000000,
-      "genesis": false
-    },
-    {
       "address": "g1w2923lkm5qtfgyu8wya3d7gknnchgdj9tfkdl3",
       "balance": 116117371,
       "genesis": false
@@ -8260,11 +8255,6 @@
     },
     {
       "address": "g1ufv83fr85sqlyhl2p5n9kh5h8393cu6m93dluj",
-      "balance": 114000000,
-      "genesis": false
-    },
-    {
-      "address": "g1vch523zpxv36e4xlky4h0zlharmry2gtz42flc",
       "balance": 114000000,
       "genesis": false
     },
@@ -8336,6 +8326,11 @@
     {
       "address": "g1pre0ay49es5wkl3l0xkyf8ll8u5x2zxm9ec2l2",
       "balance": 109313500,
+      "genesis": false
+    },
+    {
+      "address": "g1vch523zpxv36e4xlky4h0zlharmry2gtz42flc",
+      "balance": 109083804,
       "genesis": false
     },
     {
@@ -8985,11 +8980,6 @@
     },
     {
       "address": "g1h5nrlwprc8sprl99p0rpxr0nxyeavy2yqvmgkw",
-      "balance": 100000000,
-      "genesis": false
-    },
-    {
-      "address": "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr",
       "balance": 100000000,
       "genesis": false
     },
@@ -11129,6 +11119,11 @@
       "genesis": false
     },
     {
+      "address": "g1ylmz8m28x2dqcpcjplwc9t2ywwezhryxaw2dcs",
+      "balance": 87095909,
+      "genesis": false
+    },
+    {
       "address": "g1lwkshuc552pt8r7dvczal4dz08p43xh3h969c4",
       "balance": 87045234,
       "genesis": false
@@ -11239,11 +11234,6 @@
       "genesis": false
     },
     {
-      "address": "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p",
-      "balance": 84450742,
-      "genesis": false
-    },
-    {
       "address": "g1cpkj9yze2shttyw68dctwculpnfq7s8pt55quj",
       "balance": 84445790,
       "genesis": false
@@ -11349,6 +11339,11 @@
       "genesis": false
     },
     {
+      "address": "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p",
+      "balance": 81486242,
+      "genesis": false
+    },
+    {
       "address": "g14tmn2agl9gdcuxg93m0r2gnye9sxn54tr4auv7",
       "balance": 81129690,
       "genesis": false
@@ -11379,8 +11374,18 @@
       "genesis": false
     },
     {
+      "address": "g19ly98tsk5trng7uk6vuxcxxrcw20nwjhqgk476",
+      "balance": 80125400,
+      "genesis": false
+    },
+    {
       "address": "g1dyl9wa4xnc800cygd7vu38z9nnuefanelwrd9l",
       "balance": 79962082,
+      "genesis": false
+    },
+    {
+      "address": "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr",
+      "balance": 79874828,
       "genesis": false
     },
     {
@@ -11569,11 +11574,6 @@
       "genesis": false
     },
     {
-      "address": "g19ly98tsk5trng7uk6vuxcxxrcw20nwjhqgk476",
-      "balance": 73125400,
-      "genesis": false
-    },
-    {
       "address": "g17f0k0nsyzngmsd2927pndcpu9p0gc56cjhywre",
       "balance": 73092300,
       "genesis": false
@@ -11729,6 +11729,11 @@
       "genesis": false
     },
     {
+      "address": "g1t8hf6mw50dnxvh7fcttauldsdmsuhk8z3aj8e0",
+      "balance": 67375500,
+      "genesis": false
+    },
+    {
       "address": "g1ktd8ugc2kaxsnx235n7r3zgzlujun9n7emnl2n",
       "balance": 66815200,
       "genesis": false
@@ -11764,11 +11769,6 @@
       "genesis": false
     },
     {
-      "address": "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8",
-      "balance": 64638900,
-      "genesis": false
-    },
-    {
       "address": "g1qa90usjde9kwcvaxngfu0m89fs0rh9w76xp23k",
       "balance": 64541887,
       "genesis": false
@@ -11786,6 +11786,11 @@
     {
       "address": "g1ghhz5nu3n0lmqk784j883934pmlvhgzfdsx33j",
       "balance": 63730260,
+      "genesis": false
+    },
+    {
+      "address": "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8",
+      "balance": 63727566,
       "genesis": false
     },
     {
@@ -11821,11 +11826,6 @@
     {
       "address": "g1aqpaph7ypx55dcqw5ej5fwfr4usk0m83zj4fel",
       "balance": 60911009,
-      "genesis": false
-    },
-    {
-      "address": "g1t8hf6mw50dnxvh7fcttauldsdmsuhk8z3aj8e0",
-      "balance": 60638100,
       "genesis": false
     },
     {
@@ -12120,6 +12120,13 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "MUi027/885emDLSJ8gVZZYQCewQBQUPyqdZnojNdW0E=",
+      "blockHeight": 116013,
+      "blockTime": "2026-09-01T06:55:57.385247184Z",
+      "to": "g10h5qkujhw8jnztppngtjtg5wy2ma9xwqc93uky",
+      "amount": 300000000
+    },
     {
       "hash": "MFzp5E6PGoY8C694IHO/kzOnxsnXBwSvi0FMTz3PIto=",
       "blockHeight": 114877,
@@ -26087,7 +26094,7 @@
         "lastBlockTime": "2026-08-27T19:02:29.548929495Z"
       },
       "gno.land/r/sys/namereg/v1": {
-        "calls": 218,
+        "calls": 219,
         "callers": [
           "g1rac2pdlwjwsavxluvw7yc397luyr5grrf2mpl4",
           "g14zzduktp007kc6247fx4pqrsh5kaes268nr289",
@@ -26306,11 +26313,12 @@
           "g1v6upxg7k3z7wajw64zja0r8eqcrlt7flckzfj6",
           "g178tqjxezqr8geve8fjjtedxqnu66fu5ppjs6mk",
           "g1q07tylwy5ux0upe5f82dc6cyh06y4u7vv3tzz3",
-          "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p"
+          "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p",
+          "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr"
         ],
         "topFunc": "Register",
         "firstBlockHeight": 2952,
-        "lastBlockHeight": 115731,
+        "lastBlockHeight": 115812,
         "lastBlockTime": "2026-08-27T14:31:06.869861856Z"
       },
       "gno.land/r/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/nft": {
@@ -26394,7 +26402,7 @@
         "lastBlockTime": "2026-08-28T11:22:45.8887523Z"
       },
       "gno.land/r/demo/profile": {
-        "calls": 319,
+        "calls": 320,
         "callers": [
           "g14zzduktp007kc6247fx4pqrsh5kaes268nr289",
           "g1xtvxchzwttse0tlfxuql9y8p6x9zk3ku8lfdhc",
@@ -26657,11 +26665,12 @@
           "g1tg20pz34lcjpsw9frfa53rv8mcdps5r7t8e5z4",
           "g13cudd627w3u9a959qwd08ey9exgw60xfgggxf5",
           "g1spzvrpm3kugeflpfydxwh00l7na5jjpx2qe9mt",
-          "g1zuwrjfya2adwa4swdjc0xks2xhlzdt7f9u08rd"
+          "g1zuwrjfya2adwa4swdjc0xks2xhlzdt7f9u08rd",
+          "g1ylmz8m28x2dqcpcjplwc9t2ywwezhryxaw2dcs"
         ],
         "topFunc": "SetStringField",
         "firstBlockHeight": 24875,
-        "lastBlockHeight": 115651,
+        "lastBlockHeight": 116060,
         "lastBlockTime": "2026-08-28T21:02:35.571832368Z"
       },
       "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsdata/v1": {
@@ -26755,7 +26764,7 @@
         "lastBlockTime": "2026-08-28T20:26:46.091627661Z"
       },
       "gno.land/r/gnoland/wugnot": {
-        "calls": 2759,
+        "calls": 2798,
         "callers": [
           "g1xtvxchzwttse0tlfxuql9y8p6x9zk3ku8lfdhc",
           "g1y6r64266z95v2dvx5vc66te8akug3q6wkgkgv5",
@@ -27074,11 +27083,15 @@
           "g1p9knsqp35pwf77wlgxutkqzjs3ernwzjg9j5zq",
           "g1zuwrjfya2adwa4swdjc0xks2xhlzdt7f9u08rd",
           "g19ly98tsk5trng7uk6vuxcxxrcw20nwjhqgk476",
-          "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p"
+          "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p",
+          "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr",
+          "g1vch523zpxv36e4xlky4h0zlharmry2gtz42flc",
+          "g1ylmz8m28x2dqcpcjplwc9t2ywwezhryxaw2dcs",
+          "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8"
         ],
         "topFunc": "Deposit",
         "firstBlockHeight": 34029,
-        "lastBlockHeight": 115724,
+        "lastBlockHeight": 116103,
         "lastBlockTime": "2026-08-28T21:02:28.749926768Z"
       },
       "gno.land/r/demo/defi/grc20factory": {
@@ -27184,13 +27197,13 @@
           "g12t4f8yvhj5a2dtczpmutp9vchxf9c6vj9tr5c9",
           "g1dg5qtj862l5378d666dudd3ffzzslvarxj65f4"
         ],
-        "topFunc": "Transfer",
+        "topFunc": null,
         "firstBlockHeight": 34136,
         "lastBlockHeight": 115662,
         "lastBlockTime": "2026-08-28T21:04:07.995178038Z"
       },
       "gno.land/r/g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems/g18": {
-        "calls": 668,
+        "calls": 675,
         "callers": [
           "g17cjym5e9hhws46lt6329pv2gtx2ay0503hgems",
           "g198mxzjqsfflcckfgm9yu5d586z88vt67t9tard",
@@ -27405,11 +27418,13 @@
           "g1qjaj8hpslwcrf0dfrv2pumfvmzcptlacfzlsge",
           "g1v6upxg7k3z7wajw64zja0r8eqcrlt7flckzfj6",
           "g178tqjxezqr8geve8fjjtedxqnu66fu5ppjs6mk",
-          "g1q07tylwy5ux0upe5f82dc6cyh06y4u7vv3tzz3"
+          "g1q07tylwy5ux0upe5f82dc6cyh06y4u7vv3tzz3",
+          "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p",
+          "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr"
         ],
         "topFunc": "MintAssembled",
         "firstBlockHeight": 38619,
-        "lastBlockHeight": 115448,
+        "lastBlockHeight": 115852,
         "lastBlockTime": "2026-08-29T01:03:28.578677738Z"
       },
       "gno.land/r/g1xr6tgxnpled50h74eafmvxway7z0ytr5rsmeme/nsskin/v1": {
@@ -27526,7 +27541,7 @@
         "lastBlockTime": "2026-08-31T23:12:09.200555Z"
       }
     },
-    "lastHeight": 115736
+    "lastHeight": 116111
   },
   "bankSendActivity": {
     "addresses": [
@@ -29282,7 +29297,7 @@
       "g18nwezy6ewel5szcpv406r7tsypuqjz265udaal",
       "g1euts034mqvtxsv0ql9np2q39cf4pnd576stkmh"
     ],
-    "lastHeight": 115728
+    "lastHeight": 116053
   },
   "tokenHolders": {
     "balances": {
@@ -29665,7 +29680,7 @@
         "g1rwd69k93x843wescxelsrsfzglkv889zllt3rn": 19
       },
       "gno.land/r/demo/defi/grc20factory|ZestyD": {
-        "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8": 1092,
+        "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8": 1192,
         "g1vhl00mxnnerkn2ykxcad22hletta0sjfu7pj4n": 8
       },
       "gno.land/r/demo/defi/grc20factory|Zipp": {
@@ -30068,10 +30083,14 @@
         "g1p9knsqp35pwf77wlgxutkqzjs3ernwzjg9j5zq": 15686146,
         "g1zuwrjfya2adwa4swdjc0xks2xhlzdt7f9u08rd": 1500000,
         "g19ly98tsk5trng7uk6vuxcxxrcw20nwjhqgk476": 1000000,
-        "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p": 2442858
+        "g1j0un2ugf936mztdpexkk8y2vdjd98slsxd585p": 2442858,
+        "g1ecea8hnaskhhujg70x8ctkud9sher8g03ttdxr": 3053572,
+        "g1vch523zpxv36e4xlky4h0zlharmry2gtz42flc": 1488096,
+        "g1ylmz8m28x2dqcpcjplwc9t2ywwezhryxaw2dcs": 22103791,
+        "g1lfx6m5wtc6hev9cl8nsdye2tkd753v26nuf8q8": 583334
       }
     },
-    "lastHeight": 115738
+    "lastHeight": 116114
   },
   "stats": {
     "tokenCount": 101,
@@ -30087,6 +30106,6 @@
     "whaleWatchCount": 1759,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 73,
-    "faucetDripCount": 1856
+    "faucetDripCount": 1857
   }
 }
