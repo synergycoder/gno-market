@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-09-01T09:01:45.422Z",
+  "generatedAt": "2026-09-01T09:36:06.513Z",
   "lastHeight": 108537,
   "tokens": [
     {
@@ -3241,7 +3241,15 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 118065,
       "lastBlockTime": "2026-09-01T08:59:30.071649778Z",
-      "topFunc": "GetBoardIDFromName"
+      "topFunc": null
+    },
+    {
+      "path": "gno.land/r/gnoland/blog",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 118407,
+      "lastBlockTime": "2026-09-01T09:19:57.473947765Z",
+      "topFunc": "NewPostProposalRequest"
     }
   ],
   "governanceRealms": [
@@ -3293,7 +3301,7 @@
       "uniqueCallers": 1,
       "lastBlockHeight": 118065,
       "lastBlockTime": "2026-09-01T08:59:30.071649778Z",
-      "topFunc": "GetBoardIDFromName"
+      "topFunc": null
     },
     {
       "path": "gno.land/r/samcrew/daodemo/custom_resource",
@@ -9948,7 +9956,7 @@
     },
     {
       "address": "g1u28kerpyalkmryrls3yk4hrp3qm5nz34ej0vcd",
-      "balance": 99762931,
+      "balance": 99756859,
       "genesis": false
     },
     {
@@ -27608,13 +27616,23 @@
         "callers": [
           "g1u28kerpyalkmryrls3yk4hrp3qm5nz34ej0vcd"
         ],
-        "topFunc": "GetBoardIDFromName",
+        "topFunc": null,
         "firstBlockHeight": 118065,
         "lastBlockHeight": 118065,
         "lastBlockTime": "2026-09-01T08:59:30.071649778Z"
+      },
+      "gno.land/r/gnoland/blog": {
+        "calls": 1,
+        "callers": [
+          "g1u28kerpyalkmryrls3yk4hrp3qm5nz34ej0vcd"
+        ],
+        "topFunc": "NewPostProposalRequest",
+        "firstBlockHeight": 118407,
+        "lastBlockHeight": 118407,
+        "lastBlockTime": "2026-09-01T09:19:57.473947765Z"
       }
     },
-    "lastHeight": 118087
+    "lastHeight": 118663
   },
   "bankSendActivity": {
     "addresses": [
@@ -30175,7 +30193,7 @@
         "g1hugnnny00hwkrpgpmfm045q20nvz7cmcp7h93m": 2583334
       }
     },
-    "lastHeight": 118090
+    "lastHeight": 118666
   },
   "stats": {
     "tokenCount": 101,
@@ -30183,7 +30201,7 @@
     "totalRealmsScanned": 191,
     "txPackageCount": 249,
     "genesisOnlyCount": 28,
-    "trendingRealmCount": 33,
+    "trendingRealmCount": 34,
     "governanceRealmCount": 5,
     "socialRealmCount": 5,
     "defiRealmCount": 0,
