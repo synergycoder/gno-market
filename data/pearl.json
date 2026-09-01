@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-09-01T12:01:53.830Z",
+  "generatedAt": "2026-09-01T12:39:41.085Z",
   "lastHeight": 108537,
   "tokens": [
     {
@@ -10,6 +10,15 @@
       "image": null,
       "description": null,
       "totalSupply": 0,
+      "holderCount": 0
+    },
+    {
+      "name": "uatone",
+      "path": "gno.land/r/aib/ibc/apps/transfer",
+      "symbol": "542B346608D",
+      "image": null,
+      "description": null,
+      "totalSupply": null,
       "holderCount": 0
     },
     {
@@ -3250,6 +3259,14 @@
       "lastBlockHeight": 88214,
       "lastBlockTime": "2026-08-31T02:59:20.321182613Z",
       "topFunc": null
+    },
+    {
+      "path": "gno.land/r/aib/ibc/apps/transfer",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 121725,
+      "lastBlockTime": "2026-09-01T12:38:39.048147217Z",
+      "topFunc": "Transfer"
     }
   ],
   "governanceRealms": [
@@ -3346,7 +3363,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999603046000000,
+      "balance": 999999602644000000,
       "genesis": true
     },
     {
@@ -3376,7 +3393,7 @@
     },
     {
       "address": "g1z437dpuh5s4p64vtq09dulg6jzxpr2hd4q8r5x",
-      "balance": 4999977596200,
+      "balance": 4999916971500,
       "genesis": false
     },
     {
@@ -3406,7 +3423,7 @@
     },
     {
       "address": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
-      "balance": 7500000000,
+      "balance": 7800000000,
       "genesis": false
     },
     {
@@ -8610,6 +8627,11 @@
       "genesis": false
     },
     {
+      "address": "g1tgwpk46wpczycth3ajj4uas3t606u5a7y6uyx4",
+      "balance": 100007949,
+      "genesis": false
+    },
+    {
       "address": "g152xeygc3rhayqlndnhlnp92ck3jvlzd2ent35p",
       "balance": 100007949,
       "genesis": false
@@ -12090,11 +12112,6 @@
       "genesis": false
     },
     {
-      "address": "g1tgwpk46wpczycth3ajj4uas3t606u5a7y6uyx4",
-      "balance": 7949,
-      "genesis": false
-    },
-    {
       "address": "g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p",
       "balance": 0,
       "genesis": true
@@ -12136,6 +12153,27 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "NcdN4v7c+q6QhrU4L++61YfZFDuwr1+9E8SKgltnG9Q=",
+      "blockHeight": 121608,
+      "blockTime": "2026-09-01T12:31:37.447340887Z",
+      "to": "g1tgwpk46wpczycth3ajj4uas3t606u5a7y6uyx4",
+      "amount": 100000000
+    },
+    {
+      "hash": "9kJXzrjame+m/9pqs7Eb9Kz3I0hg1FbqgCPhVVJM3Qc=",
+      "blockHeight": 121423,
+      "blockTime": "2026-09-01T12:20:29.746637281Z",
+      "to": "g1zzr0xsuh4msmz6e55q9tp3yq6fu63at54lr8qu",
+      "amount": 300000000
+    },
+    {
+      "hash": "6UEJ1zpbUNeBhxG/dfjeV0KIM2125PuG2opoSDi4QPE=",
+      "blockHeight": 121099,
+      "blockTime": "2026-09-01T12:01:04.52142994Z",
+      "to": "g1tlljkncyxtwmfdl9vpm38uq2mq55mdesek2ttr",
+      "amount": 300000000
+    },
     {
       "hash": "5bB/93/TuzTO/FezyIzgeLv1S6S1cd0GOmdUYDIu088=",
       "blockHeight": 119449,
@@ -25182,7 +25220,8 @@
   "tokenDecimals": {
     "gno.land/r/gnoland/wugnot": 6,
     "gno.land/r/demo/defi/grc20factory": null,
-    "gno.land/r/aib/ibc/apps/testing/grc20test": null
+    "gno.land/r/aib/ibc/apps/testing/grc20test": null,
+    "gno.land/r/aib/ibc/apps/transfer": null
   },
   "tokenRegistry": [
     {
@@ -27656,9 +27695,19 @@
         "firstBlockHeight": 118407,
         "lastBlockHeight": 118835,
         "lastBlockTime": "2026-09-01T09:19:57.473947765Z"
+      },
+      "gno.land/r/aib/ibc/apps/transfer": {
+        "calls": 1,
+        "callers": [
+          "g1z437dpuh5s4p64vtq09dulg6jzxpr2hd4q8r5x"
+        ],
+        "topFunc": "Transfer",
+        "firstBlockHeight": 121725,
+        "lastBlockHeight": 121725,
+        "lastBlockTime": "2026-09-01T12:38:39.048147217Z"
       }
     },
-    "lastHeight": 121098
+    "lastHeight": 121730
   },
   "bankSendActivity": {
     "addresses": [
@@ -29414,11 +29463,14 @@
       "g18nwezy6ewel5szcpv406r7tsypuqjz265udaal",
       "g1euts034mqvtxsv0ql9np2q39cf4pnd576stkmh"
     ],
-    "lastHeight": 119449
+    "lastHeight": 121608
   },
   "tokenHolders": {
     "balances": {
       "gno.land/r/aib/ibc/apps/testing/grc20test|TEST": {},
+      "gno.land/r/aib/ibc/apps/transfer|542B346608D": {
+        "g1z437dpuh5s4p64vtq09dulg6jzxpr2hd4q8r5x": -1000000
+      },
       "gno.land/r/demo/defi/grc20factory|AZIKO84H": {
         "g1xtvxchzwttse0tlfxuql9y8p6x9zk3ku8lfdhc": 1000000
       },
@@ -30219,15 +30271,15 @@
         "g1hugnnny00hwkrpgpmfm045q20nvz7cmcp7h93m": 2583334
       }
     },
-    "lastHeight": 121101
+    "lastHeight": 121733
   },
   "stats": {
-    "tokenCount": 101,
+    "tokenCount": 102,
     "nftRealmCount": 14,
     "totalRealmsScanned": 191,
     "txPackageCount": 249,
     "genesisOnlyCount": 28,
-    "trendingRealmCount": 34,
+    "trendingRealmCount": 35,
     "governanceRealmCount": 5,
     "socialRealmCount": 5,
     "defiRealmCount": 0,
@@ -30235,6 +30287,6 @@
     "whaleWatchCount": 1759,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 73,
-    "faucetDripCount": 1863
+    "faucetDripCount": 1866
   }
 }
