@@ -912,7 +912,10 @@
       "gno.land/p/nt/ufmt/v0"
     ],
     "gno.land/r/g1u97n45s4s6q7vn5clr8339pv4up455hnqn4aff/roulette_v2": [],
-    "gno.land/r/g1u97n45s4s6q7vn5clr8339pv4up455hnqn4aff/roulette_v3": []
+    "gno.land/r/g1u97n45s4s6q7vn5clr8339pv4up455hnqn4aff/roulette_v3": [],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/auctionhouse": [],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/insurancepool": [],
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/govtreasury": []
   },
   "txPackages": {
     "gno.land/p/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/tokens/grc721": {
@@ -3675,6 +3678,39 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-09-01T20:57:45.912438224Z"
+    },
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/auctionhouse": {
+      "path": "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/auctionhouse",
+      "blockHeight": 132216,
+      "hash": "j6QgaTpvYJlDyOB/bGisLG+BhVSPhdQo8JkNGWES4Vw=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-01T23:05:53.106019366Z"
+    },
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/govtreasury": {
+      "path": "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/govtreasury",
+      "blockHeight": 132267,
+      "hash": "LucKsq3xkm1Nn4kw88z8biaM2Q5cFb6gjVbySjasFns=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-01T23:08:57.244439414Z"
+    },
+    "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/insurancepool": {
+      "path": "gno.land/r/g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt/insurancepool",
+      "blockHeight": 132302,
+      "hash": "IcnmY1t2OFKq4wgWFZT6rohGjlFvkAsf17Ph45quJKU=",
+      "creator": "g16m0r7rm7fv5hx0ekr7gvx8g4fr7eu08nzhk6gt",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-01T23:11:02.532722753Z"
     }
   },
   "swapActivity": {
@@ -18361,8 +18397,15 @@
         "blockTime": "2026-09-01T22:31:39.585867688Z",
         "to": "g1fyq4zfw9duymgkgcp8w0nx8qf5e6qfcld8jmhs",
         "amount": 100000000
+      },
+      {
+        "hash": "hwql0tFLhER+JRpDSiruajRjZvq2pE4bGZk07qfpX7A=",
+        "blockHeight": 132406,
+        "blockTime": "2026-09-01T23:17:15.053664504Z",
+        "to": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 131643
+    "lastHeight": 132406
   }
 }
