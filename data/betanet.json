@@ -1,6 +1,6 @@
 {
   "network": "betanet",
-  "generatedAt": "2026-09-01T20:02:33.163Z",
+  "generatedAt": "2026-09-01T20:36:07.710Z",
   "lastHeight": 3147228,
   "tokens": [
     {
@@ -169,11 +169,11 @@
     },
     {
       "path": "gno.land/r/gnoland/blog",
-      "calls": 66,
+      "calls": 67,
       "uniqueCallers": 3,
-      "lastBlockHeight": 3233536,
+      "lastBlockHeight": 3594330,
       "lastBlockTime": "2026-06-23T08:58:45.882068773Z",
-      "topFunc": null
+      "topFunc": "ModAddPost"
     },
     {
       "path": "gno.land/r/sys/cla",
@@ -2923,7 +2923,7 @@
     },
     {
       "address": "g1manfred47kzduec920z88wfr64ylksmdcedlf5",
-      "balance": 739321390,
+      "balance": 736649990,
       "genesis": false
     },
     {
@@ -12648,15 +12648,15 @@
         "lastBlockTime": "2026-04-10T08:49:03.334118767Z"
       },
       "gno.land/r/gnoland/blog": {
-        "calls": 66,
+        "calls": 67,
         "callers": [
           "g1rp7cmetn27eqlpjpc4vuusf8kaj746tysc0qgh",
           "g1manfred47kzduec920z88wfr64ylksmdcedlf5",
           "g1mpkp5lm8lwpm0pym4388836d009zfe4maxlqsq"
         ],
-        "topFunc": null,
+        "topFunc": "ModAddPost",
         "firstBlockHeight": 178394,
-        "lastBlockHeight": 3233536,
+        "lastBlockHeight": 3594330,
         "lastBlockTime": "2026-06-23T08:58:45.882068773Z"
       },
       "gno.land/r/gnops/valopers": {
@@ -12826,7 +12826,7 @@
         "lastBlockTime": "2026-08-06T18:54:36.853824834Z"
       }
     },
-    "lastHeight": 3594103
+    "lastHeight": 3594488
   },
   "bankSendActivity": {
     "addresses": [
@@ -14610,7 +14610,7 @@
     "balances": {
       "gno.land/r/gnoland/wugnot|—": {}
     },
-    "lastHeight": 3594103
+    "lastHeight": 3594488
   },
   "stats": {
     "tokenCount": 1,
