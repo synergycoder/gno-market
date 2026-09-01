@@ -1,6 +1,6 @@
 {
   "network": "pearl",
-  "generatedAt": "2026-09-01T08:36:22.151Z",
+  "generatedAt": "2026-09-01T09:01:45.422Z",
   "lastHeight": 108537,
   "tokens": [
     {
@@ -3234,6 +3234,14 @@
       "lastBlockHeight": 88214,
       "lastBlockTime": "2026-08-31T02:59:20.321182613Z",
       "topFunc": null
+    },
+    {
+      "path": "gno.land/r/gnoland/boards2/v1",
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 118065,
+      "lastBlockTime": "2026-09-01T08:59:30.071649778Z",
+      "topFunc": "GetBoardIDFromName"
     }
   ],
   "governanceRealms": [
@@ -3281,11 +3289,11 @@
   "socialRealms": [
     {
       "path": "gno.land/r/gnoland/boards2/v1",
-      "calls": 0,
-      "uniqueCallers": 0,
-      "lastBlockHeight": null,
-      "lastBlockTime": null,
-      "topFunc": null
+      "calls": 1,
+      "uniqueCallers": 1,
+      "lastBlockHeight": 118065,
+      "lastBlockTime": "2026-09-01T08:59:30.071649778Z",
+      "topFunc": "GetBoardIDFromName"
     },
     {
       "path": "gno.land/r/samcrew/daodemo/custom_resource",
@@ -3330,7 +3338,7 @@
     },
     {
       "address": "g18qhq2fl54lszhmxeyqlvxnwjzc3xpu4nnakclp",
-      "balance": 999999604551000000,
+      "balance": 999999603949000000,
       "genesis": true
     },
     {
@@ -3405,16 +3413,16 @@
     },
     {
       "address": "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
-      "balance": 3400000000,
-      "genesis": false
-    },
-    {
-      "address": "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3",
-      "balance": 2700000000,
+      "balance": 3700000000,
       "genesis": false
     },
     {
       "address": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
+      "balance": 3000000000,
+      "genesis": false
+    },
+    {
+      "address": "g1558yc50c7qcdnpnp20cepdzl8sh650cpz3a9f3",
       "balance": 2700000000,
       "genesis": false
     },
@@ -9940,7 +9948,7 @@
     },
     {
       "address": "g1u28kerpyalkmryrls3yk4hrp3qm5nz34ej0vcd",
-      "balance": 99774875,
+      "balance": 99762931,
       "genesis": false
     },
     {
@@ -12120,6 +12128,20 @@
     }
   ],
   "faucetDrips": [
+    {
+      "hash": "L/0pIlwsaTvGhiAtX3L3KzJ0dwQhdy0HV/WMbW8IKFw=",
+      "blockHeight": 118070,
+      "blockTime": "2026-09-01T08:59:47.11823224Z",
+      "to": "g1gsarxwyhnxfuug3lsys58rcpg7myrgmw3wuc2u",
+      "amount": 300000000
+    },
+    {
+      "hash": "8lHy3euTMFubXnUhDbUXWCim6oyPtRxezB+wibnBuCk=",
+      "blockHeight": 117857,
+      "blockTime": "2026-09-01T08:47:02.360761738Z",
+      "to": "g1tvy48jws78xfdnvww3nytjf7a7fnanhwysms4e",
+      "amount": 300000000
+    },
     {
       "hash": "ujEsU6gIL3IYABIE3wAY7goqHPimUJ4LU01Prw33UGI=",
       "blockHeight": 117648,
@@ -27580,9 +27602,19 @@
         "firstBlockHeight": 108338,
         "lastBlockHeight": 111939,
         "lastBlockTime": "2026-08-31T23:12:09.200555Z"
+      },
+      "gno.land/r/gnoland/boards2/v1": {
+        "calls": 1,
+        "callers": [
+          "g1u28kerpyalkmryrls3yk4hrp3qm5nz34ej0vcd"
+        ],
+        "topFunc": "GetBoardIDFromName",
+        "firstBlockHeight": 118065,
+        "lastBlockHeight": 118065,
+        "lastBlockTime": "2026-09-01T08:59:30.071649778Z"
       }
     },
-    "lastHeight": 117667
+    "lastHeight": 118087
   },
   "bankSendActivity": {
     "addresses": [
@@ -29338,7 +29370,7 @@
       "g18nwezy6ewel5szcpv406r7tsypuqjz265udaal",
       "g1euts034mqvtxsv0ql9np2q39cf4pnd576stkmh"
     ],
-    "lastHeight": 117648
+    "lastHeight": 118070
   },
   "tokenHolders": {
     "balances": {
@@ -30143,7 +30175,7 @@
         "g1hugnnny00hwkrpgpmfm045q20nvz7cmcp7h93m": 2583334
       }
     },
-    "lastHeight": 117669
+    "lastHeight": 118090
   },
   "stats": {
     "tokenCount": 101,
@@ -30151,7 +30183,7 @@
     "totalRealmsScanned": 191,
     "txPackageCount": 249,
     "genesisOnlyCount": 28,
-    "trendingRealmCount": 32,
+    "trendingRealmCount": 33,
     "governanceRealmCount": 5,
     "socialRealmCount": 5,
     "defiRealmCount": 0,
@@ -30159,6 +30191,6 @@
     "whaleWatchCount": 1759,
     "popularDependencyCount": 100,
     "crossRealmEdgeCount": 73,
-    "faucetDripCount": 1859
+    "faucetDripCount": 1861
   }
 }
