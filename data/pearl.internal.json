@@ -941,7 +941,9 @@
     "gno.land/r/g1nafl3x2hmy0h28uspvpsrt9vqtq8duvzx2jsuq/crazy_king": [],
     "gno.land/r/g1mjc0v90uw5kzael8f80k8yje3tjgmn0ey0fzzv/name_service": [],
     "gno.land/r/g1nyjym92xfwln6m5xvpyw89k9ut02m07c4ggqzz/escrow": [],
-    "gno.land/r/g1nyjym92xfwln6m5xvpyw89k9ut02m07c4ggqzz/crazy_timecapsule": []
+    "gno.land/r/g1nyjym92xfwln6m5xvpyw89k9ut02m07c4ggqzz/crazy_timecapsule": [],
+    "gno.land/r/g1fy50d2urffjyz8hncjtd5q6nx6sn785p3cuuqg/multisig": [],
+    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/dao": []
   },
   "txPackages": {
     "gno.land/p/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/tokens/grc721": {
@@ -4034,6 +4036,28 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-09-03T13:15:43.183558815Z"
+    },
+    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/dao": {
+      "path": "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/dao",
+      "blockHeight": 171475,
+      "hash": "li/8uqjwJk0//qK338cg6Phr/bwh1StPkB95wc/tZok=",
+      "creator": "g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq",
+      "standard": null,
+      "governance": true,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-03T13:59:22.73464355Z"
+    },
+    "gno.land/r/g1fy50d2urffjyz8hncjtd5q6nx6sn785p3cuuqg/multisig": {
+      "path": "gno.land/r/g1fy50d2urffjyz8hncjtd5q6nx6sn785p3cuuqg/multisig",
+      "blockHeight": 171478,
+      "hash": "6HXzEgBO2Vsg8hhd2IysfJRCkIVe124yRJfwMDg8oyY=",
+      "creator": "g1fy50d2urffjyz8hncjtd5q6nx6sn785p3cuuqg",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-03T13:59:33.113997435Z"
     }
   },
   "swapActivity": {
@@ -28170,8 +28194,120 @@
         "blockTime": "2026-09-03T13:32:52.63220821Z",
         "to": "g1hqydv64s045735wfd2r8d4k0jnc78rcy2dff75",
         "amount": 100000000
+      },
+      {
+        "hash": "NNB1BTECkjbNyUz6UfaZT/4F2+6D3FajT/K77yuX7EI=",
+        "blockHeight": 171085,
+        "blockTime": "2026-09-03T13:36:25.254238111Z",
+        "to": "g1j6ey5a0nkn4lepxesg7gzpk6xkvt77wqqwsm3w",
+        "amount": 100000000
+      },
+      {
+        "hash": "8DDOx/pre3+FuQ6ZGvDub6u5YBzY2RRvqPmhx1Cu+ik=",
+        "blockHeight": 171102,
+        "blockTime": "2026-09-03T13:37:23.8719234Z",
+        "to": "g1hf7q0d3hp68rc84avp9xea0dlpwut5fq0pp6yt",
+        "amount": 100000000
+      },
+      {
+        "hash": "NZueGQci+at93lvt5MtB/LyCn256Znm7kxLFEnPWuXs=",
+        "blockHeight": 171132,
+        "blockTime": "2026-09-03T13:39:11.685228073Z",
+        "to": "g1qp46cg4mlq0sz8xaqhv84ymm97fcfzz4t2x4qg",
+        "amount": 100000000
+      },
+      {
+        "hash": "6IDbKnjgW01aYw96+r1DR6eMtqh81ZFnxRfRXWSGU/w=",
+        "blockHeight": 171184,
+        "blockTime": "2026-09-03T13:42:13.271867973Z",
+        "to": "g1dkg824n5zmn3e0rhjz9tr2cutlp8jj4r3gz7fp",
+        "amount": 100000000
+      },
+      {
+        "hash": "0vtMnSKqg2vmBAm1Css6RW2CBhU63E5RV/Nszcr/FGU=",
+        "blockHeight": 171207,
+        "blockTime": "2026-09-03T13:43:36.520537047Z",
+        "to": "g1yf2x7dxfuzluwfh8jdqar5l5kqa08sweqjguv9",
+        "amount": 100000000
+      },
+      {
+        "hash": "SD7FusRfeaFMAtJIyscCkGXOYuuKVSWe9FO32hWFXLY=",
+        "blockHeight": 171275,
+        "blockTime": "2026-09-03T13:47:36.119578244Z",
+        "to": "g14shm2mz9fsgexhrycv5fnnfud7ztkqfx8gpwhr",
+        "amount": 300000000
+      },
+      {
+        "hash": "5wn9w1XUws/CppnN6xUuI7bEf8UkACxciDexiWaPihk=",
+        "blockHeight": 171276,
+        "blockTime": "2026-09-03T13:47:39.443525275Z",
+        "to": "g1xllp5k2ylg324xz02y84e7fmxuucrzameu6j6g",
+        "amount": 100000000
+      },
+      {
+        "hash": "z/aL8A+y0QyXDQecrGRWQPZd4+VrStcZIB/R40GMQb8=",
+        "blockHeight": 171317,
+        "blockTime": "2026-09-03T13:50:03.198234827Z",
+        "to": "g1wjtr7qen5s5pj7a62skut9k4dpakkecrfe9jfl",
+        "amount": 100000000
+      },
+      {
+        "hash": "819h9Z7wePjJmgsPjQnJYfiRLsbJDbPL1obnJ5MZY4s=",
+        "blockHeight": 171324,
+        "blockTime": "2026-09-03T13:50:28.172507891Z",
+        "to": "g1ava4y9ksxv7wqpez4sgwe25ldwwwn8zpj9k7et",
+        "amount": 300000000
+      },
+      {
+        "hash": "+ZMx0Ge03OeXJE1l0e8I6QehpDs05ZEB4jGoVNn+lqM=",
+        "blockHeight": 171332,
+        "blockTime": "2026-09-03T13:50:56.251247685Z",
+        "to": "g15lw5r3utydlc23t5e2evsnhnpl5xswc9erzrep",
+        "amount": 100000000
+      },
+      {
+        "hash": "J/1+ba/46a6TGVkWiiykat+HCSOPGhNNAgjBnRMJ0Rs=",
+        "blockHeight": 171347,
+        "blockTime": "2026-09-03T13:51:50.591738093Z",
+        "to": "g1xlst6dq8pukvyucv2gk5y9266qt24an9hmkc8z",
+        "amount": 100000000
+      },
+      {
+        "hash": "jPmuKthIx4lIWyTZpoCdMZylrEvJFp2DkvD+thSnBkQ=",
+        "blockHeight": 171362,
+        "blockTime": "2026-09-03T13:52:42.72690975Z",
+        "to": "g1pm6wa4aq7n64s8h2mmhxkvjh7qknsw5tc5ew7p",
+        "amount": 100000000
+      },
+      {
+        "hash": "oi2pyjyc+8f1RPMP6X15YaaTDYuaCh7coic01GvX1zY=",
+        "blockHeight": 171392,
+        "blockTime": "2026-09-03T13:54:30.142445546Z",
+        "to": "g1unskxgchka83qdwmrt03szf2fpwxt7k8wvuvak",
+        "amount": 100000000
+      },
+      {
+        "hash": "nnos1y3SbNWTmhliXvnh7/ytFcbQCBkb25uuwI/SoOw=",
+        "blockHeight": 171415,
+        "blockTime": "2026-09-03T13:55:50.142113565Z",
+        "to": "g12rxvulane8j6tyrhfwwrmcejkvc9guar7vv7cz",
+        "amount": 100000000
+      },
+      {
+        "hash": "Xke4ZX8TrFFLZ62kumzMhTD3mmvMO3KR8BBr/jH6M4U=",
+        "blockHeight": 171448,
+        "blockTime": "2026-09-03T13:57:46.182714611Z",
+        "to": "g1j5nsxusj2r7cz0xuwqxwm0h4ejqlera4pkg7fk",
+        "amount": 300000000
+      },
+      {
+        "hash": "nZs6HmPd5eojM3kv4/TSJZixJ4fINkG3mN72UyQAZL4=",
+        "blockHeight": 171469,
+        "blockTime": "2026-09-03T13:58:59.715680838Z",
+        "to": "g1dd9fl725d86c28xrvakf46n4ghfyc9ehmg0wmj",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 171025
+    "lastHeight": 171469
   }
 }
