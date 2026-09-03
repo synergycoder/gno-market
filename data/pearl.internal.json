@@ -943,7 +943,20 @@
     "gno.land/r/g1nyjym92xfwln6m5xvpyw89k9ut02m07c4ggqzz/escrow": [],
     "gno.land/r/g1nyjym92xfwln6m5xvpyw89k9ut02m07c4ggqzz/crazy_timecapsule": [],
     "gno.land/r/g1fy50d2urffjyz8hncjtd5q6nx6sn785p3cuuqg/multisig": [],
-    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/dao": []
+    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/dao": [],
+    "gno.land/r/g1n9dwyewlgj4a297u6sxan7eveqmqyhy49ur5pm/dex": [],
+    "gno.land/r/g1mjc0v90uw5kzael8f80k8yje3tjgmn0ey0fzzv/token_factory": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ],
+    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/pearl_token": [
+      "gno.land/p/demo/tokens/grc20",
+      "gno.land/p/nt/ownable/v0",
+      "gno.land/p/nt/ufmt/v0",
+      "gno.land/r/demo/defi/grc20reg"
+    ]
   },
   "txPackages": {
     "gno.land/p/g1hx4z2kwrnzd9up3g0gd4hspc6v78e4r90jkke3/tokens/grc721": {
@@ -4058,6 +4071,39 @@
       "social": false,
       "detectionVersion": 2,
       "blockTime": "2026-09-03T13:59:33.113997435Z"
+    },
+    "gno.land/r/g1n9dwyewlgj4a297u6sxan7eveqmqyhy49ur5pm/dex": {
+      "path": "gno.land/r/g1n9dwyewlgj4a297u6sxan7eveqmqyhy49ur5pm/dex",
+      "blockHeight": 171510,
+      "hash": "fXRnihZ1nTaCE1wM6onDkIVmM6x1ZAFM+JX5+pyctog=",
+      "creator": "g1n9dwyewlgj4a297u6sxan7eveqmqyhy49ur5pm",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-03T14:01:24.387163826Z"
+    },
+    "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/pearl_token": {
+      "path": "gno.land/r/g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq/pearl_token",
+      "blockHeight": 171957,
+      "hash": "+aRYfyY//XV4veFBPzDN3oAr783gk5EFQw6TuyUz6gw=",
+      "creator": "g1klfr7ktj3qxk6pwf8tpmj3dagsyq3p4caxsuxq",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-03T14:27:53.608887939Z"
+    },
+    "gno.land/r/g1mjc0v90uw5kzael8f80k8yje3tjgmn0ey0fzzv/token_factory": {
+      "path": "gno.land/r/g1mjc0v90uw5kzael8f80k8yje3tjgmn0ey0fzzv/token_factory",
+      "blockHeight": 171961,
+      "hash": "51RM4QplRVjaPJ14AwmJjg16sesO7uKD+6Ciqr4j1cY=",
+      "creator": "g1mjc0v90uw5kzael8f80k8yje3tjgmn0ey0fzzv",
+      "standard": null,
+      "governance": false,
+      "social": false,
+      "detectionVersion": 2,
+      "blockTime": "2026-09-03T14:28:07.25166927Z"
     }
   },
   "swapActivity": {
@@ -28306,8 +28352,99 @@
         "blockTime": "2026-09-03T13:58:59.715680838Z",
         "to": "g1dd9fl725d86c28xrvakf46n4ghfyc9ehmg0wmj",
         "amount": 300000000
+      },
+      {
+        "hash": "00XjDJVJY4/RdzXrTNa2g6858PWXJHs+ogh5+X+CDyc=",
+        "blockHeight": 171525,
+        "blockTime": "2026-09-03T14:02:20.415062342Z",
+        "to": "g1nl92gsjf5wkcjjj5tf46e9nvvyx57v6wgzskss",
+        "amount": 300000000
+      },
+      {
+        "hash": "XyoE5Ow2Evu0JRrG61XS7249yPQ1hK7D0x3NCih6pMk=",
+        "blockHeight": 171589,
+        "blockTime": "2026-09-03T14:06:11.002062689Z",
+        "to": "g1qdn48jtt9ej70388qt54tgpx4zk49dpw54yh8h",
+        "amount": 300000000
+      },
+      {
+        "hash": "l3l+7XfPxErDbrEn7NsTVvQU37V6QmYDKixeX7usjjA=",
+        "blockHeight": 171638,
+        "blockTime": "2026-09-03T14:09:03.117098756Z",
+        "to": "g1npe2pyfttkv2durlg4wa39hw64hsm3hm3ahazz",
+        "amount": 300000000
+      },
+      {
+        "hash": "yHsrhFUFf5xDjPtQnrfcLEBGoFZDbcv3XvIMC1O7B34=",
+        "blockHeight": 171684,
+        "blockTime": "2026-09-03T14:11:47.530807186Z",
+        "to": "g14qf6t3dv25prtkvd4wr6qukh5ye326vxp27gqa",
+        "amount": 300000000
+      },
+      {
+        "hash": "5pFfBnCu4wafRX94sbDID5+VYzcltSKjt0d5SxR9oYw=",
+        "blockHeight": 171717,
+        "blockTime": "2026-09-03T14:13:42.979623498Z",
+        "to": "g1evhphmpnj9p3sr97gpzuq2qxhrxpwf4yf7r2vw",
+        "amount": 300000000
+      },
+      {
+        "hash": "iyBVZzfys57Qw/+I2V0+VYC0KjYzS2jpXiAcbTNAVQc=",
+        "blockHeight": 171726,
+        "blockTime": "2026-09-03T14:14:14.461657611Z",
+        "to": "g1r4fqxl7j5n7dm4xyqhtctv22ernku4hf05tkpq",
+        "amount": 300000000
+      },
+      {
+        "hash": "eBjJUIY0ebV/mt7498UETffPG6JYdv8Pl0BR0n2RRaU=",
+        "blockHeight": 171805,
+        "blockTime": "2026-09-03T14:18:58.380401477Z",
+        "to": "g14jd8dhz8y964y2ku3xrncwt7yrlqjlzvw2nv87",
+        "amount": 300000000
+      },
+      {
+        "hash": "5dg2cH8ZGBXMCKZJn8oDYmZPrhnnIVVEgnY39iwc3sU=",
+        "blockHeight": 171892,
+        "blockTime": "2026-09-03T14:24:03.860932225Z",
+        "to": "g1jws5cn8t0qxkj7zrydhsv3e8vw7k73jvrhdut6",
+        "amount": 300000000
+      },
+      {
+        "hash": "05LWal1phdOERfoMqjrOUSVE8ILjWOpTqog9152HvZM=",
+        "blockHeight": 171900,
+        "blockTime": "2026-09-03T14:24:31.97942773Z",
+        "to": "g1vvhjfmjl3jps7spnm6r2yqeesh2rhsq6zkg5r8",
+        "amount": 300000000
+      },
+      {
+        "hash": "yiT26gYyCWlWhP8VFj4Wl0zUOvENV4SMdOGwbFIpsgQ=",
+        "blockHeight": 171940,
+        "blockTime": "2026-09-03T14:26:54.127507772Z",
+        "to": "g1tpgr4azgdr3djxqvywljf7xyjwd09095l3hhqg",
+        "amount": 300000000
+      },
+      {
+        "hash": "NaJ9UH3uUGd1aCO0HTCA2On5n0cuMx+gCAaq0mWQSOA=",
+        "blockHeight": 171951,
+        "blockTime": "2026-09-03T14:27:32.565137915Z",
+        "to": "g10ngjqw5rk0xue86dyjg2z8rvjn6ee7pkhv7uck",
+        "amount": 300000000
+      },
+      {
+        "hash": "/u1iY251jpVdz96RUnEm5YK+nk/6VZzh3nX5v6JQJ0Q=",
+        "blockHeight": 171979,
+        "blockTime": "2026-09-03T14:29:11.449342405Z",
+        "to": "g1jscyeenflw8t4d59m00x0awmlk6xpf3vk8vvg9",
+        "amount": 300000000
+      },
+      {
+        "hash": "xRszjyVUGvNWChrP9XDPvb0DLjf6qjW4bZEQfSxCgvQ=",
+        "blockHeight": 172044,
+        "blockTime": "2026-09-03T14:32:59.978158551Z",
+        "to": "g1dkj2984n7ht2unxj09kfne4enx4gdry0degeta",
+        "amount": 300000000
       }
     ],
-    "lastHeight": 171469
+    "lastHeight": 172044
   }
 }
